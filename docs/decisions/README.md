@@ -43,3 +43,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0012 | [Logotype and loading indicators](0012-logotype-and-loaders.md) | accepted |
 | 0013 | [Atoms and layout rules](0013-atoms-and-layout-rules.md) | accepted |
 | 0014 | [Test-driven development; tests locked once written](0014-test-driven-development.md) | accepted |
+| 0015 | [Molecules, and layout rule 4 (text fits, equal side padding)](0015-molecules.md) | accepted |

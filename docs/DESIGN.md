@@ -2,7 +2,7 @@
 
 One design language for the landing page and the editor (CLAUDE.md, ADR 0007). Built atomically: **tokens → atoms → molecules → organisms → templates**. No one-off styles per surface; if a screen needs something new, it is added here first.
 
-Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A. Brand files: `docs/brand/`.
+Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A. Brand files: `docs/brand/`.
 
 ## 1. Tokens
 
@@ -67,7 +67,7 @@ Every control that can sit in a row with others uses one of three shared heights
 ### Focus
 2px outline in `primary`, 2px offset; inputs use a `primary` border plus a 3px halo at 25%.
 
-### Layout rules (ADR 0013)
+### Layout rules (ADR 0013, rule 4 ADR 0015)
 These apply to every atom, molecule, organism and screen.
 
 0. **No new elements without approval.** Screens use only what is in this design system. A new element, a new variant, or an inline one-off style is never added directly: propose it to the user, and once confirmed, add it here (and on the design-system page) first, then use it.
@@ -78,6 +78,7 @@ These apply to every atom, molecule, organism and screen.
 
 | Gap between children | Edge padding |
 |---|---|
+| 0 (touching, e.g. menu items) | `s-1` 4 |
 | `s-1` 4 | `s-2` 8 |
 | `s-2` 8 | `s-3` 12 |
 | `s-3` 12 | `s-4` 16 |
@@ -86,6 +87,8 @@ These apply to every atom, molecule, organism and screen.
 | `s-6` 32 | `s-7` 48 |
 
 Exception: controls with a fixed height (buttons, inputs, toasts, toolbars) centre their content vertically, so only their horizontal padding follows rule 3.
+
+4. **Text always fits its box, and left and right padding are equal.** Text never runs past a container's padding or gets cut off mid-letter. Where a row is too narrow, shorten the copy or stack the parts; a single-line title may end in “…” only where truncation is the designed behaviour (document titles). Left and right edge padding are always the same step (user, 2026-10-19).
 
 ## 1b. Logo and loaders (ADR 0012)
 **Logotype:** "Richer" Geist 700 + "Text" Geist 400, no space, stretch 1.08×, tracking −0.045em, **italic (10° slant)**, colour `fg`. Static, no animation. Assets: `docs/brand/` (outlined SVG, PNG, favicon.ico).
@@ -109,8 +112,27 @@ Reduced motion: static "Aa", gently fading dots, static lines. Canvas: https://c
 
 Atoms: text styles, button (primary, secondary, ghost, danger; sm/md/lg; all states incl. loading), icon button, toolbar toggle, link (inline, nav), input (sm/md/lg) with label, help and error, checkbox, badge, shortcut key, tooltip, toast, spinner, divider, Lucide icons, logotype, icon, loaders.
 
+**Changes after approval:** input with an icon inside (leading search icon; trailing show/hide button, a ghost `h-sm` icon button inset 2px) added in ADR 0015; toast padding is `s-4` on both sides, the action is a text button with no own padding (rule 4).
+
 ## 3. Molecules
-**Next step.** Planned: form field (label + input + help/error), nav item, document row, menu item, toolbar group, saved indicator, price line.
+**Final** (2026-10-19, ADR 0015): https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE. Built only from atoms; every one checked against the layout rules.
+
+| Molecule | Built from | Spec |
+|---|---|---|
+| Form field | label, input, help/error, link, icon button | gap `s-2` 8 between all parts; label above; error replaces help in place; optional link on the label line (e.g. "Forgot password?"); password has a show/hide button inside |
+| Filter field | input sm with leading search icon | for the document list header |
+| Action group | buttons | one size per group, gap `s-3`, at most one primary; forms/dialogs: main action on the right; landing: main action first; wraps on phone |
+| Nav group | nav links, button | every item in an `h-md` box, gap `s-5`; current page full strength |
+| List row (base) | — | `h-lg` 44 row, every child in an `h-sm` 32 box, gap `s-3`, edges `s-4`; rows split by 1px borders inside an `r-lg` bordered list |
+| Document row | icon, title, meta, icon button sm | title sm 500, one line, "…"; meta "Edited 2 min ago" sm muted, tabular (drops "Edited" under 420px); whole row opens the doc; menu button on hover/focus, always on touch; rename in place (title → input sm, same height; Enter saves, Esc cancels); states: hover, focus, renaming, menu open |
+| Settings row | key, value, button sm | key sm muted in a fixed column; value one line with "…"; status badge as an `h-sm` chip; under 440px the key moves onto its own line (gap `s-3`, edges `s-4`) |
+| Menu | menu items, divider, label | items `h-sm`, sm, icon + label (+ shortcut), gap 0, edge `s-1`; inside an item gap `s-2`, edge `s-3`; Delete is the only danger item; theme as checked items (System / Light / Dark); border + shadow; arrows / Enter / Esc |
+| Editor toolbar groups | toolbar toggles, dividers, tooltips | undo redo · H1 H2 H3 · B I U S · bullets, numbers, quote · link; bar `h-lg`, toggles `h-sm`; headings exclusive; on phone scrolls sideways, never wraps |
+| Link editor | input sm with link icon, button sm, icon button sm | opens under the selection (link button / ⌘K); all items `h-sm`, gap `s-2`, edges `s-3`; floating layer |
+| Saved indicator | icon, spinner, text, link | `h-sm`; states Saved / Saving / Not saved · Retry, stacked in one box so the width never changes; muted, danger for errors; polite live region, announces errors only |
+| Price line + feature item | text styles, icon | amount 3xl 600 + period sm muted on one baseline; feature = check icon + sm text, gap `s-2`; list gap `s-2` |
+| Notice | icon, text, button sm | one `h-lg` line when ≥ 560px, else stacks (text, then button); padding `s-4` both sides; neutral (subtle) or warning tint (billing only); text wraps, never cut |
+| Empty state | text styles, button | text group (lg title + sm muted line, gap `s-1`) and action; gap `s-4`, edges `s-5`; no illustration |
 
 ## 4. Organisms
 Planned: site header, footer, hero, pricing block, auth forms (sign up, sign in, reset, verify email), document list, editor toolbar, editor surface, account / billing panel.
