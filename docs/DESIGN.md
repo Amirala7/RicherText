@@ -2,7 +2,7 @@
 
 One design language for the landing page and the editor (CLAUDE.md, ADR 0007). Built atomically: **tokens → atoms → molecules → organisms → templates**. No one-off styles per surface; if a screen needs something new, it is added here first.
 
-Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A · landing hero https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND. Brand files: `docs/brand/`.
+Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4), 0016 (organisms), 0021 (hero), 0023 (landing page). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A · landing hero https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND · landing page https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY. Brand files: `docs/brand/`.
 
 ## 1. Tokens
 
@@ -165,8 +165,8 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 | Site header | logotype, nav group, button, menu | `h-bar`, border below, sticky; sides `s-6`, gap `s-5`; phone: logotype + small Start writing + menu button (Pricing, Sign in), sides `s-4`, gap `s-3` |
 | Hero (landing) | logotype, typed line, text styles, action group lg, feature items, hero toolbar, keyboard | **Final, variant C** (ADR 0021, https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND). One centred column, one gap between every element: logo (`logo-hero`, static) · typed headline (xl 28, phone lg 21, one line, violet caret) · subhead (base muted, max 52ch) · Subscribe + Start free (lg) · price note (xs muted) · three benefits · hero toolbar · keyboard. Gap `s-6` 32, edges `s-7` 48, keyboard flush with the bottom; phone gap `s-4` 16, edges `s-5` 24, no keyboard, toolbar moves under the logo. Typed line: rests on the headline, then select-all + delete and types the next line (with ⌘B/⌘I/⌘U shown on the keyboard and toolbar); visitor typing takes over and joins the queue (last 3), erased the same way. Glow behind. Reduced motion: headline static, no key animation |
 | Hero toolbar | toolbar toggles, dividers | editor toolbar groups shortened to H1 H2 · B I U S · link, `glass`; a glass lens slides to the last pressed button; clickable for B I U |
-| Keyboard | — | CSS keycaps, Mac layout, 15.7 units wide, max 720, tilted back 24°; keys press (down 0.07u) for demo and visitor keys; `return` in `primary`; hidden on phone; `aria-hidden` |
-| Pricing block | price line, feature items, action group, badge chip | section heading 3xl + lg muted, gap `s-6` to the cards; two cards, same parts in the same order (name row `h-sm`, price, features, action, note), equal height, gap `s-5`; Yearly first with a "Save" chip and the primary button, Monthly secondary; card gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); stack when narrow |
+| Keyboard | — | CSS keycaps, Mac layout, 15.7 units wide, max 720, tilted back 24° (`perspective(1400px)` inside the keyboard's own transform, for Safari); keys press (down 0.07u) for demo and visitor keys; `return` in `primary`; hidden on phone; `aria-hidden` |
+| Pricing block | price line, feature items, action group, badge chip | section heading 3xl + lg muted, gap `s-6` to the cards; three cards Free · Yearly · Monthly (ADR 0020, 0023), same parts in the same order (name row `h-sm`, price, features, action, note), equal height, gap `s-5`; Yearly with a "Save" chip and the only primary button; card gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); stack when narrow |
 | Site footer | nav group | `h-bar`, border above; © left, Terms / Privacy / Refunds right; phone stacks, gap `s-3`, edges `s-4` |
 | Auth forms | form field, checkbox, link, action group | sign up, sign in, reset password; card max 400, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); fields gap `s-4`; footer: way out left (text in an `h-md` box), main button right, button on top when narrow; no verify-email step (ADR 0017) |
 | Document list | app bar, filter field, document row, empty state, loader, dialog, toast | page max 760, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); title · filter + New · rows; loading box holds four rows; delete asks in a dialog, then a toast |
@@ -177,3 +177,19 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 
 ## 5. Templates
 Planned (desktop + phone, light + dark): landing, pricing, auth, document list, editor, account.
+
+**Landing: final** (2026-10-20, ADR 0023, https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY). Order: sticky pill header · hero C · Features · Reviews · Pricing · FAQ · closing call to action · footer (minimal).
+
+| Element | Spec |
+|---|---|
+| Landing section | centred head: title 3xl + lg muted line, gap 24 (phone 16, line base); head to content 32 (phone 24); sides 48 (phone 24); 96 between sections (phone 64); content max 1080 |
+| Feature card | demo stage 196px, `subtle`, `r-md`, keycap readout top-right (shortcut being pressed); then title lg + sm muted line (gap 4); card gap 16, edges 24, `r-lg` border; bento grid 3 columns with wide cards spanning 2, gap 24; 2 across ≤ 900, 1 across ≤ 560 (gap 16); demos run only while on screen, finished state under reduced motion |
+| Feature demos | formatting (meeting notes → H1, bold, list, quote with ⌘⌥1 / ⌘B / ⌘⇧8 / ⌘⇧B), link (select, ⌘K, type address, ↵), autosave (Saving → Saved), paste (source app → RicherText → destination app, logos rotate: Docs, Word, Gmail, Outlook), export (RT doc → PDF, DOCX, RTF, MD, HTML, TXT), fonts × themes (Geist / Plex Serif, light / dark mini page) |
+| Review card | top row `h-sm`: five stars (Google yellow) + Google "G"; quote base; byline: 36px round portrait + name sm 500 / role xs muted (two 18px lines = 36); gap 16, edges 24; 3 across, 1 across ≤ 900 (max 520) |
+| FAQ list | `<details>` rows in an `r-lg` bordered list split by 1px lines; question base 500, min `h-lg`, padding 12/16, plus icon turns 45° to ×; answer sm muted, max 64ch; list max 720 |
+| Closing call to action | section head + Subscribe / Start free (lg) + price note, gap 16 |
+| Pricing (three cards) | Free · Yearly (Save chip, only primary button) · Monthly; equal height, same parts in the same order; 1 column ≤ 900 (max 420), same order |
+| Colour exception | third-party logos (Google Docs, Word, Gmail, Outlook, Google "G") keep their colours; stars Google yellow; file-type labels PDF red, DOCX blue, HTML orange, others neutral. Landing only; official brand assets in the real page |
+| Keyboard tilt | `perspective(1400px) rotateX(24deg)` on the keyboard itself (Safari ignored the parent's `perspective`) |
+
+Reviews and portraits are placeholders until launch (CONTEXT §6).
