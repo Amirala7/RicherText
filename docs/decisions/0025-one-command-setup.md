@@ -21,4 +21,5 @@ The user wants to be able to hand the repo to someone and have them run it on th
 ## Consequences
 - Handing over the repo = clone, run the script, add Stripe sandbox keys (only needed for payments).
 - The script has to stay in sync with the stack; any new tool goes into it in the same change.
-- **OPEN:** platforms: macOS first (Homebrew); Linux and Windows (likely via WSL) to settle in slice 2.
+- As built (slice 2): `bash scripts/setup.sh` (`--check` only reports). Plain `pnpm setup` is pnpm's own command, so the README points at the bash command. Java 21 is installed alongside any older default and found by `scripts/firebase.sh`, which every Firebase command goes through, so the system default `java` is never changed.
+- Platforms: macOS installs everything with Homebrew; on Linux the script installs the project parts and prints the command for missing system tools (Node, Java, Stripe CLI). **OPEN:** Windows (likely via WSL), untested.
