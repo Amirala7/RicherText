@@ -16,3 +16,33 @@ CLAUDE.md
 # Local-only tooling and session ledger
 .claude/
 docs/LEDGER.md
+
+# Dependencies and build output
+/node_modules
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+*.pem
+
+# Tests
+/coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Firebase emulators
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+*-debug.log
+.firebase/
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+
+# Service-account keys (ADR 0009)
+*-sa.json
+service-account*.json

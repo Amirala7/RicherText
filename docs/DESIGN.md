@@ -79,6 +79,8 @@ Every control that can sit in a row with others uses one of three shared heights
 | `h-md` | 36 | default: buttons, inputs, icon buttons, **all toasts** |
 | `h-lg` | 44 | landing CTAs and sign-up input, editor toolbar container, touch targets |
 
+In code (Tailwind): `h-control-sm` / `h-control-md` / `h-control-lg`. All tokens live in `src/app/globals.css`, pinned to this file by `src/app/tokens.test.ts`.
+
 ### Motion (Subtle)
 `dur-1` 120ms (hover, menus, popovers) · `dur-2` 200ms (toasts, dialogs) · easing `cubic-bezier(0.2, 0, 0, 1)`. Under `prefers-reduced-motion` all durations are 0.
 
