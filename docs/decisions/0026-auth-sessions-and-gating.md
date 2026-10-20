@@ -41,6 +41,6 @@ ADR 0005 picked Firebase Auth (email + password) with Admin SDK session cookies;
 - **Sign out everywhere** (revoke refresh tokens): deferred to CONTEXT §12.
 
 ## Consequences
-- Slices: (1) session plumbing, gating, sign up, sign out; (2) sign in with `next`; (3) password reset.
+- Slices as planned: (1) session plumbing, gating, sign up, sign out; (2) sign in with `next`; (3) password reset. As built: sign in joined slice 1, so password reset was slice 2. Phase 2 complete 2026-10-21.
 - New dependencies: `firebase`, `firebase-admin`.
 - Phase 3 adds the entitlement check on top of `getCurrentUser()`.
