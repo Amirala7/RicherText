@@ -54,3 +54,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0023 | [Landing page template](0023-landing-page-template.md) | accepted |
 | 0024 | [App screen templates](0024-app-screen-templates.md) | accepted |
 | 0025 | [One-command local setup, no Dev Container](0025-one-command-setup.md) | accepted |
+| 0026 | [Auth: sessions, gating and flows](0026-auth-sessions-and-gating.md) | accepted |
