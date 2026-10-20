@@ -1,4 +1,5 @@
-const incorrect = "Email or password is incorrect.";
+const incorrect =
+  "That email and password don't match. Try again or reset your password.";
 
 const messages: Record<string, string> = {
   "auth/invalid-credential": incorrect,

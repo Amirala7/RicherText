@@ -29,7 +29,9 @@ describe("SignUpForm", () => {
     fill("Password", "short");
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
     expect(
-      await screen.findByText("Enter a valid email address."),
+      await screen.findByText(
+        "Enter a full email address, like maya@studio.co.",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText("Use at least 8 characters.")).toBeInTheDocument();
     expect(
@@ -107,7 +109,7 @@ describe("SignInForm", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
     await waitFor(() =>
       expect(screen.getByLabelText("Password")).toHaveAccessibleDescription(
-        "Email or password is incorrect.",
+        "That email and password don't match. Try again or reset your password.",
       ),
     );
   });

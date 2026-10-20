@@ -14,7 +14,7 @@ describe("authErrorMessage", () => {
     "auth/invalid-email",
   ])("gives one generic message for %s", (code) => {
     expect(authErrorMessage(firebaseError(code))).toBe(
-      "Email or password is incorrect.",
+      "That email and password don't match. Try again or reset your password.",
     );
   });
 

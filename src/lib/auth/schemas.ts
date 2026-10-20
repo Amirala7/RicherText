@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-const email = z.string().trim().pipe(z.email("Enter a valid email address."));
+const email = z
+  .string()
+  .trim()
+  .pipe(z.email("Enter a full email address, like maya@studio.co."));
 
 // Password minimum 8 on sign up (ADR 0026); sign in only needs something typed.
 export const signUpSchema = z.object({
