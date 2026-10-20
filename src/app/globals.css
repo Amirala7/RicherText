@@ -23,6 +23,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
@@ -68,6 +69,9 @@
   --spacing-control-md: 36px;
   --spacing-control-lg: 44px;
 
+  /* Page bar height: h-bar (ADR 0016) */
+  --spacing-bar: 64px;
+
   /* Motion (Subtle) */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
@@ -91,6 +95,7 @@
   --accent-foreground: oklch(0.2 0.025 292);
   --destructive: oklch(0.52 0.19 25);
   --border: oklch(0.912 0.014 292);
+  --border-strong: oklch(0.84 0.02 292);
   --input: oklch(0.912 0.014 292);
   /* prettier-ignore */
   --ring: #6440D8;
@@ -118,6 +123,7 @@
   --accent-foreground: oklch(0.965 0.006 292);
   --destructive: oklch(0.74 0.14 25);
   --border: oklch(0.29 0.02 292);
+  --border-strong: oklch(0.38 0.025 292);
   --input: oklch(0.29 0.02 292);
   /* prettier-ignore */
   --ring: #B3A1FF;

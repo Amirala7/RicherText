@@ -18,6 +18,14 @@ ADR 0005 picked Firebase Auth (email + password) with Admin SDK session cookies;
 - No `users/{uid}` document in Phase 2; no subscription means Free (Phase 3/4 adds data).
 - Emulators: client `connectAuthEmulator`, Admin SDK via `FIREBASE_AUTH_EMULATOR_HOST`.
 
+- **Logs never carry tokens or personal data** (user, 2026-10-21): no `console` in `src/` (ESLint `no-console`); tests check the server output (`tests/emulators/no-secrets-in-server-logs.test.ts`, a real `next dev` through every session path) and the browser console (`e2e/no-secrets-in-console.spec.ts`) for the email, password, uid, ID token, session cookie and anything shaped like a JWT. The Auth emulator's own debug logs are local only and gitignored.
+
+## Built (slice 1, 2026-10-21)
+- Sign in was folded into slice 1 (gating redirects to it, so it had to exist); slice 2 is now only password reset.
+- Next 16 Cache Components: the `(app)` layout sets `instant = false` (blocks on the server until the check passes) and `getCurrentUser()` calls `connection()` first (verifying reads the clock). Sign-in stays static; it reads `next` in the browser at submit time.
+- A cookie that fails the check goes through `GET /api/session/expired`, which clears it (only if it really is invalid) and sends the visitor to sign in, so the proxy can't bounce between sign-in and the app. The proxy passes the asked-for path to gated layouts in `x-rt-path`.
+- The account menu has Documents, Theme and Sign out; Account joins when the account page exists.
+
 ## Options considered
 - **Client-only auth** (no cookie): the editor is server-rendered and must know the user, so no.
 - **In-memory client persistence**: cleaner single source of truth, but the client would lose its Firebase user on reload and Firestore rules would fail.

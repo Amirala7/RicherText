@@ -7,10 +7,16 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   prettier,
+  // App code never logs: logs must not carry tokens or personal data.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: { "no-console": "error" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    ".next-logtest/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
