@@ -1,12 +1,27 @@
 import { getApp, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { authEmulatorHost, projectId, usesEmulators } from "./config";
+import { getFirestore } from "firebase-admin/firestore";
+import {
+  authEmulatorHost,
+  firestoreEmulatorHost,
+  projectId,
+  usesEmulators,
+} from "./config";
 
-// Admin SDK for server code only. On a demo- project it talks to the Auth
-// emulator even when started outside `firebase emulators:exec`.
-export function getAdminAuth() {
-  if (usesEmulators)
+// Admin SDK for server code only. On a demo- project it talks to the
+// emulators even when started outside `firebase emulators:exec`.
+function adminApp() {
+  if (usesEmulators) {
     process.env.FIREBASE_AUTH_EMULATOR_HOST ??= authEmulatorHost;
-  const app = getApps().length ? getApp() : initializeApp({ projectId });
-  return getAuth(app);
+    process.env.FIRESTORE_EMULATOR_HOST ??= firestoreEmulatorHost;
+  }
+  return getApps().length ? getApp() : initializeApp({ projectId });
+}
+
+export function getAdminAuth() {
+  return getAuth(adminApp());
+}
+
+export function getAdminDb() {
+  return getFirestore(adminApp());
 }
