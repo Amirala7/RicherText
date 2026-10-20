@@ -17,6 +17,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           <NavLink href="/documents" className="max-sm:hidden">
             Documents
           </NavLink>
+          <NavLink href="/account" className="max-sm:hidden">
+            Account
+          </NavLink>
           <AccountMenu email={user.email} />
         </nav>
       </PageBar>

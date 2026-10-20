@@ -15,7 +15,7 @@ const separator = "-mx-1 my-1 h-px bg-border";
 const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
 
 // Account menu (ADR 0024); drops s-1 under the bar (button centred in h-bar:
-// 14px + 4px). Account joins it with the account page.
+// 14px + 4px).
 export function AccountMenu({ email }: { email: string | null }) {
   const router = useRouter();
   const { theme = "system", setTheme } = useTheme();
@@ -50,6 +50,13 @@ export function AccountMenu({ email }: { email: string | null }) {
           >
             <FileText {...icon} />
             <span className="min-w-0 flex-1 truncate">Documents</span>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            className={item}
+            onSelect={() => router.push("/account")}
+          >
+            <User {...icon} />
+            <span className="min-w-0 flex-1 truncate">Account</span>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className={separator} />
           <DropdownMenu.Label className={label}>Theme</DropdownMenu.Label>
