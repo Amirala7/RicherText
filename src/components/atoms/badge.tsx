@@ -11,6 +11,9 @@ const badgeVariants = cva(
         neutral: "bg-secondary text-muted-foreground",
         primary:
           "bg-[color-mix(in_oklab,var(--primary)_14%,transparent)] text-primary",
+        // Billing only (DESIGN.md §1).
+        warning:
+          "bg-[color-mix(in_oklab,var(--warning)_16%,transparent)] text-warning",
       },
       size: { default: "h-[22px]", chip: "h-control-sm px-3" },
       dot: {

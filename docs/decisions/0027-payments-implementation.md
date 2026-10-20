@@ -22,7 +22,7 @@ ADR 0003 picked Stripe (sandbox) with Checkout, Customer Portal and our own webh
 ## Slices
 1. Setup script, data model + rules, webhook.
 2. Checkout + activation page.
-3. Customer Portal + account page states.
+3. Customer Portal + account page states (built 2026-10-21).
 4. End-to-end in the real sandbox via the Stripe CLI (needs the user's test keys in `.env.local`).
 
 ## Consequences
@@ -35,6 +35,14 @@ ADR 0003 picked Stripe (sandbox) with Checkout, Customer Portal and our own webh
 - Webhook: `functions/src/billing/webhook.ts` (logic, testable with a fake Stripe) and `stripeWebhook` in `functions/src/index.ts`. Secrets via `defineSecret` (Secret Manager in production; `functions/.secret.local` for the emulator, gitignored; needed only from slice 4). The Stripe client is made only after the signature checks out.
 - Each subscription record also stores `customerId`, `priceId` and `lookupKey`.
 - The Stripe customer must carry `metadata.uid`; slice 2 sets it when it creates the customer. Subscriptions whose customer has no `uid` are ignored (200, logged by event ID only).
+
+## Built (slice 3, 2026-10-21)
+- **Account page `/account`** (Documents · Account in the app bar; Account in the account menu): Profile shows the email only (no Change yet; user, 2026-10-21); Subscription has one row: Free (chip, "One document at a time", Upgrade → `/plans`) · Active ("Yearly, renews 19 Nov 2027", Manage) · Ends on date (warning chip "Ends 19 Nov", Resubscribe) · Payment due (warning chip, Update card, warning notice on top). Dates in UTC, year shown only when it isn't this year. Writing joins in Phase 4.
+- Every paid action (Manage, Resubscribe, Update card) opens the Portal: renewing a cancelled plan happens there too, so a paid user never goes through Checkout twice.
+- The page is rendered with the plan as it is, then follows `customers/{uid}` and its subscriptions live, so a change made in the Portal shows as soon as the webhook writes it.
+- `POST /api/billing/portal` → `{ url }`: same-origin and signed-in only; finds the Portal configuration by `metadata.app = richertext`, `return_url` `/account`; a user with no Stripe customer gets `/plans` (Stripe isn't reached). Stripe errors answer 502, log nothing, and the page shows "Couldn't open the billing portal. Try again."
+- `warning` colour token (from the approved atoms page) for the chips and the notice. Settings row and notice built; their action is optional.
+- A paid user going to `/plans` still lands on Documents (locked test from slice 2).
 
 ## Built (slice 2, 2026-10-21)
 - **In-app pricing lives at `/plans`** (what See plans / Upgrade lead to), not `/pricing`: a locked gate test keeps `/pricing` public for the landing page (Phase 5). A paid user going to `/plans` lands on Documents (the account page takes over in slice 3).

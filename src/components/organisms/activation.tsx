@@ -91,7 +91,7 @@ export function Activation({
         {state === "slow" && (
           <NextLink
             href="/documents"
-            className={buttonVariants({ variant: "secondary" })}
+            className={cn(buttonVariants({ variant: "secondary" }))}
           >
             Go to documents
           </NextLink>

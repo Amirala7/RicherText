@@ -20,6 +20,7 @@ Neutrals have a faint violet tint (hue 292). Surfaces are **flat**: one backgrou
 | `primary` (brand accent) | `primary`, `ring` | `#6440D8` | `#B3A1FF` |
 | `on-primary` | `primary-foreground` | `#FFFFFF` | `#100B1F` |
 | `danger` | `destructive` | `oklch(0.52 0.19 25)` | `oklch(0.74 0.14 25)` |
+| `warning` | `warning` (billing chips and notice only) | `oklch(0.53 0.12 65)` | `oklch(0.82 0.12 80)` |
 
 - Note the naming clash: shadcn's `accent` is a hover surface, not our brand colour. The brand violet is always `primary`.
 - Violet is only for primary buttons, links, caret, selection (22% mix), focus rings (25% mix halo) and active toolbar buttons (16% mix). Everything else is neutral.
@@ -148,13 +149,13 @@ Atoms: text styles, button (primary, secondary, ghost, danger; sm/md/lg; all sta
 | Nav group | nav links, button | every item in an `h-md` box, gap `s-5`; current page full strength |
 | List row (base) | — | `h-lg` 44 row, every child in an `h-sm` 32 box, gap `s-3`, edges `s-4`; rows split by 1px borders inside an `r-lg` bordered list |
 | Document row | icon, title, meta, icon button sm | title sm 500, one line, "…"; meta "Edited 2 min ago" sm muted, tabular (drops "Edited" under 420px); whole row opens the doc; menu button on hover/focus, always on touch; rename in place (title → input sm, same height; Enter saves, Esc cancels); states: hover, focus, renaming, menu open |
-| Settings row | key, value, button sm | key sm muted in a fixed column; value one line with "…"; status badge as an `h-sm` chip; under 440px the key moves onto its own line (gap `s-3`, edges `s-4`) |
+| Settings row | key, value, button sm | key sm muted in a fixed column; value one line with "…"; status badge as an `h-sm` chip; under 440px the key moves onto its own line (gap `s-3`, edges `s-4`); the button is optional, a row can show a value only (user, 2026-10-21) |
 | Menu | menu items, divider, label | items `h-sm`, sm, icon + label (+ shortcut), gap 0, edge `s-1`; inside an item gap `s-2`, edge `s-3`; Delete is the only danger item; theme as checked items (System / Light / Dark); border + shadow; arrows / Enter / Esc |
 | Editor toolbar groups | toolbar toggles, dividers, tooltips | undo redo · H1 H2 H3 · B I U S · bullets, numbers, quote · link; bar `h-lg`, toggles `h-sm`; headings exclusive; on phone scrolls sideways, never wraps |
 | Link editor | input sm with link icon, button sm, icon button sm | opens under the selection (link button / ⌘K); all items `h-sm`, gap `s-2`, edges `s-3`; floating layer |
 | Saved indicator | icon, spinner, text, link | `h-sm`; states Saved / Saving / Not saved · Retry, stacked in one box so the width never changes; muted, danger for errors; polite live region, announces errors only |
 | Price line + feature item | text styles, icon | amount 3xl 600 + period sm muted on one baseline; feature = check icon + sm text, gap `s-2`; list gap `s-2` |
-| Notice | icon, text, button sm | one `h-lg` line when ≥ 560px, else stacks (text, then button); padding `s-4` both sides; neutral (subtle) or warning tint (billing only); text wraps, never cut |
+| Notice | icon, text, button sm | one `h-lg` line when ≥ 560px, else stacks (text, then button); padding `s-4` both sides; neutral (subtle) or warning tint (billing only); text wraps, never cut; the button is optional (payment-due notice has none: the row below has Update card) |
 | Empty state | text styles, button | text group (lg title + sm muted line, gap `s-1`) and action; gap `s-4`, edges `s-5`; no illustration |
 
 ## 4. Organisms
@@ -213,5 +214,5 @@ Reviews and portraits are placeholders until launch (CONTEXT §6).
 | New account | documents page with the empty state ("No documents yet" · New document) |
 | Back from Checkout | logotype bar, centred: mark box 120px (Aa loader 64px) + text group (lg title, sm muted line), gap `s-5`. Waiting: "Activating your plan" / "Waiting for Stripe to confirm…". Success: loader fades + scales to .7 (`dur-2`), check circle (72px, `primary` 14% fill, `primary` tick, stroke 3) scales in with a slight overshoot (400ms) and the tick draws; text crossfades to "You're on Yearly" / "Taking you to your documents…"; both states stacked so nothing moves; 1.6s later fades to Documents. After 20s: "Still waiting on Stripe" / "Your plan switches on by itself as soon as Stripe confirms." + Go to documents (secondary); the button's space is kept from the start so nothing moves. Reduced motion: states swap · built at `/welcome` (ADR 0027) |
 | Pricing (in app) | the landing pricing section exactly (§5 landing); Free card's button "Current plan", disabled, for Free users. Reached from See plans, Upgrade, Resubscribe · built at `/plans` (ADR 0027) |
-| Account | subscription row states: Free (neutral chip, Upgrade) · Active (Manage) · Ends on date (warning chip, Resubscribe) · Payment due (Update card + warning notice). Change email / password: dialog with the fields, Cancel · Save. Writing font: menu with the fonts as checked items |
+| Account | subscription row states: Free (neutral chip, Upgrade) · Active (Manage) · Ends on date (warning chip, Resubscribe) · Payment due (Update card + warning notice). Built at `/account` (ADR 0027): Profile (Email, no Change yet) + Subscription; Writing waits for Phase 4. Change email / password: dialog with the fields, Cancel · Save. Writing font: menu with the fonts as checked items |
 | Not found | the empty state alone on an app page: "This page isn't here" · "It may have been deleted, or the link is wrong." · Back to documents |
