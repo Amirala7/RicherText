@@ -47,4 +47,5 @@ What becomes easier, what becomes harder, what we must now do.
 | 0016 | [Organisms](0016-organisms.md) | accepted |
 | 0017 | [No email verification in v1](0017-no-email-verification-v1.md) | accepted |
 | 0018 | [Local first: build on the emulators, deploy only when finalised](0018-local-first-development.md) | accepted |
-| 0019 | [Free plan: plain text, one document](0019-free-plan.md) | accepted (details open) |
+| 0019 | [Free plan: plain text, one document](0019-free-plan.md) | superseded by 0020 |
+| 0020 | [Free plan: full editor, one document](0020-free-plan-details.md) | accepted |

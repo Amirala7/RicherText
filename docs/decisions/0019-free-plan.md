@@ -1,6 +1,6 @@
 # 0019 — Free plan
 
-- Status: accepted (changes the "editor locked without a subscription" rule in CONTEXT §4.3/§6 and the entitlement gating in ADR 0003)
+- Status: superseded by 0020 (changed the "editor locked without a subscription" rule in CONTEXT §4.3/§6 and the entitlement gating in ADR 0003)
 - Date: 2026-10-20
 
 ## Context
