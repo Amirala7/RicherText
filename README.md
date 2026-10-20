@@ -6,13 +6,21 @@ A minimal, fast, web-based rich text editor. Next.js on Firebase (emulators loca
 
 Everything runs on your machine on the Firebase emulators; no Firebase account or login is needed.
 
-1. **Install everything:**
+1. **Install everything** with one script.
+
+   macOS and Linux:
 
    ```sh
    bash scripts/setup.sh
    ```
 
-   The script lists what's missing (Node 22, pnpm, Java 21, the Stripe CLI, the project's packages, the test browser, `.env.local`) and installs it step by step. On macOS it uses [Homebrew](https://brew.sh); on Linux it prints the command for anything it can't install itself. `bash scripts/setup.sh --check` only reports, installing nothing. (`pnpm run setup` does the same; plain `pnpm setup` is pnpm's own command.)
+   Windows (PowerShell):
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+   ```
+
+   The script lists what's missing (Node 22, pnpm, Java 21, the Stripe CLI, the project's packages, the test browser, `.env.local`) and installs it step by step. System tools come from [Homebrew](https://brew.sh) on macOS, apt, dnf or pacman on Linux (you may be asked for your password), and winget on Windows. Add `--check` (Windows: `-Check`) to only report, installing nothing. Your default `java` is never changed; the project's scripts find Java 21 on their own.
 
 2. **Fill in `.env.local`** (created by the script). Only the Stripe sandbox keys need values, and only for payment flows.
 

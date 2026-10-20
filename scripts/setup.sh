@@ -7,7 +7,8 @@
 # Installs what RicherText needs to run locally on the Firebase emulators:
 # Node 22, pnpm, Java 21 (the emulators run on it), the Stripe CLI (payments),
 # the project's dependencies, the Playwright test browser, and a .env.local.
-# Installs system tools with Homebrew on macOS; on Linux it prints the commands.
+# System tools come from Homebrew on macOS and from apt, dnf or pacman on Linux
+# (Node through nvm, the Stripe CLI into ~/.local/bin). Windows: scripts/setup.ps1.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -16,6 +17,7 @@ CHECK_ONLY=false
 [ "${1:-}" = "--check" ] && CHECK_ONLY=true
 
 OS="$(uname -s)"
+START_PATH="$PATH"
 MISSING=0
 
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
@@ -28,25 +30,14 @@ java_major() {
   "$1" -version 2>&1 | awk -F'"' '/version/ { split($2, v, "."); print v[1]; exit }'
 }
 
-# The same lookup scripts/firebase.sh uses, so "found here" means "the emulators can use it".
+# Same lookup as scripts/firebase.mjs (scripts/java.mjs), so "found here" means
+# "the emulators can use it". Without Node yet, only the java on PATH counts.
 find_java21() {
-  if command -v java >/dev/null 2>&1 && [ "$(java_major java)" -ge 21 ]; then
+  if command -v node >/dev/null 2>&1; then
+    node scripts/java.mjs 2>/dev/null || true
+  elif command -v java >/dev/null 2>&1 && [ "$(java_major java)" -ge 21 ]; then
     command -v java
-    return
   fi
-  local candidate
-  for candidate in \
-    "$(/usr/libexec/java_home -v 21+ 2>/dev/null || true)" \
-    "$(brew --prefix openjdk@21 2>/dev/null || true)/libexec/openjdk.jdk/Contents/Home" \
-    "/usr/lib/jvm/java-21-openjdk" \
-    "/usr/lib/jvm/java-21-openjdk-amd64" \
-    "/usr/lib/jvm/java-21-openjdk-arm64"; do
-    if [ -n "$candidate" ] && [ -x "$candidate/bin/java" ] &&
-      [ "$(java_major "$candidate/bin/java")" -ge 21 ]; then
-      echo "$candidate/bin/java"
-      return
-    fi
-  done
 }
 
 has_node22() { command -v node >/dev/null 2>&1 && [ "$(node -p 'process.versions.node.split(".")[0]')" = "22" ]; }
@@ -83,7 +74,42 @@ need_brew() {
   fi
 }
 
-# On Linux we don't guess the package manager: print the command and stop.
+if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
+
+linux_pm() {
+  if command -v apt-get >/dev/null 2>&1; then echo apt-get
+  elif command -v dnf >/dev/null 2>&1; then echo dnf
+  elif command -v pacman >/dev/null 2>&1; then echo pacman
+  fi
+}
+
+# Installs Linux packages; the names differ per package manager: apt-get dnf pacman.
+linux_install() {
+  case "$(linux_pm)" in
+    apt-get) $SUDO apt-get update -qq && $SUDO apt-get install -y "$1" ;;
+    dnf) $SUDO dnf install -y "$2" ;;
+    pacman) $SUDO pacman -S --needed --noconfirm "$3" ;;
+    *) manual "$4" "Install it with your distribution's package manager." ;;
+  esac
+}
+
+need_curl() {
+  command -v curl >/dev/null 2>&1 || linux_install curl curl curl "curl"
+}
+
+# nvm doesn't work under `set -eu`, so it runs with them off.
+use_nvm() {
+  export NVM_DIR="$1"
+  set +eu
+  # shellcheck disable=SC1091
+  . "$NVM_DIR/nvm.sh"
+  nvm install && nvm use
+  local status=$?
+  set -eu
+  [ "$status" -eq 0 ] || exit "$status"
+}
+
+# Fallback for systems the script can't install on: print what to do and stop.
 manual() {
   step "Please install $1 yourself, then run this script again:"
   say "$2"
@@ -107,16 +133,17 @@ fi
 
 echo
 bold "The items marked ✗ will be installed now, one by one."
-[ "$OS" = "Darwin" ] && say "System tools are installed with Homebrew."
+if [ "$OS" = "Darwin" ]; then
+  say "System tools are installed with Homebrew."
+elif [ -n "$(linux_pm)" ]; then
+  say "System tools are installed with $(linux_pm); you may be asked for your password (sudo)."
+fi
 
 if ! has_node22; then
   step "Installing Node 22"
   if [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
     say "Using nvm (found on this machine) and the version in .nvmrc."
-    # shellcheck disable=SC1091
-    . "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
-    nvm install
-    nvm use
+    use_nvm "${NVM_DIR:-$HOME/.nvm}"
   elif [ "$OS" = "Darwin" ]; then
     need_brew
     brew install node@22
@@ -124,7 +151,11 @@ if ! has_node22; then
     say "Add Node 22 to your shell so new terminals find it:"
     say "echo 'export PATH=\"$(brew --prefix node@22)/bin:\$PATH\"' >> ~/.zshrc"
   else
-    manual "Node 22" "See https://nodejs.org/en/download (or use nvm: https://github.com/nvm-sh/nvm)"
+    say "Installing nvm (Node version manager), then Node 22 with it."
+    need_curl
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+    use_nvm "$HOME/.nvm"
+    say "nvm added itself to your shell profile; new terminals find Node 22."
   fi
 fi
 
@@ -141,7 +172,7 @@ if ! has_java21; then
     brew install openjdk@21
     say "Your default 'java' is left as it is; the project's scripts find Java 21 on their own."
   else
-    manual "Java 21" "sudo apt install openjdk-21-jre-headless   (Debian/Ubuntu; or your distribution's OpenJDK 21 package)"
+    linux_install openjdk-21-jre-headless java-21-openjdk-headless jre21-openjdk-headless "Java 21"
   fi
 fi
 
@@ -151,7 +182,26 @@ if ! has_stripe; then
     need_brew
     brew install stripe/stripe-cli/stripe
   else
-    manual "the Stripe CLI" "See https://docs.stripe.com/stripe-cli#install"
+    case "$(uname -m)" in
+      x86_64 | amd64) arch=x86_64 ;;
+      aarch64 | arm64) arch=arm64 ;;
+      *) manual "the Stripe CLI" "See https://docs.stripe.com/stripe-cli#install" ;;
+    esac
+    need_curl
+    version="$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest |
+      sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p' | head -n 1)"
+    say "Downloading Stripe CLI $version into ~/.local/bin"
+    mkdir -p "$HOME/.local/bin"
+    curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v$version/stripe_${version}_linux_$arch.tar.gz" |
+      tar -xz -C "$HOME/.local/bin" stripe
+    export PATH="$HOME/.local/bin:$PATH"
+    case ":$START_PATH:" in
+      *":$HOME/.local/bin:"*) ;;
+      *)
+        say "Add it to your shell so new terminals find it:"
+        say "echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+        ;;
+    esac
   fi
 fi
 
@@ -162,7 +212,13 @@ fi
 
 if ! has_browser; then
   step "Installing the Playwright test browser (Chromium)"
-  pnpm exec playwright install chromium
+  if [ "$(linux_pm)" = "apt-get" ]; then
+    say "Also installs the system libraries Chromium needs (sudo)."
+    pnpm exec playwright install --with-deps chromium
+  else
+    pnpm exec playwright install chromium
+    [ "$OS" = "Linux" ] && say "If the browser fails to start, see https://playwright.dev/docs/intro#system-requirements"
+  fi
 fi
 
 if ! has_env; then
