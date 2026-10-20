@@ -64,7 +64,7 @@ describe("hand-over setup (ADR 0025)", () => {
 
   it("explains the steps in the README", () => {
     const readme = readFileSync("README.md", "utf8");
-    expect(readme).toContain("pnpm setup");
+    expect(readme).toContain("bash scripts/setup.sh");
     expect(readme).toContain(".env.local");
     expect(readme).toContain("pnpm dev:all");
   });
