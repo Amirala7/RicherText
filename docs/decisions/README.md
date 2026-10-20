@@ -49,3 +49,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0018 | [Local first: build on the emulators, deploy only when finalised](0018-local-first-development.md) | accepted |
 | 0019 | [Free plan: plain text, one document](0019-free-plan.md) | superseded by 0020 |
 | 0020 | [Free plan: full editor, one document](0020-free-plan-details.md) | accepted |
+| 0021 | [Landing hero and landing-only elements](0021-landing-hero.md) | accepted |
