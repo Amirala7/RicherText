@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/atoms/button";
@@ -11,8 +12,10 @@ import { TextLink } from "@/components/atoms/text-link";
 import { FormField } from "@/components/molecules/form-field";
 import { authErrorMessage } from "@/lib/auth/errors";
 import {
+  resetSchema,
   signInSchema,
   signUpSchema,
+  type ResetValues,
   type SignInValues,
   type SignUpValues,
 } from "@/lib/auth/schemas";
@@ -169,6 +172,78 @@ export function SignInForm({
           <PasswordInput
             autoComplete="current-password"
             {...form.register("password")}
+          />
+        </FormField>
+      </div>
+    </AuthCard>
+  );
+}
+
+// Reset password (ADR 0024, 0026): after Send link the same card confirms,
+// without saying whether the account exists.
+export function ResetPasswordForm({
+  onSubmit,
+}: {
+  onSubmit: (values: ResetValues) => Promise<void>;
+}) {
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const form = useForm<
+    z.input<typeof resetSchema>,
+    unknown,
+    z.output<typeof resetSchema>
+  >({
+    resolver: zodResolver(resetSchema),
+    defaultValues: { email: "" },
+  });
+  const { errors, isSubmitting } = form.formState;
+
+  const submit = form.handleSubmit(async (values) => {
+    try {
+      await onSubmit(values);
+      setSentTo(values.email);
+    } catch (error) {
+      form.setError("email", { message: authErrorMessage(error) });
+    }
+  });
+
+  const backToSignIn = (
+    <AuthWayOut>
+      <TextLink href="/sign-in">Back to sign in</TextLink>
+    </AuthWayOut>
+  );
+
+  if (sentTo) {
+    return (
+      <AuthCard
+        title="Reset link sent"
+        line={`If there's an account for ${sentTo}, a link to choose a new password is on its way. It works for one hour.`}
+        onSubmit={(e) => e.preventDefault()}
+        footer={backToSignIn}
+      />
+    );
+  }
+
+  return (
+    <AuthCard
+      title="Reset your password"
+      line="We'll email you a link to choose a new one."
+      onSubmit={submit}
+      footer={
+        <>
+          {backToSignIn}
+          <Button type="submit" loading={isSubmitting}>
+            Send link
+          </Button>
+        </>
+      }
+    >
+      <div className="grid gap-4">
+        <FormField id="email" label="Email" error={errors.email?.message}>
+          <Input
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            {...form.register("email")}
           />
         </FormField>
       </div>

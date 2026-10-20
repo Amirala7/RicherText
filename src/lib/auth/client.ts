@@ -1,11 +1,12 @@
 import {
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut as firebaseSignOut,
   signInWithEmailAndPassword,
   type User,
 } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase/client";
-import type { SignInValues, SignUpValues } from "./schemas";
+import type { ResetValues, SignInValues, SignUpValues } from "./schemas";
 
 const refreshedAtKey = "rt.session.refreshedAt";
 export const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000;
@@ -57,4 +58,20 @@ export async function signOut() {
   try {
     localStorage.removeItem(refreshedAtKey);
   } catch {}
+}
+
+// Firebase emails the link and hosts the new-password page (ADR 0026); its
+// Continue button comes back to sign in. No account reads the same as sent.
+export async function sendReset({ email }: ResetValues) {
+  try {
+    await sendPasswordResetEmail(getClientAuth(), email, {
+      url: `${window.location.origin}/sign-in`,
+    });
+  } catch (error) {
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? error.code
+        : "";
+    if (code !== "auth/user-not-found") throw error;
+  }
 }

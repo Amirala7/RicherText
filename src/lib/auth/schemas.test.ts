@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { signInSchema, signUpSchema } from "./schemas";
+import { resetSchema, signInSchema, signUpSchema } from "./schemas";
 
 function errors(result: {
   success: boolean;
@@ -50,5 +50,17 @@ describe("signInSchema", () => {
         password: "Enter your password.",
       },
     );
+  });
+});
+
+describe("resetSchema", () => {
+  it("accepts an email and trims it", () => {
+    expect(resetSchema.parse({ email: " a@b.co " }).email).toBe("a@b.co");
+  });
+
+  it("asks for a valid email", () => {
+    expect(errors(resetSchema.safeParse({ email: "nope" }))).toEqual({
+      email: "Enter a full email address, like maya@studio.co.",
+    });
   });
 });

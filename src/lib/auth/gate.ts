@@ -1,5 +1,5 @@
 const appPaths = ["/documents", "/account", "/editor"];
-const authPaths = ["/sign-in", "/sign-up"];
+const authPaths = ["/sign-in", "/sign-up", "/reset-password"];
 
 function within(pathname: string, paths: string[]) {
   return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));

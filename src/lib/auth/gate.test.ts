@@ -36,3 +36,9 @@ describe("gate", () => {
     },
   );
 });
+
+describe("gate on password reset", () => {
+  it("sends a signed-in visitor from /reset-password to the documents page", () => {
+    expect(gate("/reset-password", "", true)).toBe("/documents");
+  });
+});

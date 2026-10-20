@@ -20,5 +20,6 @@ export const config = {
     "/editor/:path*",
     "/sign-in",
     "/sign-up",
+    "/reset-password",
   ],
 };
