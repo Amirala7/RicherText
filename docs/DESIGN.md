@@ -15,6 +15,7 @@ Neutrals have a faint violet tint (hue 292). Surfaces are **flat**: one backgrou
 | `fg` | `foreground` | `oklch(0.2 0.025 292)` | `oklch(0.965 0.006 292)` |
 | `subtle` | `muted`, `secondary`, `accent` (hover surface) | `oklch(0.966 0.008 292)` | `oklch(0.215 0.016 292)` |
 | `border` | `border`, `input` | `oklch(0.912 0.014 292)` | `oklch(0.29 0.02 292)` |
+| `border-strong` | hover border (secondary button, input), checkbox | `oklch(0.84 0.02 292)` | `oklch(0.38 0.025 292)` |
 | `muted` | `muted-foreground` | `oklch(0.53 0.03 292)` | `oklch(0.71 0.025 292)` |
 | `primary` (brand accent) | `primary`, `ring` | `#6440D8` | `#B3A1FF` |
 | `on-primary` | `primary-foreground` | `#FFFFFF` | `#100B1F` |
@@ -201,6 +202,7 @@ Reviews and portraits are placeholders until launch (CONTEXT §6).
 | Screen / element | Spec |
 |---|---|
 | Auth page | logotype bar (`h-bar`, logo links home) · auth card centred in the space left · site footer; card edges `s-7` (phone `s-5` / `s-4`). Sign up line names the next step (Checkout for the chosen plan, or the documents page on Free) |
+| Password rule | sign up help reads "At least 8 characters." and the error "Use at least 8 characters." (ADR 0026; the template showed 10) |
 | Reset link sent | same card: heading "Reset link sent" + one line (doesn't reveal whether the account exists) + Back to sign in. Forgot-password only; no verification (ADR 0017) |
 | Account menu | from the user icon button; menu label (email) · Documents · Account · divider · label Theme · System / Light / Dark (checked items) · divider · Sign out; drops `s-1` under the bar, right-aligned. The only navigation on phone |
 | Document menu | `h-lg` ghost menu button between Saved and the account button (phone header row: back · saved · menu · account); label "Export as" · PDF, Word (.docx), Rich Text (.rtf), Markdown, HTML, Plain text (download icon) · divider · Delete document (danger, asks first). Export: toast "Preparing PDF…" → download → toast "PDF downloaded" |
