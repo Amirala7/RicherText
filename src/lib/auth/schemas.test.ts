@@ -26,7 +26,7 @@ describe("signUpSchema", () => {
   it("asks for a valid email", () => {
     expect(
       errors(signUpSchema.safeParse({ email: "nope", password: "12345678" })),
-    ).toEqual({ email: "Enter a valid email address." });
+    ).toEqual({ email: "Enter a full email address, like maya@studio.co." });
   });
 
   it("needs at least 8 characters in the password (ADR 0026)", () => {
@@ -46,7 +46,7 @@ describe("signInSchema", () => {
   it("asks for both fields", () => {
     expect(errors(signInSchema.safeParse({ email: "", password: "" }))).toEqual(
       {
-        email: "Enter a valid email address.",
+        email: "Enter a full email address, like maya@studio.co.",
         password: "Enter your password.",
       },
     );

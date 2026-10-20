@@ -84,7 +84,11 @@ test("a wrong password gets the generic message", async ({ page }) => {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("not the password");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("Email or password is incorrect.")).toBeVisible();
+  await expect(
+    page.getByText(
+      "That email and password don't match. Try again or reset your password.",
+    ),
+  ).toBeVisible();
   await expect(page).toHaveURL("/sign-in");
 });
 
