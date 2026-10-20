@@ -59,7 +59,7 @@ report() {
   if has_node22; then ok "Node 22 ($(node -v))"; else missing "Node 22: runs the app, tests and tooling"; fi
   if has_pnpm; then ok "pnpm ($(pnpm -v))"; else missing "pnpm: the package manager"; fi
   if has_java21; then ok "Java 21 ($(find_java21))"; else missing "Java 21: the Firebase emulators run on it"; fi
-  if has_stripe; then ok "Stripe CLI ($(stripe --version))"; else missing "Stripe CLI: forwards payment webhooks to the emulators"; fi
+  if has_stripe; then ok "Stripe CLI ($(stripe --version 2>/dev/null))"; else missing "Stripe CLI: forwards payment webhooks to the emulators"; fi
   if has_deps; then ok "Dependencies (pnpm install)"; else missing "Dependencies: the project's packages, incl. the Firebase CLI"; fi
   if has_browser; then ok "Playwright browsers (Chromium)"; else missing "Playwright browsers: Chromium for the end-to-end tests"; fi
   if has_env; then ok ".env.local"; else missing ".env.local: local settings, created from .env.example"; fi

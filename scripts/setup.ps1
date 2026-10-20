@@ -76,7 +76,7 @@ function Report {
   if (Has-Node22) { Ok "Node 22 ($(node -v))" } else { Miss "Node 22: runs the app, tests and tooling" }
   if (Has-Pnpm) { Ok "pnpm ($(pnpm -v))" } else { Miss "pnpm: the package manager" }
   if (Has-Java21) { Ok "Java 21 ($(Find-Java21))" } else { Miss "Java 21: the Firebase emulators run on it" }
-  if (Has-Stripe) { Ok "Stripe CLI ($(stripe --version))" } else { Miss "Stripe CLI: forwards payment webhooks to the emulators" }
+  if (Has-Stripe) { Ok "Stripe CLI ($(stripe --version 2>$null))" } else { Miss "Stripe CLI: forwards payment webhooks to the emulators" }
   if (Has-Deps) { Ok "Dependencies (pnpm install)" } else { Miss "Dependencies: the project's packages, incl. the Firebase CLI" }
   if (Has-Browser) { Ok "Playwright browsers (Chromium)" } else { Miss "Playwright browsers: Chromium for the end-to-end tests" }
   if (Has-Env) { Ok ".env.local" } else { Miss ".env.local: local settings, created from .env.example" }
