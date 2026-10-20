@@ -14,4 +14,4 @@ ADR 0002 already says local development runs on the Firebase Emulator Suite. The
 ## Consequences
 - Phase 1 sets up the emulators, not a cloud project.
 - "Done" for every feature already means "works end-to-end on the emulators" (Definition of Done); nothing is deployed feature by feature.
-- **OPEN:** until a GCP project exists, where do the local Stripe sandbox keys live? Proposal: in the gitignored `.env.local`, typed in by hand, and moved to Secret Manager (ADR 0009) when the project is created.
+- Local Stripe sandbox keys (decided by the user, 2026-10-20): until a GCP project exists they are typed by hand into the gitignored `.env.local`. A committed `.env.example` lists every variable with placeholder values, so the setup is documented and ready for later. When the project is created (launch phase) the values move to Secret Manager and the pull script from ADR 0009 takes over.
