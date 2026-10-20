@@ -142,7 +142,7 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 | Organism | Built from | Spec |
 |---|---|---|
 | Site header | logotype, nav group, button, menu | `h-bar`, border below, sticky; sides `s-6`, gap `s-5`; phone: logotype + small Start writing + menu button (Pricing, Sign in), sides `s-4`, gap `s-3` |
-| Hero | display text, action group lg | placeholder; designed in its own step |
+| Hero | display text, action group lg | **proposal v1** https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND: A logo formats itself + glass toolbar, B = A + keyboard, C typing drives keyboard + glass touch bar. Pending pick; new elements pending approval: glass surface, pill header, hero logotype up to 176, animated logotype (hero only), keyboard |
 | Pricing block | price line, feature items, action group, badge chip | section heading 3xl + lg muted, gap `s-6` to the cards; two cards, same parts in the same order (name row `h-sm`, price, features, action, note), equal height, gap `s-5`; Yearly first with a "Save" chip and the primary button, Monthly secondary; card gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); stack when narrow |
 | Site footer | nav group | `h-bar`, border above; © left, Terms / Privacy / Refunds right; phone stacks, gap `s-3`, edges `s-4` |
 | Auth forms | form field, checkbox, link, action group | sign up, sign in, reset password; card max 400, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); fields gap `s-4`; footer: way out left (text in an `h-md` box), main button right, button on top when narrow; no verify-email step (ADR 0017) |
