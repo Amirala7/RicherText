@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:all": "pnpm functions:build && bash scripts/firebase.sh emulators:exec --ui \"next dev\"",
-    "emulators": "pnpm functions:build && bash scripts/firebase.sh emulators:start",
+    "dev:all": "pnpm functions:build && node scripts/firebase.mjs emulators:exec --ui \"next dev\"",
+    "emulators": "pnpm functions:build && node scripts/firebase.mjs emulators:start",
     "functions:build": "pnpm --dir functions build",
     "build": "next build",
     "start": "next start",
@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:emulators": "pnpm functions:build && bash scripts/firebase.sh emulators:exec --only auth,firestore,functions \"vitest run --config vitest.emulators.config.mts\"",
+    "test:emulators": "pnpm functions:build && node scripts/firebase.mjs emulators:exec --only auth,firestore,functions \"vitest run --config vitest.emulators.config.mts\"",
     "check": "pnpm lint && pnpm typecheck && pnpm format:check && pnpm test && pnpm test:emulators",
     "setup": "bash scripts/setup.sh"
   },
