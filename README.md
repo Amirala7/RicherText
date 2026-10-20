@@ -34,6 +34,16 @@ Everything runs on your machine on the Firebase emulators; no Firebase account o
 
    Locally no email is sent. A password reset prints its link in this terminal ("To reset the password for …"); replace `NEW_PASSWORD_HERE` at the end of the link with the new password and open it.
 
+## Payments (Stripe sandbox)
+
+With your sandbox secret key in `.env.local`, set up the product, the monthly and yearly prices and the Customer Portal:
+
+```sh
+pnpm stripe:setup
+```
+
+It only accepts test-mode keys and is safe to run again. One setting stays in the Stripe Dashboard: **Billing → Revenue recovery → Retries**, when all retries fail, choose **Cancel the subscription** (access continues while Stripe retries, ADR 0027).
+
 ## Tests
 
 | Command               | What it runs                                            |

@@ -7,5 +7,15 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
+
+    // Billing: written only by the Stripe webhook (Admin SDK); a user reads
+    // their own (ADR 0003, 0027). stripeEvents stays closed.
+    match /customers/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      match /subscriptions/{subId} {
+        allow read: if request.auth != null && request.auth.uid == uid;
+      }
+    }
   }
 }
