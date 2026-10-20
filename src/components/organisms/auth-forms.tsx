@@ -11,6 +11,7 @@ import { PasswordInput } from "@/components/atoms/password-input";
 import { TextLink } from "@/components/atoms/text-link";
 import { FormField } from "@/components/molecules/form-field";
 import { authErrorMessage } from "@/lib/auth/errors";
+import { planLabel, type PaidPlan } from "@/lib/billing/plans";
 import {
   resetSchema,
   signInSchema,
@@ -27,11 +28,14 @@ const signUpFormSchema = signUpSchema.extend({
   }),
 });
 
-// Sign up (ADR 0024): Free path for now; the plan line changes with Checkout in Phase 3.
+// Sign up (ADR 0024): the line names the next step, Free or paying for the
+// chosen plan with Stripe (ADR 0027).
 export function SignUpForm({
   onSubmit,
+  plan,
 }: {
   onSubmit: (values: SignUpValues) => Promise<void>;
+  plan?: PaidPlan | null;
 }) {
   const form = useForm<
     z.input<typeof signUpFormSchema>,
@@ -54,12 +58,31 @@ export function SignUpForm({
   return (
     <AuthCard
       title="Create your account"
-      line="Free for one document. No card needed."
+      line={
+        plan ? (
+          <>
+            Next, you&apos;ll pay for{" "}
+            <b className="font-medium text-foreground">{planLabel(plan)}</b>{" "}
+            with Stripe.
+          </>
+        ) : (
+          "Free for one document. No card needed."
+        )
+      }
       onSubmit={submit}
       footer={
         <>
           <AuthWayOut>
-            Have an account? <TextLink href="/sign-in">Sign in</TextLink>
+            Have an account?{" "}
+            <TextLink
+              href={
+                plan
+                  ? `/sign-in?next=${encodeURIComponent("/plans")}`
+                  : "/sign-in"
+              }
+            >
+              Sign in
+            </TextLink>
           </AuthWayOut>
           <Button type="submit" loading={isSubmitting}>
             Create account

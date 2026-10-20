@@ -24,5 +24,8 @@ export default defineConfig({
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // Checkout can't open in e2e: a real sandbox key from .env.local would
+    // send tests to Stripe. Slice 4 runs that path by hand (ADR 0027).
+    env: { STRIPE_SECRET_KEY: "sk_test_replace_me" },
   },
 });

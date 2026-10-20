@@ -35,3 +35,11 @@ ADR 0003 picked Stripe (sandbox) with Checkout, Customer Portal and our own webh
 - Webhook: `functions/src/billing/webhook.ts` (logic, testable with a fake Stripe) and `stripeWebhook` in `functions/src/index.ts`. Secrets via `defineSecret` (Secret Manager in production; `functions/.secret.local` for the emulator, gitignored; needed only from slice 4). The Stripe client is made only after the signature checks out.
 - Each subscription record also stores `customerId`, `priceId` and `lookupKey`.
 - The Stripe customer must carry `metadata.uid`; slice 2 sets it when it creates the customer. Subscriptions whose customer has no `uid` are ignored (200, logged by event ID only).
+
+## Built (slice 2, 2026-10-21)
+- **In-app pricing lives at `/plans`** (what See plans / Upgrade lead to), not `/pricing`: a locked gate test keeps `/pricing` public for the landing page (Phase 5). A paid user going to `/plans` lands on Documents (the account page takes over in slice 3).
+- `POST /api/billing/checkout { plan }` → `{ url }`: same-origin and signed-in only; makes the Stripe customer once (`metadata.uid`, idempotency key `customer-<uid>`), keeps any `plan` already written, looks the price up by lookup key, opens a subscription Checkout (`success_url` `/welcome`, `cancel_url` `/plans`). A paid user gets `/documents` instead of a second subscription. Stripe errors answer 502 and log nothing. The Stripe client refuses anything but a sandbox key.
+- **Sign up with a plan** (`/sign-up?plan=yearly|monthly`): the line reads "Next, you'll pay for Yearly ($80) with Stripe."; after the account is made it goes straight to Checkout. If Checkout can't open, it lands on `/plans` with the error toast. Signed in already, `/sign-up?plan=…` goes to `/plans`.
+- **Activation page `/welcome`**: watches the user's `customers/{uid}`; when `plan` turns `paid` it names the plan from the paid subscription's interval and goes to Documents 1.6s later. After 20s: "Still waiting on Stripe" + Go to documents. The button's space is kept from the start so nothing moves.
+- Built from approved pieces: badge chip, Aa loader, toast (error tone), price line + feature item, pricing block, activation + success state.
+- e2e runs with a placeholder Stripe key (Playwright `webServer.env`), so tests never reach a real Stripe account; `pnpm test:e2e` now starts the Firestore emulator too.

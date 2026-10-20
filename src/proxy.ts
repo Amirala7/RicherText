@@ -18,6 +18,8 @@ export const config = {
     "/documents/:path*",
     "/account/:path*",
     "/editor/:path*",
+    "/plans/:path*",
+    "/welcome",
     "/sign-in",
     "/sign-up",
     "/reset-password",
