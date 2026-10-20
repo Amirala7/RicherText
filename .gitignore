@@ -9,6 +9,8 @@ CLAUDE.md
 # Secrets: only .env.example is committed (ADR 0009)
 .env*
 !.env.example
+# Functions emulator secrets
+*.secret.local
 
 # OS
 .DS_Store

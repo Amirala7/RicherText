@@ -29,3 +29,9 @@ ADR 0003 picked Stripe (sandbox) with Checkout, Customer Portal and our own webh
 - "Failed payment locks it" (CONTEXT §4.2) now means: locks once Stripe gives up retrying, not on the first failure. During retries a user can be open while unpaid; this is deliberate (CONTEXT §8).
 - The Dashboard retry setting is not in code; the setup script's output and the README say to check it.
 - Next needs `STRIPE_SECRET_KEY`; the webhook Function needs it and `STRIPE_WEBHOOK_SECRET` (both already in `.env.example`).
+
+## Built (slice 1, 2026-10-21)
+- `pnpm stripe:setup` (`scripts/stripe-setup.mjs`): reads `STRIPE_SECRET_KEY` from `.env.local`, refuses anything but a sandbox secret key, prints the IDs and the Dashboard retry reminder. The Portal configuration is tagged `metadata.app = richertext`, so slice 3 finds it by that tag.
+- Webhook: `functions/src/billing/webhook.ts` (logic, testable with a fake Stripe) and `stripeWebhook` in `functions/src/index.ts`. Secrets via `defineSecret` (Secret Manager in production; `functions/.secret.local` for the emulator, gitignored; needed only from slice 4). The Stripe client is made only after the signature checks out.
+- Each subscription record also stores `customerId`, `priceId` and `lookupKey`.
+- The Stripe customer must carry `metadata.uid`; slice 2 sets it when it creates the customer. Subscriptions whose customer has no `uid` are ignored (200, logged by event ID only).
