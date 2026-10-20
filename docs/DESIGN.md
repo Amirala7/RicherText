@@ -2,7 +2,7 @@
 
 One design language for the landing page and the editor (CLAUDE.md, ADR 0007). Built atomically: **tokens → atoms → molecules → organisms → templates**. No one-off styles per surface; if a screen needs something new, it is added here first.
 
-Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A. Brand files: `docs/brand/`.
+Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A · landing hero https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND. Brand files: `docs/brand/`.
 
 ## 1. Tokens
 
@@ -24,6 +24,23 @@ Neutrals have a faint violet tint (hue 292). Surfaces are **flat**: one backgrou
 - Violet is only for primary buttons, links, caret, selection (22% mix), focus rings (25% mix halo) and active toolbar buttons (16% mix). Everything else is neutral.
 - Contrast: primary 6.4:1 (light) / 8.4:1 (dark); muted text passes AA in both themes.
 
+### Landing-only surface tokens (ADR 0021)
+Used only on the marketing pages, never in the app.
+
+| Token | Use | Light | Dark |
+|---|---|---|---|
+| `glass-fill` | glass surface fill | `oklch(0.997 0.002 292 / .55)` | `oklch(0.17 0.012 292 / .55)` |
+| `glass-edge` | 1px inner edge | `oklch(0.2 0.025 292 / .09)` | `rgb(255 255 255 / .1)` |
+| `glass-hi` | top highlight | `rgb(255 255 255 / .95)` | `rgb(255 255 255 / .2)` |
+| `glass-lo` | bottom inner shade | `oklch(0.2 0.025 292 / .07)` | `rgb(0 0 0 / .35)` |
+| `glass-shadow` | soft drop shadow | `oklch(0.2 0.025 292 / .16)` | `rgb(0 0 0 / .55)` |
+| `glow` / `glow-2` | hero glow | `primary` at 13% / 9% | same mix |
+| `key-face` / `key-side` / `key-legend` / `plate` | keyboard | `oklch(0.995 0.002 292)` / `oklch(0.86 0.016 292)` / `oklch(0.38 0.03 292)` / `oklch(0.94 0.01 292)` | `oklch(0.255 0.016 292)` / `oklch(0.12 0.01 292)` / `oklch(0.8 0.02 292)` / `oklch(0.205 0.014 292)` |
+
+**Glass surface:** `glass-fill` + `backdrop-filter: blur(10px) saturate(1.6)` + inset highlight (`glass-hi` top, `glass-edge` ring, `glass-lo` bottom) + `glass-shadow`. In Chromium the backdrop also gets an SVG refraction filter (edges bend what's behind, slight colour split); Safari and Firefox get the frosted blur only. Exception to "flat surfaces", landing only.
+
+**Hero glow:** two very soft radial gradients of `glow` / `glow-2` behind the hero (behind the keyboard on desktop, behind the toolbar on phone). The only gradient in the system.
+
 ### Typography
 **Geist** everywhere (UI, headings, default writing font). Writing font is a per-user setting; IBM Plex Serif is offered (ADR 0010). Scale ratio **1.333 (Expressive)**, base 16px; `xs` and `sm` are fixed UI sizes.
 
@@ -37,6 +54,7 @@ Neutrals have a faint violet tint (hue 292). Surfaces are **flat**: one backgrou
 | `2xl` | 38 | document H1 | 600 · -0.025em · 1.15 |
 | `3xl` | 50 | page titles (marketing) | 600 · -0.03em · 1.1 |
 | `display` | 84 | landing hero only | 600 · -0.035em · 1.02 |
+| `logo-hero` | 112 | hero logotype only, `clamp(36px, 10cqi, 112px)` (ADR 0021) | logotype spec |
 
 - Large steps are fluid on small screens: `display` = `clamp(44px, 12vw, 84px)`, `3xl` = `clamp(34px, 8vw, 50px)`. Phone sizes still to be checked in the screen templates.
 - **OPEN:** whether the document H1 in the editor uses `2xl` (38) or `xl` (28). 38 may feel large while writing; decide on the editor template.
@@ -50,7 +68,7 @@ Neutrals have a faint violet tint (hue 292). Surfaces are **flat**: one backgrou
 Tailwind's default 4px `--spacing` already produces these (`1, 2, 3, 4, 6, 8, 12`); components use only these seven steps. Layout gaps between page sections may go higher (64, 96) on marketing pages.
 
 ### Radius (Soft)
-`r-sm` 5px (inputs, chips, toolbar buttons) · `r-md` 7px (buttons, menus, toasts) · `r-lg` 10px (cards, panels, editor frame).
+`r-sm` 5px (inputs, chips, toolbar buttons) · `r-md` 7px (buttons, menus, toasts) · `r-lg` 10px (cards, panels, editor frame) · `r-full` 999px (landing pill header and its items only, ADR 0021).
 
 ### Control heights
 Every control that can sit in a row with others uses one of three shared heights, so buttons, inputs, toasts and toolbars always line up. One line of text only; controls never wrap or grow.
@@ -89,6 +107,8 @@ These apply to every atom, molecule, organism and screen.
 Exception: controls with a fixed height (buttons, inputs, toasts, toolbars) centre their content vertically, so only their horizontal padding follows rule 3.
 
 4. **Text always fits its box, and left and right padding are equal.** Text never runs past a container's padding or gets cut off mid-letter. Where a row is too narrow, shorten the copy or stack the parts; a single-line title may end in “…” only where truncation is the designed behaviour (document titles). Left and right edge padding are always the same step (user, 2026-10-19).
+
+5. **Spacing is measured on the ink** (ADR 0021). Text blocks are trimmed to cap height and baseline (`text-box: trim-both cap alphabetic`) wherever gaps between text and other elements must look equal, so a gap is the distance you see, not the invisible line box. Icons next to trimmed text must not make the row taller (negative block margin). Chrome and Safari support it; Firefox falls back to normal line boxes (accepted).
 
 ## 1b. Logo and loaders (ADR 0012)
 **Logotype:** "Richer" Geist 700 + "Text" Geist 400, no space, stretch 1.08×, tracking −0.045em, **italic (10° slant)**, colour `fg`. Static, no animation. Assets: `docs/brand/` (outlined SVG, PNG, favicon.ico).
@@ -141,8 +161,11 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 
 | Organism | Built from | Spec |
 |---|---|---|
+| Pill header (landing) | icon tile, nav links, button sm, icon button | ADR 0021. Floating, centred, `glass`, `r-full`, `h-lg` 44; every item `h-sm` 32 (icon tile, links, Subscribe sm, menu button), gap `s-1`, sides `s-2`; `s-5` above. Phone: icon tile + Subscribe + menu button |
 | Site header | logotype, nav group, button, menu | `h-bar`, border below, sticky; sides `s-6`, gap `s-5`; phone: logotype + small Start writing + menu button (Pricing, Sign in), sides `s-4`, gap `s-3` |
-| Hero | display text, action group lg | placeholder; designed in its own step |
+| Hero (landing) | logotype, typed line, text styles, action group lg, feature items, hero toolbar, keyboard | **Final, variant C** (ADR 0021, https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND). One centred column, one gap between every element: logo (`logo-hero`, static) · typed headline (xl 28, phone lg 21, one line, violet caret) · subhead (base muted, max 52ch) · Subscribe + Start free (lg) · price note (xs muted) · three benefits · hero toolbar · keyboard. Gap `s-6` 32, edges `s-7` 48, keyboard flush with the bottom; phone gap `s-4` 16, edges `s-5` 24, no keyboard, toolbar moves under the logo. Typed line: rests on the headline, then select-all + delete and types the next line (with ⌘B/⌘I/⌘U shown on the keyboard and toolbar); visitor typing takes over and joins the queue (last 3), erased the same way. Glow behind. Reduced motion: headline static, no key animation |
+| Hero toolbar | toolbar toggles, dividers | editor toolbar groups shortened to H1 H2 · B I U S · link, `glass`; a glass lens slides to the last pressed button; clickable for B I U |
+| Keyboard | — | CSS keycaps, Mac layout, 15.7 units wide, max 720, tilted back 24°; keys press (down 0.07u) for demo and visitor keys; `return` in `primary`; hidden on phone; `aria-hidden` |
 | Pricing block | price line, feature items, action group, badge chip | section heading 3xl + lg muted, gap `s-6` to the cards; two cards, same parts in the same order (name row `h-sm`, price, features, action, note), equal height, gap `s-5`; Yearly first with a "Save" chip and the primary button, Monthly secondary; card gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); stack when narrow |
 | Site footer | nav group | `h-bar`, border above; © left, Terms / Privacy / Refunds right; phone stacks, gap `s-3`, edges `s-4` |
 | Auth forms | form field, checkbox, link, action group | sign up, sign in, reset password; card max 400, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); fields gap `s-4`; footer: way out left (text in an `h-md` box), main button right, button on top when narrow; no verify-email step (ADR 0017) |
