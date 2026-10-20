@@ -12,7 +12,7 @@
 | Forms + validation | react-hook-form + Zod | shadcn forms are built on them; Zod also validates webhook payloads and Firestore data at the boundaries (0004) |
 | Unit tests | Vitest | Fast, TypeScript-native |
 | Security rules tests | Firebase Emulator + `@firebase/rules-unit-testing` | Access control lives in rules, so it has to be tested |
-| End-to-end tests | Playwright | Covers sign-up → verify email → pay → write |
+| End-to-end tests | Playwright | Covers sign-up → pay → write |
 | Repo layout | Single repo: Next app at root, `functions/` for Cloud Functions, shared types and schemas in `src/shared` | Simple; no monorepo tooling needed |
 
 ## Consequences

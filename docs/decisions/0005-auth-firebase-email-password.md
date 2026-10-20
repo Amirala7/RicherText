@@ -17,6 +17,6 @@ Firebase Authentication with the email + password provider only.
 - Need flows for sign-up, sign-in, sign-out and password reset (Firebase's reset email).
 - **Server-side gating:** the editor is server-rendered, so the server must know who the user is. Use the Firebase Admin SDK to issue session cookies (`createSessionCookie`) and verify them in Next.js server code before checking the subscription in Firestore.
 - The Firebase UID is the key everywhere: `users/{uid}`, `customers/{uid}`, and the Stripe customer's metadata.
-- **Email verification is required before checkout.** Users verify through Firebase's verification email; the server checks `email_verified` on the session before creating a Stripe Checkout session, and again when gating the editor.
+- ~~**Email verification is required before checkout.**~~ Superseded by ADR 0017 (2026-10-20): no verification in v1. Users verify through Firebase's verification email; the server checks `email_verified` on the session before creating a Stripe Checkout session, and again when gating the editor.
   - Trade-off accepted: this adds a step to the "under 2 minutes to writing" target (CONTEXT §8), in exchange for making sure the paying account has a reachable email (receipts, password reset, billing notices).
   - Needs a "check your inbox" screen with resend, and a way to continue automatically once the email is verified.

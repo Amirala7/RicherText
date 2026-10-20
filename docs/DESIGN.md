@@ -112,7 +112,7 @@ Reduced motion: static "Aa", gently fading dots, static lines. Canvas: https://c
 
 Atoms: text styles, button (primary, secondary, ghost, danger; sm/md/lg; all states incl. loading), icon button, toolbar toggle, link (inline, nav), input (sm/md/lg) with label, help and error, checkbox, badge, shortcut key, tooltip, toast, spinner, divider, Lucide icons, logotype, icon, loaders.
 
-**Changes after approval:** input with an icon inside (leading search icon; trailing show/hide button, a ghost `h-sm` icon button inset 2px) added in ADR 0015; toast padding is `s-4` on both sides, the action is a text button with no own padding (rule 4).
+**Changes after approval:** toast padding equal on both sides (published to the atoms page v5); input with an icon inside (leading search icon; trailing show/hide button, a ghost `h-sm` icon button inset 2px) added in ADR 0015; toast padding is `s-4` on both sides, the action is a text button with no own padding (rule 4).
 
 ## 3. Molecules
 **Final** (2026-10-19, ADR 0015): https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE. Built only from atoms; every one checked against the layout rules.
@@ -135,7 +135,22 @@ Atoms: text styles, button (primary, secondary, ghost, danger; sm/md/lg; all sta
 | Empty state | text styles, button | text group (lg title + sm muted line, gap `s-1`) and action; gap `s-4`, edges `s-5`; no illustration |
 
 ## 4. Organisms
-Planned: site header, footer, hero, pricing block, auth forms (sign up, sign in, reset, verify email), document list, editor toolbar, editor surface, account / billing panel.
+**Final** (2026-10-20, ADR 0016): https://claude.ai/artifact/RaFk4SGCtxNByEdQCWdcT7. Built only from atoms and molecules.
+
+New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0.025 292 / .4)` light, `rgb(0 0 0 / .6)` dark).
+
+| Organism | Built from | Spec |
+|---|---|---|
+| Site header | logotype, nav group, button, menu | `h-bar`, border below, sticky; sides `s-6`, gap `s-5`; phone: logotype + small Start writing + menu button (Pricing, Sign in), sides `s-4`, gap `s-3` |
+| Hero | display text, action group lg | placeholder; designed in its own step |
+| Pricing block | price line, feature items, action group, badge chip | section heading 3xl + lg muted, gap `s-6` to the cards; two cards, same parts in the same order (name row `h-sm`, price, features, action, note), equal height, gap `s-5`; Yearly first with a "Save" chip and the primary button, Monthly secondary; card gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); stack when narrow |
+| Site footer | nav group | `h-bar`, border above; © left, Terms / Privacy / Refunds right; phone stacks, gap `s-3`, edges `s-4` |
+| Auth forms | form field, checkbox, link, action group | sign up, sign in, reset password; card max 400, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); fields gap `s-4`; footer: way out left (text in an `h-md` box), main button right, button on top when narrow; no verify-email step (ADR 0017) |
+| Document list | app bar, filter field, document row, empty state, loader, dialog, toast | page max 760, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); title · filter + New · rows; loading box holds four rows; delete asks in a dialog, then a toast |
+| Dialog | text styles, action group | scrim; card max 400, border, `r-lg`, gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); heading lg + one muted line; Cancel (secondary) then main action (danger for delete) on the right; Esc closes, focus starts on Cancel |
+| Editor | toolbar groups, saved indicator, link editor | one `h-bar` bar (back, toolbar, saved, account), items `h-lg`; phone: header row then the toolbar on its own line; column 68ch, 16px, line height 1.65, blocks `s-4` apart; title its own field, xl 28, "Untitled" by default; H1 28 · H2 21 · H3 16/600; caret and selection violet |
+| Account | settings row, notice, nav group | Profile · Writing · Subscription, each lg heading + rows, gap `s-3`; Manage opens the Stripe Customer Portal; failed payment shows a warning notice on top; account deletion OPEN |
+| Toast placement | toast | bottom centre, one at a time, 5s |
 
 ## 5. Templates
 Planned (desktop + phone, light + dark): landing, pricing, auth, document list, editor, account.
