@@ -52,3 +52,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0021 | [Landing hero and landing-only elements](0021-landing-hero.md) | accepted |
 | 0022 | [Export in v1, paid plans only](0022-export-in-v1.md) | accepted (amends 0020) |
 | 0023 | [Landing page template](0023-landing-page-template.md) | accepted |
+| 0024 | [App screen templates](0024-app-screen-templates.md) | accepted |

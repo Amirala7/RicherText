@@ -2,7 +2,7 @@
 
 One design language for the landing page and the editor (CLAUDE.md, ADR 0007). Built atomically: **tokens → atoms → molecules → organisms → templates**. No one-off styles per surface; if a screen needs something new, it is added here first.
 
-Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4), 0016 (organisms), 0021 (hero), 0023 (landing page). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A · landing hero https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND · landing page https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY. Brand files: `docs/brand/`.
+Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4), 0016 (organisms), 0021 (hero), 0023 (landing page), 0024 (app screens). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A · landing hero https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND · landing page https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY · app screens https://claude.ai/artifact/PbSqEU9tYHQNB3vE1XDbVG. Brand files: `docs/brand/`.
 
 ## 1. Tokens
 
@@ -176,7 +176,7 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 | Toast placement | toast | bottom centre, one at a time, 5s |
 
 ## 5. Templates
-Planned (desktop + phone, light + dark): landing, pricing, auth, document list, editor, account.
+Done (desktop + phone, light + dark): landing, auth, document list, editor, pricing (landing section reused in the app), account, back from Checkout, not found.
 
 **Landing: final** (2026-10-20, ADR 0023, https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY). Order: sticky pill header · hero C · Features · Reviews · Pricing · FAQ · closing call to action · footer (minimal).
 
@@ -193,3 +193,21 @@ Planned (desktop + phone, light + dark): landing, pricing, auth, document list, 
 | Keyboard tilt | `perspective(1400px) rotateX(24deg)` on the keyboard itself (Safari ignored the parent's `perspective`) |
 
 Reviews and portraits are placeholders until launch (CONTEXT §6).
+
+**App screens: final** (2026-10-20, ADR 0024, https://claude.ai/artifact/PbSqEU9tYHQNB3vE1XDbVG). Built only from the organisms; new elements approved by the user.
+
+| Screen / element | Spec |
+|---|---|
+| Auth page | logotype bar (`h-bar`, logo links home) · auth card centred in the space left · site footer; card edges `s-7` (phone `s-5` / `s-4`). Sign up line names the next step (Checkout for the chosen plan, or the documents page on Free) |
+| Reset link sent | same card: heading "Reset link sent" + one line (doesn't reveal whether the account exists) + Back to sign in. Forgot-password only; no verification (ADR 0017) |
+| Account menu | from the user icon button; menu label (email) · Documents · Account · divider · label Theme · System / Light / Dark (checked items) · divider · Sign out; drops `s-1` under the bar, right-aligned. The only navigation on phone |
+| Document menu | `h-lg` ghost menu button between Saved and the account button (phone header row: back · saved · menu · account); label "Export as" · PDF, Word (.docx), Rich Text (.rtf), Markdown, HTML, Plain text (download icon) · divider · Delete document (danger, asks first). Export: toast "Preparing PDF…" → download → toast "PDF downloaded" |
+| Disabled menu item | `disabled`, 45% opacity, no hover, not focusable; on Free every export item shows a lock and the label reads "Export · paid plans" |
+| Upgrade dialog | dialog organism with a primary action: heading + one line · Not now (secondary) · See plans (primary); only when a Free user with one document presses New document |
+| Read-only state | chip (`bd-neutral`, lock + "Read-only", `h-sm`) in the row before the menu (meta drops, title muted, under 420px lock only) and in the editor bar in Saved's place; toolbar disabled; neutral notice with Resubscribe above the title (68ch column, `s-6` below, phone `s-5`) and on the list. Text selectable, no caret |
+| Empty document | title placeholder "Untitled", body "Start writing…", `muted`, gone on the first keystroke; caret in the body |
+| New account | documents page with the empty state ("No documents yet" · New document) |
+| Back from Checkout | logotype bar, centred: mark box 120px (Aa loader 64px) + text group (lg title, sm muted line), gap `s-5`. Waiting: "Activating your plan" / "Waiting for Stripe to confirm…". Success: loader fades + scales to .7 (`dur-2`), check circle (72px, `primary` 14% fill, `primary` tick, stroke 3) scales in with a slight overshoot (400ms) and the tick draws; text crossfades to "You're on Yearly" / "Taking you to your documents…"; both states stacked so nothing moves; 1.6s later fades to Documents. After 20s: "Still waiting on Stripe" + Go to documents. Reduced motion: states swap |
+| Pricing (in app) | the landing pricing section exactly (§5 landing); Free card's button "Current plan", disabled, for Free users. Reached from See plans, Upgrade, Resubscribe |
+| Account | subscription row states: Free (neutral chip, Upgrade) · Active (Manage) · Ends on date (warning chip, Resubscribe) · Payment due (Update card + warning notice). Change email / password: dialog with the fields, Cancel · Save. Writing font: menu with the fonts as checked items |
+| Not found | the empty state alone on an app page: "This page isn't here" · "It may have been deleted, or the link is wrong." · Back to documents |
