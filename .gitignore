@@ -20,6 +20,7 @@ docs/LEDGER.md
 # Dependencies and build output
 /node_modules
 /.next/
+/.next-logtest/
 /out/
 /build
 *.tsbuildinfo
