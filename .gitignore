@@ -46,3 +46,6 @@ pnpm-debug.log*
 # Service-account keys (ADR 0009)
 *-sa.json
 service-account*.json
+
+# Written by `next dev` (Next.js agent notes)
+AGENTS.md
