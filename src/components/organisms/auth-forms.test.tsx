@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { SignInForm, SignUpForm } from "./auth-forms";
+import { ResetPasswordForm, SignInForm, SignUpForm } from "./auth-forms";
 
 function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
@@ -112,5 +112,73 @@ describe("SignInForm", () => {
         "That email and password don't match. Try again or reset your password.",
       ),
     );
+  });
+});
+
+describe("ResetPasswordForm", () => {
+  it("asks for the email and links back to sign in", () => {
+    render(<ResetPasswordForm onSubmit={vi.fn()} />);
+    expect(
+      screen.getByRole("heading", { name: "Reset your password" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("We'll email you a link to choose a new one."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Back to sign in" }),
+    ).toHaveAttribute("href", "/sign-in");
+    expect(
+      screen.getByRole("button", { name: "Send link" }),
+    ).toBeInTheDocument();
+  });
+
+  it("checks the email before sending anything", async () => {
+    const onSubmit = vi.fn();
+    render(<ResetPasswordForm onSubmit={onSubmit} />);
+    fill("Email", "nope");
+    fireEvent.click(screen.getByRole("button", { name: "Send link" }));
+    expect(
+      await screen.findByText(
+        "Enter a full email address, like maya@studio.co.",
+      ),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("sends the email, then says the link is on its way without saying the account exists", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<ResetPasswordForm onSubmit={onSubmit} />);
+    fill("Email", " maya@studio.co ");
+    fireEvent.click(screen.getByRole("button", { name: "Send link" }));
+    expect(
+      await screen.findByRole("heading", { name: "Reset link sent" }),
+    ).toBeInTheDocument();
+    expect(onSubmit).toHaveBeenCalledWith({ email: "maya@studio.co" });
+    expect(
+      screen.getByText(
+        "If there's an account for maya@studio.co, a link to choose a new password is on its way. It works for one hour.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Back to sign in" }),
+    ).toHaveAttribute("href", "/sign-in");
+    expect(screen.queryByRole("button", { name: "Send link" })).toBeNull();
+  });
+
+  it("stays on the form and says why when the link couldn't be sent", async () => {
+    const onSubmit = vi
+      .fn()
+      .mockRejectedValue({ code: "auth/network-request-failed" });
+    render(<ResetPasswordForm onSubmit={onSubmit} />);
+    fill("Email", "maya@studio.co");
+    fireEvent.click(screen.getByRole("button", { name: "Send link" }));
+    await waitFor(() =>
+      expect(screen.getByLabelText("Email")).toHaveAccessibleDescription(
+        "Can't reach RicherText. Check your connection and try again.",
+      ),
+    );
+    expect(
+      screen.queryByRole("heading", { name: "Reset link sent" }),
+    ).toBeNull();
   });
 });

@@ -26,6 +26,13 @@ ADR 0005 picked Firebase Auth (email + password) with Admin SDK session cookies;
 - A cookie that fails the check goes through `GET /api/session/expired`, which clears it (only if it really is invalid) and sends the visitor to sign in, so the proxy can't bounce between sign-in and the app. The proxy passes the asked-for path to gated layouts in `x-rt-path`.
 - The account menu has Documents, Theme and Sign out; Account joins when the account page exists.
 
+## Built (slice 2, 2026-10-21)
+- `/reset-password` (template wording): email → Send link → the same card turns into "Reset link sent", naming the email typed and "It works for one hour" (Firebase's default expiry). Back to sign in on both.
+- `sendPasswordResetEmail` with a continue URL back to `/sign-in`; `auth/user-not-found` reads the same as sent, other failures (network, too many attempts) stay on the form with the usual message.
+- Signed-in visitors skip `/reset-password` like the other auth pages.
+- On the emulators no mail goes out: the link is printed in the emulator output and listed at its `oobCodes` endpoint; the e2e test reads it there and completes the reset through the same REST call Firebase's page makes. The emulator answers 400 for an unknown email, which the browser logs as a failed request; a real project with email-enumeration protection answers 200.
+- Before launch: the reset email's sender and template, and the authorised domain for the continue URL, are set in the real Firebase project (ADR 0018).
+
 ## Options considered
 - **Client-only auth** (no cookie): the editor is server-rendered and must know the user, so no.
 - **In-memory client persistence**: cleaner single source of truth, but the client would lose its Firebase user on reload and Firestore rules would fail.

@@ -16,5 +16,8 @@ export const signInSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
+export const resetSchema = z.object({ email });
+
 export type SignUpValues = z.infer<typeof signUpSchema>;
 export type SignInValues = z.infer<typeof signInSchema>;
+export type ResetValues = z.infer<typeof resetSchema>;

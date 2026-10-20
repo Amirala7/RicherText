@@ -32,6 +32,8 @@ Everything runs on your machine on the Firebase emulators; no Firebase account o
 
    App: http://localhost:3000 · Emulator UI: http://localhost:4000
 
+   Locally no email is sent. A password reset prints its link in this terminal ("To reset the password for …"); replace `NEW_PASSWORD_HERE` at the end of the link with the new password and open it.
+
 ## Tests
 
 | Command               | What it runs                                            |
