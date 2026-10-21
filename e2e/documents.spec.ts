@@ -136,6 +136,32 @@ test("after a downgrade only the newest document can be renamed", async ({
   await expect(page.getByRole("menuitem", { name: "Rename" })).toBeVisible();
 });
 
+test("after a downgrade the list marks the older documents read-only", async ({
+  page,
+}) => {
+  const uid = await signUp(page);
+  await setPlan(uid, "paid");
+  await createFromList(page, "New document");
+  await openMenu(page, "Untitled");
+  await page.getByRole("menuitem", { name: "Rename" }).click();
+  await page.getByRole("textbox", { name: "Title" }).fill("Older");
+  await page.keyboard.press("Enter");
+  await expect(row(page, "Older")).toBeVisible();
+  await createFromList(page, "New");
+  await expect(page.getByText("Read-only")).toHaveCount(0);
+  await setPlan(uid, "free");
+
+  const notice = page.getByRole("status").filter({ hasText: "plan has ended" });
+  await expect(notice).toBeVisible();
+  await expect(row(page, "Older").getByText("Read-only")).toBeAttached();
+  await expect(row(page, "Older").getByText(/ago|just now/)).toHaveCount(0);
+  await expect(row(page, "Untitled").getByText("Read-only")).toHaveCount(0);
+  await noSidewaysScroll(page);
+
+  await notice.getByRole("link", { name: "Resubscribe" }).click();
+  await expect(page).toHaveURL("/plans");
+});
+
 test("Rename puts the cursor in the title; Esc cancels, Enter saves", async ({
   page,
 }) => {

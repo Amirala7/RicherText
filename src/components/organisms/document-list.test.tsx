@@ -174,3 +174,52 @@ describe("DocumentList: delete", () => {
     expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 });
+
+// Plan ended (ADR 0020, 0024; DESIGN.md "Read-only state"): read-only rows
+// carry a Read-only chip in place of the edit time, and a notice with
+// Resubscribe sits between the filter row and the rows.
+describe("DocumentList: read-only documents", () => {
+  it("shows the Read-only chip instead of the edit time", () => {
+    renderList({ editable: new Set(["b"]) });
+    const readOnly = row("Meeting notes");
+    expect(within(readOnly).getByText("Read-only")).toBeInTheDocument();
+    expect(within(readOnly).queryByText("2 min ago")).toBeNull();
+    expect(
+      screen.getByRole("link", { name: /Meeting notes.*Read-only/ }),
+    ).toHaveAttribute("href", "/documents/a");
+    expect(within(row("Untitled")).queryByText("Read-only")).toBeNull();
+    expect(within(row("Untitled")).getByText("yesterday")).toBeInTheDocument();
+  });
+
+  it("explains it in a notice with Resubscribe, above the rows", () => {
+    renderList({ editable: new Set(["b"]) });
+    const notice = screen.getByRole("status");
+    expect(notice).toHaveTextContent(
+      "Your plan has ended. Your newest document stays editable; the others are read-only.",
+    );
+    expect(
+      within(notice).getByRole("link", { name: "Resubscribe" }),
+    ).toHaveAttribute("href", "/plans");
+    expect(
+      notice.compareDocumentPosition(screen.getByRole("list")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("keeps the notice while filtering", () => {
+    renderList({ editable: new Set(["b"]) });
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: "Filter documents" }),
+      { target: { value: "zzz" } },
+    );
+    expect(
+      screen.getByRole("link", { name: "Resubscribe" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no notice or chips when every document can be edited", () => {
+    renderList();
+    expect(screen.queryByRole("link", { name: "Resubscribe" })).toBeNull();
+    expect(screen.queryByText("Read-only")).toBeNull();
+  });
+});
