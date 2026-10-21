@@ -1,13 +1,13 @@
 import { Editor } from "@tiptap/core";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { documentExtensions } from "@/lib/editor/schema";
 import { EditorToolbar } from "./editor-toolbar";
 
 // Editor toolbar groups (ADR 0015): undo redo · H1 H2 H3 · B I U S · bullets,
-// numbers, quote. Toggles show what's on at the cursor; headings are
-// exclusive; every toggle names its shortcut. The link button comes with the
-// link editor (slice 4).
+// numbers, quote · link. Toggles show what's on at the cursor; headings are
+// exclusive; every toggle names its shortcut. The link button opens the link
+// editor (slice 4).
 let editor: Editor;
 
 function setup(html = "<p>hello world</p>", disabled = false) {
@@ -39,6 +39,7 @@ describe("EditorToolbar", () => {
       "Bulleted list",
       "Numbered list",
       "Quote",
+      "Link",
     ]);
   });
 
@@ -105,6 +106,27 @@ describe("EditorToolbar", () => {
     expect(editor.isActive("bold")).toBe(false);
     fireEvent.click(toggle("Redo"));
     expect(editor.isActive("bold")).toBe(true);
+  });
+
+  it("opens the link editor with the Link button (⌘K)", () => {
+    const onLink = vi.fn();
+    editor = new Editor({
+      extensions: documentExtensions(),
+      content: "<p>hello world</p>",
+    });
+    render(<EditorToolbar editor={editor} onLink={onLink} />);
+    expect(toggle("Link")).toHaveAttribute("aria-keyshortcuts", "Control+K");
+    fireEvent.click(toggle("Link"));
+    expect(onLink).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows Link on when the cursor is in a link", () => {
+    setup('<p><a href="https://studio.co">studio</a> and more</p>');
+    expect(toggle("Link")).toHaveAttribute("aria-pressed", "false");
+    act(() => {
+      editor.commands.setTextSelection(3);
+    });
+    expect(toggle("Link")).toHaveAttribute("aria-pressed", "true");
   });
 
   it("is fully disabled on a read-only document", () => {

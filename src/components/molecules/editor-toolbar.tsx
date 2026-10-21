@@ -5,6 +5,7 @@ import { useEditorState } from "@tiptap/react";
 import {
   Bold,
   Italic,
+  Link2,
   List,
   ListOrdered,
   Redo2,
@@ -27,7 +28,7 @@ type Item = {
   content: React.ReactNode;
   active?: (e: Editor) => boolean;
   can?: (e: Editor) => boolean;
-  run: (e: Editor) => void;
+  run: (e: Editor, onLink?: () => void) => void;
 };
 
 const heading = (level: 1 | 2 | 3): Item => ({
@@ -39,8 +40,8 @@ const heading = (level: 1 | 2 | 3): Item => ({
 });
 
 // Editor toolbar groups (ADR 0015): undo redo · H1 H2 H3 · B I U S · bullets,
-// numbers, quote; dividers between groups. The link button joins with the
-// link editor (slice 4).
+// numbers, quote · link; dividers between groups. The link button opens the
+// link editor (slice 4), which the editor organism owns.
 const GROUPS: Item[][] = [
   [
     {
@@ -112,6 +113,15 @@ const GROUPS: Item[][] = [
       run: (e) => e.chain().focus().toggleBlockquote().run(),
     },
   ],
+  [
+    {
+      label: "Link",
+      keys: ["Mod", "K"],
+      content: <Link2 {...icon} />,
+      active: (e) => e.isActive("link"),
+      run: (_, onLink) => onLink?.(),
+    },
+  ],
 ];
 
 const ITEMS = GROUPS.flat();
@@ -137,10 +147,12 @@ const SHOWN: Record<string, [string, string]> = {
 export function EditorToolbar({
   editor,
   disabled = false,
+  onLink,
   className,
 }: {
   editor: Editor;
   disabled?: boolean;
+  onLink?: () => void;
   className?: string;
 }) {
   const apple = isApple();
@@ -189,7 +201,7 @@ export function EditorToolbar({
                     pressed={s.active}
                     disabled={disabled || !s.can}
                     onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => item.run(editor)}
+                    onClick={() => item.run(editor, onLink)}
                   >
                     {item.content}
                   </ToolbarToggle>

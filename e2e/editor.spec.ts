@@ -218,3 +218,73 @@ test("leaving and opening a document again shows the latest text", async ({
   await expect(saved(page, "Saved")).toBeVisible({ timeout: 10_000 });
   expect((await serverCopy(uid, id)).doc).toContain("Body words and more");
 });
+
+// Slice 4: the link editor (DESIGN.md §3 link editor, user 2026-10-21).
+const linkEditor = (page: Page) => page.getByRole("dialog", { name: "Link" });
+const address = (page: Page) =>
+  linkEditor(page).getByRole("textbox", { name: "Link address" });
+
+test("⌘K links the selection, and the link is saved", async ({ page }) => {
+  const uid = await signUp(page);
+  const id = await openNew(page, "New document");
+  await page.keyboard.type("Read the brief");
+  for (let i = 0; i < 5; i++) await page.keyboard.press("Shift+ArrowLeft");
+  await page.keyboard.press("ControlOrMeta+k");
+  await expect(address(page)).toBeFocused();
+  await noSidewaysScroll(page);
+  await address(page).fill("studio.co/q4");
+  await address(page).press("Enter");
+
+  await expect(linkEditor(page)).toBeHidden();
+  const link = body(page).locator("a");
+  await expect(link).toHaveText("brief");
+  await expect(link).toHaveAttribute("href", "https://studio.co/q4");
+  await expect(body(page)).toBeFocused();
+  await expect(toggle(page, "Link")).toHaveAttribute("aria-pressed", "true");
+  await expect
+    .poll(async () => (await serverCopy(uid, id)).doc)
+    .toContain("https://studio.co/q4");
+});
+
+test("the Link button edits a link and removes it", async ({ page }) => {
+  await signUp(page);
+  await openNew(page, "New document");
+  await page.keyboard.type("See ");
+  await page.keyboard.press("ControlOrMeta+k");
+  await address(page).fill("example.com");
+  await address(page).press("Enter");
+  const link = body(page).locator("a");
+  await expect(link).toHaveText("example.com");
+  await expect(link).toHaveAttribute("href", "https://example.com");
+
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowLeft");
+  await toggle(page, "Link").click();
+  await expect(address(page)).toHaveValue("https://example.com");
+  await address(page).fill("https://studio.co");
+  await linkEditor(page).getByRole("button", { name: "Apply" }).click();
+  await expect(link).toHaveAttribute("href", "https://studio.co");
+  await expect(link).toHaveText("example.com");
+
+  await toggle(page, "Link").click();
+  await linkEditor(page).getByRole("button", { name: "Remove link" }).click();
+  await expect(body(page).locator("a")).toHaveCount(0);
+  await expect(body(page)).toHaveText("See example.com");
+});
+
+test("a bad address stays open as invalid; Esc closes without a link", async ({
+  page,
+}) => {
+  await signUp(page);
+  await openNew(page, "New document");
+  await page.keyboard.type("Notes");
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("ControlOrMeta+k");
+  await address(page).fill("hello world");
+  await address(page).press("Enter");
+  await expect(address(page)).toHaveAttribute("aria-invalid", "true");
+  await page.keyboard.press("Escape");
+  await expect(linkEditor(page)).toBeHidden();
+  await expect(body(page)).toBeFocused();
+  await expect(body(page).locator("a")).toHaveCount(0);
+});
