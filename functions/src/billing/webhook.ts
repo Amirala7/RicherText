@@ -55,7 +55,9 @@ function subscriptionRecord(sub: Stripe.Subscription, customerId: string) {
     currentPeriodEnd: item
       ? Timestamp.fromMillis(item.current_period_end * 1000)
       : null,
-    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    // The Portal cancels "at period end" by setting cancel_at to the period
+    // end; cancel_at_period_end stays false on current API versions.
+    cancelAtPeriodEnd: sub.cancel_at_period_end || sub.cancel_at != null,
     updatedAt: FieldValue.serverTimestamp(),
   };
 }

@@ -259,6 +259,30 @@ describe("stripe webhook: subscription state", () => {
     expect((await subDoc(uid, sub.id)).data()?.cancelAtPeriodEnd).toBe(true);
   });
 
+  // The Customer Portal on current API versions cancels "at period end" by
+  // setting cancel_at to the period end and leaving cancel_at_period_end
+  // false (found in the real sandbox run, ADR 0027 slice 4).
+  it("records a Portal cancellation that sets cancel_at", async () => {
+    const uid = newUid();
+    const sub = {
+      ...subscription({ uid, status: "active" }),
+      cancel_at: periodEnd,
+    };
+    await deliver(
+      event("customer.subscription.updated", sub),
+      fakeStripe([sub]),
+    );
+    expect((await customerDoc(uid)).data()?.plan).toBe("paid");
+    expect((await subDoc(uid, sub.id)).data()?.cancelAtPeriodEnd).toBe(true);
+
+    const renewed = { ...sub, cancel_at: null };
+    await deliver(
+      event("customer.subscription.updated", renewed),
+      fakeStripe([renewed]),
+    );
+    expect((await subDoc(uid, sub.id)).data()?.cancelAtPeriodEnd).toBe(false);
+  });
+
   it("makes the plan free when the subscription ends", async () => {
     const uid = newUid();
     const id = `sub_${crypto.randomUUID()}`;
