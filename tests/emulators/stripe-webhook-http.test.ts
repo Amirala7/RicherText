@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 // The deployed shape of the webhook: the Functions emulator serves it and it
 // refuses anything that isn't a signed POST (ADR 0003, 0027).
-const url = "http://127.0.0.1:5001/demo-richertext/us-central1/stripeWebhook";
+const url = "http://127.0.0.1:5001/demo-richertext/europe-west1/stripeWebhook";
 
 describe("functions: stripeWebhook", () => {
   it("refuses methods other than POST", async () => {

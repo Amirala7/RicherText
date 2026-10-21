@@ -77,7 +77,7 @@ describe("functionsSecretFile", () => {
 describe("webhookUrl", () => {
   it("points at the emulator's stripeWebhook Function", () => {
     expect(webhookUrl("demo-richertext")).toBe(
-      "http://127.0.0.1:5001/demo-richertext/us-central1/stripeWebhook",
+      "http://127.0.0.1:5001/demo-richertext/europe-west1/stripeWebhook",
     );
   });
 });
@@ -93,7 +93,7 @@ describe("listenArgs", () => {
     expect(listenArgs("demo-richertext")).toEqual([
       "listen",
       "--forward-to",
-      "http://127.0.0.1:5001/demo-richertext/us-central1/stripeWebhook",
+      "http://127.0.0.1:5001/demo-richertext/europe-west1/stripeWebhook",
       "--events",
       LISTEN_EVENTS.join(","),
     ]);
