@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import type { Changes } from "@/lib/editor/autosave";
 import { snippetOf } from "@/lib/editor/snippet";
+import { writingFont, type WritingFont } from "@/lib/settings/writing";
 import type { ListedDocument } from "./list";
 import { emptyContent, type DocumentJson } from "./model";
 
@@ -97,7 +98,11 @@ export function renameDocument(
   });
 }
 
-export type OpenedDocument = { title: string; doc: DocumentJson };
+export type OpenedDocument = {
+  title: string;
+  doc: DocumentJson;
+  font: WritingFont;
+};
 
 // The editor's copy (ADR 0028); null when the document doesn't exist. Offline
 // it comes from the device cache (ADR 0029).
@@ -114,11 +119,12 @@ export async function loadDocument(
   if (!meta.exists()) return null;
   return {
     title: String(meta.get("title") ?? ""),
+    font: writingFont(meta.get("font")),
     doc: (content.get("doc") as DocumentJson | undefined) ?? emptyContent(),
   };
 }
 
-// Autosave's write: title, snippet and content in one batch, so the list
+// Autosave's write: title, font, snippet and content in one batch, so the list
 // never shows a snippet from other content. Resolves when the server has it.
 export function saveDocument(
   db: Firestore,
@@ -130,6 +136,7 @@ export function saveDocument(
   const batch = writeBatch(db);
   batch.update(ref, {
     ...(changes.title !== undefined && { title: changes.title }),
+    ...(changes.font && { font: changes.font }),
     ...(changes.doc && { snippet: snippetOf(changes.doc) }),
     updatedAt: serverTimestamp(),
   });

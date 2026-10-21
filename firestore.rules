@@ -21,7 +21,7 @@ service cloud.firestore {
     // Documents (ADR 0004, 0020, 0028). Created and deleted only by the
     // server route, which enforces the Free limit; users/{uid} itself (the
     // newestDocId pointer) is server-only. The browser saves the title,
-    // snippet and content: any document on a paid plan, otherwise only the
+    // snippet, writing font (ADR 0032) and content: any document on a paid plan, otherwise only the
     // newest one, so older documents are read-only after a downgrade.
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
@@ -41,24 +41,16 @@ service cloud.firestore {
       return value is string && value.size() <= 200;
     }
 
-    // Writing settings (ADR 0010, 0031): the owner's writing font, one of
-    // the offered fonts. A display setting, never stored in documents.
-    match /users/{uid}/settings/writing {
-      allow read: if isOwner(uid);
-      allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['font'])
-        && request.resource.data.font in ['geist', 'plex-serif'];
-    }
-
     match /users/{uid}/documents/{docId} {
       allow read: if isOwner(uid);
       allow update: if isOwner(uid)
         && canEdit(uid, docId)
         && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['title', 'snippet', 'updatedAt'])
+          .hasOnly(['title', 'snippet', 'font', 'updatedAt'])
         && request.resource.data.updatedAt == request.time
         && isShortString(request.resource.data.title)
-        && isShortString(request.resource.data.snippet);
+        && isShortString(request.resource.data.snippet)
+        && request.resource.data.get('font', 'geist') in ['geist', 'plex-serif'];
 
       match /content/{part} {
         allow read: if isOwner(uid);

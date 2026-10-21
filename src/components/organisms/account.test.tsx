@@ -4,7 +4,6 @@ import {
   PaymentDueNotice,
   ProfileSection,
   SubscriptionSection,
-  WritingSection,
 } from "./account";
 
 // Account page sections (ADR 0016, 0024): Profile shows the email (no change
@@ -128,38 +127,5 @@ describe("PaymentDueNotice", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "Your last payment didn't go through. Stripe will try again; update your card to keep your plan.",
     );
-  });
-});
-
-// Writing (ADR 0010, 0024, 0031): one row, the writing font; Change opens a
-// menu with the fonts as checked items.
-describe("WritingSection", () => {
-  function setup(font: "geist" | "plex-serif" = "geist") {
-    const onFont = vi.fn();
-    render(<WritingSection font={font} onFont={onFont} />);
-    const section = within(screen.getByRole("region", { name: "Writing" }));
-    return { section, onFont };
-  }
-
-  it("shows the writing font", () => {
-    const { section } = setup("plex-serif");
-    expect(section.getByText("Writing font")).toBeInTheDocument();
-    expect(section.getByText("IBM Plex Serif")).toBeInTheDocument();
-  });
-
-  it("Change opens the fonts as checked items and picks one", () => {
-    const { section, onFont } = setup();
-    fireEvent.pointerDown(section.getByRole("button", { name: "Change" }), {
-      button: 0,
-      ctrlKey: false,
-    });
-    const items = screen.getAllByRole("menuitemradio");
-    expect(items.map((i) => i.textContent)).toEqual([
-      "Geist",
-      "IBM Plex Serif",
-    ]);
-    expect(items[0]).toHaveAttribute("aria-checked", "true");
-    fireEvent.click(items[1]);
-    expect(onFont).toHaveBeenCalledWith("plex-serif");
   });
 });

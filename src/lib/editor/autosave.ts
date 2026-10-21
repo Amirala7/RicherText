@@ -1,4 +1,5 @@
 import type { DocumentJson } from "@/lib/documents/model";
+import type { WritingFont } from "@/lib/settings/writing";
 
 // Autosave (CONTEXT §5, ADR 0029): one save 1 s after typing stops, and at
 // least one every 5 s while it goes on. Writes go to Firestore, which keeps
@@ -10,7 +11,11 @@ export const MAX_WAIT_MS = 5000;
 export const DEVICE_AFTER_MS = 2000;
 
 export type SaveState = "saved" | "saving" | "device" | "error";
-export type Changes = { title?: string; doc?: DocumentJson };
+export type Changes = {
+  title?: string;
+  doc?: DocumentJson;
+  font?: WritingFont;
+};
 
 export function createAutosave(
   save: (changes: Changes) => Promise<void>,

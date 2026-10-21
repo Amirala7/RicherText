@@ -39,6 +39,7 @@ describe("EditorToolbar", () => {
       "Bulleted list",
       "Numbered list",
       "Quote",
+      "Writing font",
       "Text size",
       "Text colour",
       "Link",
@@ -175,5 +176,41 @@ describe("EditorToolbar: text size and colour", () => {
     );
     fireEvent.click(screen.getByRole("menuitemradio", { name: "Default" }));
     expect(editor.isActive("textColor")).toBe(false);
+  });
+});
+
+// Writing font (ADR 0032): a toggle before Text size opening the fonts as
+// checked items; the font belongs to the document, so the pick goes up.
+describe("EditorToolbar: writing font", () => {
+  const open = () =>
+    fireEvent.pointerDown(toggle("Writing font"), {
+      button: 0,
+      ctrlKey: false,
+    });
+
+  it("offers Geist and IBM Plex Serif, the current one checked", () => {
+    editor = new Editor({ extensions: documentExtensions() });
+    render(<EditorToolbar editor={editor} font="plex-serif" />);
+    open();
+    const items = screen.getAllByRole("menuitemradio");
+    expect(items.map((i) => i.textContent)).toEqual([
+      "Geist",
+      "IBM Plex Serif",
+    ]);
+    expect(items[1]).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("passes the picked font up", () => {
+    const onFont = vi.fn();
+    editor = new Editor({ extensions: documentExtensions() });
+    render(<EditorToolbar editor={editor} onFont={onFont} />);
+    open();
+    expect(
+      screen.getByRole("menuitemradio", { name: "Geist" }),
+    ).toHaveAttribute("aria-checked", "true");
+    fireEvent.click(
+      screen.getByRole("menuitemradio", { name: "IBM Plex Serif" }),
+    );
+    expect(onFont).toHaveBeenCalledWith("plex-serif");
   });
 });

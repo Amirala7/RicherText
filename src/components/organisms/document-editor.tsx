@@ -49,11 +49,12 @@ export function DocumentEditor({
   doc,
   editable,
   paid,
-  font = "geist",
+  font: initialFont = "geist",
   saveState,
   email,
   onTitle,
   onDoc,
+  onFont,
   onRetry,
   onDelete,
 }: {
@@ -66,10 +67,12 @@ export function DocumentEditor({
   email: string | null;
   onTitle: (title: string) => void;
   onDoc: (doc: DocumentJson) => void;
+  onFont?: (font: WritingFont) => void;
   onRetry: () => void;
   onDelete: () => void;
 }) {
   const [title, setTitle] = useState(initialTitle);
+  const [font, setFont] = useState(initialFont);
   const [link, setLink] = useState<LinkTarget | null>(null);
   const narrow = useNarrow();
   const openLink = useRef(() => {});
@@ -131,6 +134,11 @@ export function DocumentEditor({
           <EditorToolbar
             editor={editor}
             disabled={!editable}
+            font={font}
+            onFont={(next) => {
+              setFont(next);
+              onFont?.(next);
+            }}
             onLink={() => openLink.current()}
             className="min-w-0 flex-[0_1_auto] max-sm:order-10 max-sm:flex-[1_1_100%]"
           />

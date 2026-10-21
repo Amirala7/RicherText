@@ -28,6 +28,11 @@ import {
   type TextSize,
 } from "@/lib/editor/text-style";
 import { onScreenSelection } from "@/lib/editor/selection";
+import {
+  WRITING_FONTS,
+  writingFont,
+  type WritingFont,
+} from "@/lib/settings/writing";
 import { cn } from "@/lib/utils";
 
 const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
@@ -51,8 +56,9 @@ const heading = (level: 1 | 2 | 3): Item => ({
 });
 
 // Editor toolbar groups (ADR 0015): undo redo · H1 H2 H3 · B I U S · bullets,
-// numbers, quote · size, colour (ADR 0031) · link; dividers between groups. The link button opens the
-// link editor (slice 4), which the editor organism owns.
+// numbers, quote · font (ADR 0032), size, colour (ADR 0031) · link; dividers
+// between groups. The link button opens the link editor (slice 4), which the
+// editor organism owns.
 const GROUPS: Item[][] = [
   [
     {
@@ -158,11 +164,15 @@ const SHOWN: Record<string, [string, string]> = {
 export function EditorToolbar({
   editor,
   disabled = false,
+  font = "geist",
+  onFont,
   onLink,
   className,
 }: {
   editor: Editor;
   disabled?: boolean;
+  font?: WritingFont;
+  onFont?: (font: WritingFont) => void;
   onLink?: () => void;
   className?: string;
 }) {
@@ -202,6 +212,12 @@ export function EditorToolbar({
             {g === GROUPS.length - 1 && (
               <>
                 <Divider />
+                <WritingFontMenu
+                  editor={editor}
+                  font={font}
+                  onFont={onFont}
+                  disabled={disabled}
+                />
                 <TextStyleMenus
                   editor={editor}
                   size={style.size}
@@ -248,6 +264,64 @@ function Divider() {
 }
 
 const radioItem = `${menuItem} [&>svg]:invisible [&>svg]:text-foreground data-[state=checked]:[&>svg]:visible`;
+
+// Writing font (ADR 0032): the document's font, not a mark; the pick goes up
+// to be saved with the document, and focus returns to the text.
+function WritingFontMenu({
+  editor,
+  font,
+  onFont,
+  disabled,
+}: {
+  editor: Editor;
+  font: WritingFont;
+  onFont?: (font: WritingFont) => void;
+  disabled: boolean;
+}) {
+  return (
+    <DropdownMenu.Root modal={false}>
+      <Tooltip label="Writing font">
+        <DropdownMenu.Trigger asChild disabled={disabled}>
+          <ToolbarToggle
+            aria-label="Writing font"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            <span aria-hidden="true" className="text-[13px] leading-none">
+              Aa
+            </span>
+          </ToolbarToggle>
+        </DropdownMenu.Trigger>
+      </Tooltip>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="start"
+          sideOffset={10}
+          className={cn(menuContent, "w-[180px]")}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            if (!editor.isDestroyed) editor.commands.focus();
+          }}
+        >
+          <DropdownMenu.RadioGroup
+            value={font}
+            onValueChange={(value) => onFont?.(writingFont(value))}
+          >
+            {WRITING_FONTS.map((option) => (
+              <DropdownMenu.RadioItem
+                key={option.id}
+                value={option.id}
+                className={radioItem}
+              >
+                <Check {...icon} />
+                <span className="min-w-0 flex-1 truncate">{option.label}</span>
+              </DropdownMenu.RadioItem>
+            ))}
+          </DropdownMenu.RadioGroup>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+}
 
 // Text size and colour (ADR 0031): toggles that open a menu; picking applies
 // to the selection (or what's typed next) and returns to the text.
