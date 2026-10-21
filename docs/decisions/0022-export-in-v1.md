@@ -15,3 +15,4 @@ ADR 0020 put export (Word, PDF) after v1, paid only. The landing page proposal s
 - Export is gated by entitlement, checked where the file is generated, not only in the UI.
 - Export runs on the server, in a Cloud Function (decided 2026-10-20): the PDF and DOCX libraries stay out of the editor bundle (principle 1, fast beats featureful), and the entitlement check sits next to the file generation.
 - Landing copy: "Included with every subscription"; both paid pricing cards list "Export to PDF, Word and more".
+- Amended 2026-10-22: export was moved to next steps before it was built, so every place that promises it carries a primary "Coming soon" badge (landing feature card, both paid pricing cards, the document menu label on paid plans), the feature line reads "Coming to every subscription" and the FAQ answers "Not yet". The badges come off when export ships.

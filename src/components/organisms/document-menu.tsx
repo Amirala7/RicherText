@@ -3,6 +3,7 @@
 import { Download, Lock, MoreHorizontal, Trash2 } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { useState } from "react";
+import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import {
   menuContent,
@@ -26,8 +27,9 @@ const FORMATS = [
 
 // Document menu in the editor bar (ADR 0024): "Export as" and the six
 // formats, then Delete document (danger), which asks first. Export isn't
-// built yet (ADR 0022), so its items are shown disabled (user, 2026-10-21);
-// on Free they show a lock and the label reads "Export · paid plans".
+// built yet (ADR 0022), so its items are shown disabled and, on a paid plan,
+// the label carries a "Coming soon" badge; on Free they show a lock and the
+// label reads "Export · paid plans".
 export function DocumentMenu({
   title,
   paid,
@@ -63,8 +65,9 @@ export function DocumentMenu({
             sideOffset={sideOffset}
             className={`${menuContent} w-[220px] max-w-[calc(100vw-32px)]`}
           >
-            <DropdownMenu.Label className={label}>
-              {paid ? "Export as" : "Export · paid plans"}
+            <DropdownMenu.Label className={`${label} justify-between gap-2`}>
+              <span>{paid ? "Export as" : "Export · paid plans"}</span>
+              {paid && <Badge tone="primary">Coming soon</Badge>}
             </DropdownMenu.Label>
             {FORMATS.map((format) => (
               <DropdownMenu.Item key={format} disabled className={item}>

@@ -1,5 +1,9 @@
 import { Badge } from "@/components/atoms/badge";
-import { FeatureList, PriceLine } from "@/components/molecules/price-line";
+import {
+  type Feature,
+  FeatureList,
+  PriceLine,
+} from "@/components/molecules/price-line";
 import {
   PAID_PLANS,
   formatUsd,
@@ -11,10 +15,11 @@ import {
 // used as is in the app. Three cards with the same parts in the same order
 // (name row h-sm, price, features, action, note), so they share one height;
 // one column at 900px and under. Callers pass each card's button.
-const paidFeatures = [
+const paidFeatures: Feature[] = [
   "Everything in Free",
   "Unlimited documents",
-  "Export to PDF, Word and more",
+  // Not built yet (ADR 0022).
+  { text: "Export to PDF, Word and more", badge: "Coming soon" },
   "Cancel any time",
 ];
 
@@ -31,7 +36,7 @@ function PlanCard({
   chip?: string;
   price: string;
   per: string;
-  features: string[];
+  features: Feature[];
   action: React.ReactNode;
   note: string;
 }) {

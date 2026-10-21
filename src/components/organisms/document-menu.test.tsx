@@ -64,4 +64,9 @@ describe("DocumentMenu", () => {
     expect(screen.queryByRole("alertdialog")).toBeNull();
     expect(onDelete).not.toHaveBeenCalled();
   });
+
+  it("tags export as coming soon on a paid plan", () => {
+    const { menu } = setup();
+    expect(within(menu).getByText("Coming soon")).toBeInTheDocument();
+  });
 });

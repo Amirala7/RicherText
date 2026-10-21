@@ -161,4 +161,20 @@ describe("landing page", () => {
       ).not.toBeNull();
     }
   });
+
+  it("tags export as coming soon, in its feature card and the FAQ", () => {
+    render(<Home />);
+    const features = document.getElementById("features")!;
+    const card = within(features)
+      .getByRole("heading", { name: "Export to your favourite format" })
+      .closest("li")!;
+    expect(within(card).getByText("Coming soon")).toBeInTheDocument();
+    expect(within(features).getAllByText("Coming soon")).toHaveLength(1);
+    const faq = document.getElementById("faq")!;
+    const row = within(faq)
+      .getByText("Can I export to Word or PDF?")
+      .closest("details")!;
+    expect(row).toHaveTextContent(/^Can I export to Word or PDF\?Not yet/);
+    expect(row).toHaveTextContent("coming soon");
+  });
 });
