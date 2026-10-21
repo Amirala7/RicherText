@@ -59,3 +59,15 @@ To take real sandbox payments locally:
 | `pnpm test:emulators` | Firestore rules and Functions tests, on the emulators   |
 | `pnpm test:e2e`       | End-to-end tests (Playwright, desktop + phone)          |
 | `pnpm check`          | Lint, type-check, format check, unit and emulator tests |
+
+## Deploy
+
+Deploys are local only, from a clean `main` (ADR 0018, 0034): project `richer-text-55ffe` (alias `prod`), Firestore and Functions in `europe-west1`, the app on App Hosting in `europe-west4`.
+
+```
+pnpm deploy:prod --dry-run          # show the steps
+pnpm deploy:prod                    # all checks, then rules, functions, app
+pnpm deploy:prod rules app          # all checks, then only these
+```
+
+Every check runs first (lint, types, format, unit, emulator, e2e; with `pnpm dev:all` running it reuses those emulators). Secrets live only in Secret Manager: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `FIREBASE_WEB_API_KEY`.
