@@ -198,3 +198,23 @@ test("the Saved indicator sits quietly in the bottom-right corner", async ({
     0,
   );
 });
+
+test("leaving and opening a document again shows the latest text", async ({
+  page,
+}) => {
+  const uid = await signUp(page);
+  const id = await openNew(page, "New document");
+  await page.keyboard.type("Body words");
+  await title(page).fill("Return trip");
+  await page.getByRole("link", { name: "Back to documents" }).click();
+  await expect(page).toHaveURL("/documents");
+  await page.getByRole("link", { name: "Return trip" }).click();
+  await expect(page).toHaveURL(`/documents/${id}`);
+
+  await expect(body(page)).toHaveText("Body words");
+  await expect(title(page)).toHaveValue("Return trip");
+  await body(page).press("End");
+  await page.keyboard.type(" and more");
+  await expect(saved(page, "Saved")).toBeVisible({ timeout: 10_000 });
+  expect((await serverCopy(uid, id)).doc).toContain("Body words and more");
+});
