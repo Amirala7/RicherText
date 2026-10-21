@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import type { Metadata } from "next";
 import NextLink from "next/link";
+import { Badge } from "@/components/atoms/badge";
 import { buttonVariants } from "@/components/atoms/button";
 import { GoogleMark } from "@/components/atoms/brand-marks";
 import {
@@ -74,6 +75,7 @@ const FEATURES: {
   line: string;
   demo: React.ReactNode;
   wide?: boolean;
+  badge?: string;
 }[] = [
   {
     title: "Format as fast as you think",
@@ -99,9 +101,11 @@ const FEATURES: {
   },
   {
     title: "Export to your favourite format",
-    line: "PDF, Word, RTF, Markdown, HTML or plain text, with the formatting intact. Included with every subscription.",
+    line: "PDF, Word, RTF, Markdown, HTML or plain text, with the formatting intact. Coming to every subscription.",
     demo: <ExportDemo />,
     wide: true,
+    // Not built yet (ADR 0022).
+    badge: "Coming soon",
   },
   {
     title: "Sans or serif, light or dark",
@@ -157,7 +161,7 @@ const FAQ = [
   ],
   [
     "Can I export to Word or PDF?",
-    "Yes, on a paid plan: PDF, Word, RTF, Markdown, HTML or plain text, with the formatting intact. The Free plan doesn't include export.",
+    "Not yet; it's coming soon to the paid plans: PDF, Word, RTF, Markdown, HTML or plain text, with the formatting intact. The Free plan won't include export.",
   ],
   [
     "How do I cancel?",
@@ -193,6 +197,11 @@ export default function Home() {
                 >
                   {f.demo}
                   <div className="lp-ftxt">
+                    {f.badge && (
+                      <Badge tone="primary" className="self-start">
+                        {f.badge}
+                      </Badge>
+                    )}
                     <h3>{f.title}</h3>
                     <p>{f.line}</p>
                   </div>

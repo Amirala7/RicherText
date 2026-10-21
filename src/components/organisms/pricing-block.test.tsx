@@ -90,4 +90,18 @@ describe("PricingBlock", () => {
     renderBlock();
     expect(screen.getAllByText(/^Save \d+%$/)).toHaveLength(1);
   });
+
+  it("tags export as coming soon on both paid cards, not on Free", () => {
+    renderBlock();
+    const [free, yearly, monthly] = screen.getAllByRole("listitem", {
+      name: /plan$/,
+    });
+    for (const card of [yearly, monthly]) {
+      const row = within(card)
+        .getByText("Export to PDF, Word and more")
+        .closest("li")!;
+      expect(within(row).getByText("Coming soon")).toBeInTheDocument();
+    }
+    expect(within(free).queryByText("Coming soon")).toBeNull();
+  });
 });
