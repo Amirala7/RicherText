@@ -188,6 +188,14 @@ describe("EditorToolbar: writing font", () => {
       ctrlKey: false,
     });
 
+  it("shows a serif Ag", () => {
+    setup();
+    expect(toggle("Writing font")).toHaveTextContent(/^Ag$/);
+    expect(toggle("Writing font").querySelector("span")).toHaveClass(
+      "font-serif",
+    );
+  });
+
   it("offers Geist and IBM Plex Serif, the current one checked", () => {
     editor = new Editor({ extensions: documentExtensions() });
     render(<EditorToolbar editor={editor} font="plex-serif" />);
