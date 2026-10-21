@@ -181,3 +181,20 @@ test("after going back from the editor, New is ready again", async ({
   await expect(button).toBeEnabled();
   await expect(button).not.toHaveAttribute("aria-busy");
 });
+
+test("the Saved indicator sits quietly in the bottom-right corner", async ({
+  page,
+}) => {
+  await signUp(page);
+  await openNew(page, "New document");
+  const indicator = saved(page, "Saved");
+  await expect(indicator).toBeVisible();
+  const box = (await indicator.boundingBox())!;
+  const view = page.viewportSize()!;
+  const edge = view.width < 640 ? 16 : 24;
+  expect(Math.round(view.width - (box.x + box.width))).toBe(edge);
+  expect(view.height - (box.y + box.height)).toBeLessThanOrEqual(edge + 8);
+  await expect(page.locator("header").getByTestId("saved-state")).toHaveCount(
+    0,
+  );
+});

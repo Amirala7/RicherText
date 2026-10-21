@@ -30,11 +30,12 @@ function useNarrow() {
   );
 }
 
-// Editor organism (DESIGN.md editor template, ADR 0024): one h-bar bar with
-// back, toolbar, Saved and account, items h-lg; on phones a header row (back,
-// Saved, account) and the toolbar on its own line. Below, the 68ch writing
-// column: title (xl 28, "Untitled") and the body. Read-only: the chip in
-// Saved's place, toolbar disabled, a notice with Resubscribe above the title.
+// Editor organism (DESIGN.md editor template, ADR 0024, 0030): one h-bar bar
+// with back, toolbar and account, items h-lg; on phones a header row (back,
+// account) and the toolbar on its own line. Below, the 68ch writing column:
+// title (xl 28, "Untitled") and the body. Saved floats quietly in the
+// bottom-right corner. Read-only: a chip in the bar, toolbar disabled, a
+// notice with Resubscribe above the title.
 export function DocumentEditor({
   title: initialTitle,
   doc,
@@ -98,13 +99,7 @@ export function DocumentEditor({
           />
         )}
         <span className="h-px min-w-0 flex-1" />
-        {editable ? (
-          <SavedIndicator
-            state={saveState}
-            onRetry={onRetry}
-            className="h-control-lg max-sm:h-control-md"
-          />
-        ) : (
+        {!editable && (
           <Badge size="chip">
             <Lock className="size-4" {...icon} />
             Read-only
@@ -160,6 +155,13 @@ export function DocumentEditor({
           </div>
         </div>
       </main>
+      {editable && (
+        <SavedIndicator
+          state={saveState}
+          onRetry={onRetry}
+          className="fixed right-6 bottom-6 z-10 max-sm:right-4 max-sm:bottom-4"
+        />
+      )}
     </div>
   );
 }

@@ -48,3 +48,23 @@ describe("SavedIndicator", () => {
     expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
   });
 });
+
+// Quiet placement (user, 2026-10-21): xs text, faded; problems never faded.
+describe("SavedIndicator, quiet", () => {
+  const box = () => screen.getAllByTestId("saved-state")[0].parentElement!;
+
+  it.each([
+    ["saved", "opacity-50"],
+    ["saving", "opacity-70"],
+    ["device", "opacity-70"],
+    ["error", "opacity-100"],
+  ] as const)("fades %s to %s", (state, opacity) => {
+    render(<SavedIndicator state={state} onRetry={() => {}} />);
+    expect(box()).toHaveClass(opacity);
+  });
+
+  it("uses the xs text size", () => {
+    render(<SavedIndicator state="saved" onRetry={() => {}} />);
+    expect(box()).toHaveClass("text-xs");
+  });
+});
