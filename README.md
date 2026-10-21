@@ -89,7 +89,7 @@ To take real sandbox payments locally:
 
 1. Put the webhook signing secret in `.env.local` (`STRIPE_WEBHOOK_SECRET`). It comes from `stripe listen --print-secret` and stays the same for your sandbox, so this is needed once.
 2. Start (or restart) `pnpm dev:all`. It copies the two Stripe secrets into `functions/.secret.local` (gitignored) for the webhook Function; without keys it skips this and payments stay off.
-3. In a second terminal run `pnpm stripe:listen`. It forwards sandbox events to the emulator's webhook and hides the secrets the Stripe CLI prints.
+3. In a second terminal run `pnpm stripe:listen`. It runs `stripe listen`, forwarding the four events the webhook handles (`checkout.session.completed`, `customer.subscription.created`, `.updated`, `.deleted`) to the Functions emulator at `http://127.0.0.1:5001/demo-richertext/europe-west1/stripeWebhook`, and hides the secrets the Stripe CLI prints.
 4. Pay with the test card `4242 4242 4242 4242`, any future date and any CVC.
 
 ### Stripe test flow
@@ -98,7 +98,7 @@ Locally (above) or on the live demo. Every payment is in the Stripe sandbox.
 
 1. **Free:** Start free on the landing page, sign up. You land on Documents on the Free plan; write a document.
 2. **Gate:** press New. With one document on Free it goes to the plans page instead of creating a second.
-3. **Subscribe:** pick Monthly or Yearly → Stripe Checkout → `4242 4242 4242 4242`. The activation page waits for the webhook, names the plan and goes to Documents; New now creates as many documents as you like.
+3. **Subscribe:** pick Monthly or Yearly → Stripe Checkout → `4242 4242 4242 4242`. The activation page waits for the webhook, names the plan and goes to Documents; New now creates as many documents as you like. Locally, completing Checkout is what triggers the webhook: the `pnpm stripe:listen` terminal shows each event forwarded with a `[200]`, and the Emulator UI (http://localhost:4000 → Firestore) shows `customers/{uid}` with `plan: "paid"`.
 4. **Declined card:** `4000 0000 0000 0002` is refused in Checkout and nothing changes in the app.
 5. **Manage:** Account → Manage opens the Customer Portal: change card, switch monthly ↔ yearly, cancel. Back in the app the account page updates live ("Ends 21 Nov" after a cancel).
 6. **Downgrade:** when a cancelled plan ends, the newest document stays editable and the rest open read-only with a Resubscribe notice. Nothing is deleted. The end of a period and failed payments (`past_due`, which keeps access while Stripe retries) aren't practical to trigger by hand, so the emulator tests cover them.
@@ -155,7 +155,6 @@ I built it with Claude Code as the coding agent.
 - **I decided, the agent implemented.** Each choice was discussed first and written down as an ADR (`docs/decisions/`) with the options weighed. Scope, plans and pricing, the Free plan, payment behaviour, regions and the design are mine.
 - **Tests first, and locked.** Every change started with a failing test; the agent couldn't change an existing test without my explicit yes, so the tests hold the business rules in place (ADR 0014).
 - **Design reviewed on canvases** before any screen was built: tokens, atoms, molecules, organisms, the landing page and the app screens, each approved into `docs/DESIGN.md`.
-- **What I verified by hand:** the full flow on the live site (sign up → Checkout in the sandbox → webhook → writing → reload), the Customer Portal, the editor (formatting, shortcuts, paste to and from Docs and Gmail, offline), light and dark at desktop and phone width, the Firebase and Stripe console setup, and that no secret is in the repo or its history.
 - **Where I pushed back:** the agent's first designs and some decisions changed on review. ADRs 0019 → 0020 (Free plan), 0022 (export), 0031 → 0032 (writing font) and 0033 (a nesting bug found in an audit) show it.
 
 ## Production
