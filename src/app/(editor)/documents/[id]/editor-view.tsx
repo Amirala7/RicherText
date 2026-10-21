@@ -2,7 +2,9 @@
 
 import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { Toast } from "@/components/atoms/toast";
 import { WritingLoader } from "@/components/atoms/writing-loader";
 import { buttonVariants } from "@/components/atoms/button";
 import { EmptyState } from "@/components/molecules/empty-state";
@@ -11,6 +13,7 @@ import { PageBar } from "@/components/organisms/page-bar";
 import { AccountMenu } from "@/components/organisms/account-menu";
 import {
   loadDocument,
+  requestDelete,
   saveDocument,
   watchDocuments,
   watchPaid,
@@ -38,6 +41,8 @@ export function EditorView({
   const [documents, setDocuments] = useState<ListedDocument[] | null>(null);
   const [paid, setPaid] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("saved");
+  const [deleteFailed, setDeleteFailed] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     let stop = () => {};
@@ -104,6 +109,24 @@ export function EditorView({
     if (opened && typeof opened === "object") showTitle(opened.title);
   }, [opened]);
 
+  useEffect(() => {
+    if (deleteFailed === null) return;
+    const timer = setTimeout(() => setDeleteFailed(null), 5000);
+    return () => clearTimeout(timer);
+  }, [deleteFailed]);
+
+  // Edits still waiting are sent first, so none lands after the delete; the
+  // list then says "Document deleted".
+  async function remove() {
+    autosave?.dispose();
+    try {
+      await requestDelete(id);
+      router.replace("/documents?deleted=1");
+    } catch {
+      setDeleteFailed(Date.now());
+    }
+  }
+
   const editable = useMemo(
     () => (documents ? editableIds(documents, paid).has(id) : false),
     [documents, paid, id],
@@ -154,18 +177,27 @@ export function EditorView({
   }
 
   return (
-    <DocumentEditor
-      title={opened.title}
-      doc={opened.doc}
-      editable={editable}
-      saveState={saveState}
-      email={email}
-      onTitle={(next) => {
-        showTitle(next);
-        autosave.change({ title: next });
-      }}
-      onDoc={(doc) => autosave.change({ doc })}
-      onRetry={() => autosave.retry()}
-    />
+    <>
+      <DocumentEditor
+        title={opened.title}
+        doc={opened.doc}
+        editable={editable}
+        paid={paid}
+        saveState={saveState}
+        email={email}
+        onTitle={(next) => {
+          showTitle(next);
+          autosave.change({ title: next });
+        }}
+        onDoc={(doc) => autosave.change({ doc })}
+        onRetry={() => autosave.retry()}
+        onDelete={remove}
+      />
+      {deleteFailed !== null && (
+        <Toast key={deleteFailed} tone="error">
+          {"Couldn't delete the document. Try again."}
+        </Toast>
+      )}
+    </>
   );
 }

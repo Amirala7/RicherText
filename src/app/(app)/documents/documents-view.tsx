@@ -56,6 +56,15 @@ export function DocumentsView() {
     };
   }, []);
 
+  // Deleted from the editor's document menu: say so here, once.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("deleted") !== "1")
+      return;
+    router.replace("/documents");
+    const timer = setTimeout(() => say("Document deleted"));
+    return () => clearTimeout(timer);
+  }, [router]);
+
   // Next keeps this page's state when you leave it (React Activity) and runs
   // effect clean-ups on the way out, so New isn't still busy when you return.
   useEffect(() => () => setCreating(false), []);
