@@ -1,6 +1,6 @@
 # 0028 — Documents: data model, server-side create/delete, editable pointer
 
-- Status: accepted (builds on 0004, 0020)
+- Status: accepted (builds on 0004, 0020); content format amended by 0033 (JSON string)
 - Date: 2026-10-21
 
 ## Context
