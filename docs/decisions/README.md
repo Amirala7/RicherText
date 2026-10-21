@@ -58,3 +58,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0027 | [Payments: how Phase 3 builds it](0027-payments-implementation.md) | accepted (builds on 0003) |
 | 0028 | [Documents: data model, server-side create/delete, editable pointer](0028-documents-data-model.md) | accepted (builds on 0004, 0020) |
 | 0029 | [Firestore offline cache on the device](0029-firestore-offline-cache.md) | accepted (builds on 0004, 0028) |
+| 0030 | [Editor and autosave: how slice 3 builds them](0030-editor-and-autosave.md) | accepted (builds on 0006, 0028, 0029) |
