@@ -288,3 +288,41 @@ test("a bad address stays open as invalid; Esc closes without a link", async ({
   await expect(body(page)).toBeFocused();
   await expect(body(page).locator("a")).toHaveCount(0);
 });
+
+// Slice 4: the document menu (DESIGN.md app screens, user 2026-10-21).
+test("the document menu deletes the document after asking", async ({
+  page,
+}) => {
+  const uid = await signUp(page);
+  const id = await openNew(page, "New document");
+  await title(page).fill("Q4 plan");
+  await title(page).press("Enter");
+  await expect(body(page)).toBeFocused();
+  await page.keyboard.type("Draft");
+
+  await page.getByRole("button", { name: "Document menu" }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu.getByText("Export · paid plans")).toBeVisible();
+  await expect(
+    menu.getByRole("menuitem", { name: "PDF", exact: true }),
+  ).toHaveAttribute("aria-disabled", "true");
+  await noSidewaysScroll(page);
+  await menu.getByRole("menuitem", { name: "Delete document" }).click();
+  const dialog = page.getByRole("alertdialog", { name: "Delete “Q4 plan”?" });
+  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await dialog.getByRole("button", { name: "Delete" }).click();
+
+  await expect(page).toHaveURL("/documents");
+  await expect(page.getByText("Document deleted")).toBeVisible();
+  await expect(page.getByText("No documents yet")).toBeVisible();
+  await expect
+    .poll(
+      async () => (await db.doc(`users/${uid}/documents/${id}`).get()).exists,
+    )
+    .toBe(false);
+  // Nothing left waiting in autosave brings it back.
+  await page.waitForTimeout(1500);
+  expect((await db.doc(`users/${uid}/documents/${id}`).get()).exists).toBe(
+    false,
+  );
+});

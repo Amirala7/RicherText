@@ -35,3 +35,6 @@ Tests: `schema.test.ts`, `snippet.test.ts`, `autosave.test.ts`, `saved-indicator
 
 ## Built (slice 4, link editor, 2026-10-21)
 Link editor molecule (`link-editor.tsx`, Radix Popover under the selection), Link toggle at the end of the toolbar (⌘K), wiring in the editor organism. Tests: `link.test.ts`, `link-editor.test.tsx`, `editor-toolbar.test.tsx` (new tests, plus the approved change: Link added to the expected toggles), three new tests in `e2e/editor.spec.ts`.
+
+## Built (slice 4, document menu, 2026-10-21)
+Document menu organism (`document-menu.tsx`): ghost icon button (h-lg, phone h-md) in the editor bar after the Read-only chip, before the account button. "Export as" + six formats, all disabled until export is built (Free: lock icons, label "Export · paid plans"); divider; Delete document (danger) → the delete dialog → back to the list, which says "Document deleted" (`/documents?deleted=1`, removed from the address at once). Autosave sends what's waiting before the delete, so nothing brings the document back; a failed delete shows an error toast in the editor. Disabled menu items (45%, no hover, skipped by the keyboard) added to the shared menu classes. Tests: `document-menu.test.tsx`, one new test in `e2e/editor.spec.ts`.

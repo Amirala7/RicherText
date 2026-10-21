@@ -12,6 +12,7 @@ import { LinkEditor } from "@/components/molecules/link-editor";
 import { Notice } from "@/components/molecules/notice";
 import { SavedIndicator } from "@/components/molecules/saved-indicator";
 import { AccountMenu } from "@/components/organisms/account-menu";
+import { DocumentMenu } from "@/components/organisms/document-menu";
 import { TITLE_MAX, type DocumentJson } from "@/lib/documents/model";
 import type { SaveState } from "@/lib/editor/autosave";
 import { editorExtensions } from "@/lib/editor/schema";
@@ -45,20 +46,24 @@ export function DocumentEditor({
   title: initialTitle,
   doc,
   editable,
+  paid,
   saveState,
   email,
   onTitle,
   onDoc,
   onRetry,
+  onDelete,
 }: {
   title: string;
   doc: DocumentJson;
   editable: boolean;
+  paid: boolean;
   saveState: SaveState;
   email: string | null;
   onTitle: (title: string) => void;
   onDoc: (doc: DocumentJson) => void;
   onRetry: () => void;
+  onDelete: () => void;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [link, setLink] = useState<LinkTarget | null>(null);
@@ -154,6 +159,13 @@ export function DocumentEditor({
             Read-only
           </Badge>
         )}
+        <DocumentMenu
+          title={title}
+          paid={paid}
+          onDelete={onDelete}
+          triggerClassName="size-control-lg max-sm:size-control-md"
+          sideOffset={narrow ? 4 : 14}
+        />
         <AccountMenu
           email={email}
           triggerClassName="size-control-lg max-sm:size-control-md"
