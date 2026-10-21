@@ -1,6 +1,15 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
-import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
+import {
+  clearIndexedDbPersistence,
+  connectFirestoreEmulator,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  terminate,
+  waitForPendingWrites,
+  type Firestore,
+} from "firebase/firestore";
 import {
   authEmulatorHost,
   firestoreEmulatorHost,
@@ -30,15 +39,48 @@ export function getClientAuth() {
   return auth;
 }
 
-let firestoreConnected = false;
+let db: Firestore | undefined;
+let clearing: Promise<void> | undefined;
 
-// Reads only what the rules allow the signed-in user (ADR 0004).
+// Reads only what the rules allow the signed-in user (ADR 0004). Data and
+// queued writes live in IndexedDB, shared by open tabs, so edits survive a
+// reload or a lost connection (ADR 0029).
 export function getClientDb() {
-  const db = getFirestore(clientApp());
-  if (usesEmulators && !firestoreConnected) {
+  if (db) return db;
+  db = initializeFirestore(clientApp(), {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
+  if (usesEmulators) {
     const [host, port] = firestoreEmulatorHost.split(":");
     connectFirestoreEmulator(db, host, Number(port));
-    firestoreConnected = true;
   }
   return db;
+}
+
+export const PENDING_WRITES_WAIT_MS = 5000;
+
+// Sign out leaves no documents on the device (ADR 0029): give queued writes
+// a moment to land, then shut Firestore down and delete its cache. Deleting
+// fails while another tab still has it open; that tab signs out too.
+export function clearClientDb() {
+  if (!db) return clearing ?? Promise.resolve();
+  const current = db;
+  db = undefined;
+  clearing = (async () => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    await Promise.race([
+      waitForPendingWrites(current).catch(() => {}),
+      new Promise((done) => {
+        timer = setTimeout(done, PENDING_WRITES_WAIT_MS);
+      }),
+    ]);
+    clearTimeout(timer);
+    await terminate(current);
+    await clearIndexedDbPersistence(current).catch(() => {});
+  })().finally(() => {
+    clearing = undefined;
+  });
+  return clearing;
 }
