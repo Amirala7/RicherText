@@ -389,6 +389,10 @@
   overflow-wrap: anywhere;
   outline: none;
 }
+/* Writing font (ADR 0031): the body text only; title and headings' sizes stay. */
+[data-writing-font="plex-serif"] .rt-doc {
+  font-family: var(--font-plex-serif), Georgia, serif;
+}
 .rt-doc > *,
 .rt-doc li > * {
   margin: 0;

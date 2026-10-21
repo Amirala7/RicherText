@@ -41,6 +41,15 @@ service cloud.firestore {
       return value is string && value.size() <= 200;
     }
 
+    // Writing settings (ADR 0010, 0031): the owner's writing font, one of
+    // the offered fonts. A display setting, never stored in documents.
+    match /users/{uid}/settings/writing {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['font'])
+        && request.resource.data.font in ['geist', 'plex-serif'];
+    }
+
     match /users/{uid}/documents/{docId} {
       allow read: if isOwner(uid);
       allow update: if isOwner(uid)

@@ -16,6 +16,7 @@ import { DocumentMenu } from "@/components/organisms/document-menu";
 import { TITLE_MAX, type DocumentJson } from "@/lib/documents/model";
 import type { SaveState } from "@/lib/editor/autosave";
 import { editorExtensions } from "@/lib/editor/schema";
+import type { WritingFont } from "@/lib/settings/writing";
 import { cn } from "@/lib/utils";
 
 const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
@@ -47,6 +48,7 @@ export function DocumentEditor({
   doc,
   editable,
   paid,
+  font = "geist",
   saveState,
   email,
   onTitle,
@@ -58,6 +60,7 @@ export function DocumentEditor({
   doc: DocumentJson;
   editable: boolean;
   paid: boolean;
+  font?: WritingFont;
   saveState: SaveState;
   email: string | null;
   onTitle: (title: string) => void;
@@ -194,7 +197,7 @@ export function DocumentEditor({
               </Notice>
             </div>
           )}
-          <div className="grid min-w-0 gap-4">
+          <div className="grid min-w-0 gap-4" data-writing-font={font}>
             <input
               aria-label="Title"
               placeholder="Untitled"
