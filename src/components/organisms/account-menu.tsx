@@ -5,14 +5,14 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/atoms/button";
+import {
+  menuContent,
+  menuIcon as icon,
+  menuItem as item,
+  menuLabel as label,
+  menuSeparator as separator,
+} from "@/components/molecules/menu";
 import { signOut } from "@/lib/auth/client";
-
-const item =
-  "flex h-control-sm w-full cursor-pointer items-center gap-2 rounded-sm px-3 text-left text-sm text-foreground outline-none transition-colors duration-(--dur-1) ease-standard data-highlighted:bg-secondary [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground";
-const label =
-  "flex h-control-sm min-w-0 items-center px-3 text-xs text-muted-foreground";
-const separator = "-mx-1 my-1 h-px bg-border";
-const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
 
 // Account menu (ADR 0024); drops s-1 under the bar (button centred in h-bar:
 // 14px + 4px).
@@ -37,7 +37,7 @@ export function AccountMenu({ email }: { email: string | null }) {
         <DropdownMenu.Content
           align="end"
           sideOffset={18}
-          className="z-50 grid w-[220px] max-w-[calc(100vw-32px)] gap-0 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[0_8px_24px_-8px_rgb(0_0_0/.22),0_2px_6px_-2px_rgb(0_0_0/.08)]"
+          className={`${menuContent} w-[220px] max-w-[calc(100vw-32px)]`}
         >
           {email && (
             <DropdownMenu.Label className={label}>

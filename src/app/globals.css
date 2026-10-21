@@ -27,6 +27,7 @@
   --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-scrim: var(--scrim);
 
   /* Geist only (ADR 0010) */
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
@@ -96,6 +97,7 @@
   --accent-foreground: oklch(0.2 0.025 292);
   --destructive: oklch(0.52 0.19 25);
   --warning: oklch(0.53 0.12 65);
+  --scrim: oklch(0.2 0.025 292 / 0.4);
   --border: oklch(0.912 0.014 292);
   --border-strong: oklch(0.84 0.02 292);
   --input: oklch(0.912 0.014 292);
@@ -125,6 +127,7 @@
   --accent-foreground: oklch(0.965 0.006 292);
   --destructive: oklch(0.74 0.14 25);
   --warning: oklch(0.82 0.12 80);
+  --scrim: rgb(0 0 0 / 0.6);
   --border: oklch(0.29 0.02 292);
   --border-strong: oklch(0.38 0.025 292);
   --input: oklch(0.29 0.02 292);

@@ -14,6 +14,8 @@ export const buttonVariants = cva(
           "border-border bg-background text-foreground hover:not-disabled:border-border-strong hover:not-disabled:bg-secondary active:not-disabled:bg-[color-mix(in_oklab,var(--secondary)_70%,var(--border))]",
         ghost:
           "bg-transparent text-foreground hover:not-disabled:bg-secondary active:not-disabled:bg-[color-mix(in_oklab,var(--secondary)_70%,var(--border))]",
+        danger:
+          "bg-destructive text-primary-foreground hover:not-disabled:bg-[color-mix(in_oklab,var(--destructive)_88%,var(--foreground))] active:not-disabled:bg-[color-mix(in_oklab,var(--destructive)_80%,var(--foreground))] dark:text-background",
       },
       size: {
         sm: "h-control-sm px-3",
