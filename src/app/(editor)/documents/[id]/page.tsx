@@ -6,6 +6,9 @@ import { EditorView } from "./editor-view";
 
 export const metadata: Metadata = { title: "Document · RicherText" };
 
+// Reads the session for the account menu, so it blocks like the layout.
+export const instant = false;
+
 export default async function DocumentPage({
   params,
 }: PageProps<"/documents/[id]">) {

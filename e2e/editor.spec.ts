@@ -169,3 +169,15 @@ test("a document that doesn't exist shows not found", async ({ page }) => {
   await page.getByRole("link", { name: "Back to documents" }).click();
   await expect(page).toHaveURL("/documents");
 });
+
+test("after going back from the editor, New is ready again", async ({
+  page,
+}) => {
+  await signUp(page);
+  await openNew(page, "New document");
+  await page.getByRole("link", { name: "Back to documents" }).click();
+  await expect(page).toHaveURL("/documents");
+  const button = page.getByRole("button", { name: "New", exact: true });
+  await expect(button).toBeEnabled();
+  await expect(button).not.toHaveAttribute("aria-busy");
+});
