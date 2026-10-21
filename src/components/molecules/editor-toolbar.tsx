@@ -266,7 +266,9 @@ function Divider() {
 const radioItem = `${menuItem} [&>svg]:invisible [&>svg]:text-foreground data-[state=checked]:[&>svg]:visible`;
 
 // Writing font (ADR 0032): the document's font, not a mark; the pick goes up
-// to be saved with the document, and focus returns to the text.
+// to be saved with the document, and focus returns to the text. The toggle
+// is a serif "Ag" in the system serif, so IBM Plex Serif still only loads
+// for documents that use it.
 function WritingFontMenu({
   editor,
   font,
@@ -286,8 +288,11 @@ function WritingFontMenu({
             aria-label="Writing font"
             onMouseDown={(e) => e.preventDefault()}
           >
-            <span aria-hidden="true" className="text-[13px] leading-none">
-              Aa
+            <span
+              aria-hidden="true"
+              className="font-serif text-[15px] leading-none"
+            >
+              Ag
             </span>
           </ToolbarToggle>
         </DropdownMenu.Trigger>
