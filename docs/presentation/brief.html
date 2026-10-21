@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RicherText · Project brief</title>
+<style>
+  /* Tokens from docs/DESIGN.md (light theme): violet-tinted neutrals, one accent,
+     Geist, 1.333 scale, 4px spacing steps, soft radius, flat surfaces. */
+  @font-face {
+    font-family: "Geist";
+    src: url("fonts/geist-latin.woff2") format("woff2");
+    font-weight: 100 900;
+  }
+  :root {
+    --bg: oklch(0.997 0.002 292);
+    --fg: oklch(0.2 0.025 292);
+    --muted: oklch(0.966 0.008 292);
+    --muted-fg: oklch(0.53 0.03 292);
+    --border: oklch(0.912 0.014 292);
+    --border-strong: oklch(0.84 0.02 292);
+    --primary: #6440D8;
+    --primary-soft: color-mix(in oklch, #6440D8 9%, var(--bg));
+    --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px;
+    --r-sm: 5px; --r-md: 7px; --r-lg: 10px;
+    /* 1.333 scale on a 10.5pt print base */
+    --xs: 7.5pt; --sm: 8.5pt; --base: 10pt; --lg: 13.3pt; --xl: 17.8pt; --2xl: 23.7pt; --3xl: 31.6pt; --display: 42pt;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--fg); }
+  body {
+    font-family: "Geist", system-ui, sans-serif;
+    font-size: var(--base);
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm; height: 297mm;
+    padding: 20mm 20mm 16mm;
+    position: relative;
+    page-break-after: always;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .page:last-child { page-break-after: auto; }
+  .folio {
+    position: absolute; left: 20mm; right: 20mm; bottom: 10mm;
+    display: flex; justify-content: space-between;
+    font-size: var(--xs); color: var(--muted-fg);
+    border-top: 1px solid var(--border); padding-top: var(--s-2);
+  }
+  .eyebrow {
+    font-size: var(--xs); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: var(--s-2);
+  }
+  h1 { font-size: var(--3xl); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: var(--s-4); }
+  h2 { font-size: var(--xl); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: var(--s-3); }
+  h3 { font-size: var(--lg); font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; margin-bottom: var(--s-2); }
+  h4 { font-size: var(--base); font-weight: 600; margin-bottom: var(--s-1); }
+  p { margin-bottom: var(--s-3); max-width: 68ch; }
+  .lede { font-size: var(--lg); line-height: 1.45; color: var(--fg); margin-bottom: var(--s-5); max-width: 40em; }
+  .muted { color: var(--muted-fg); }
+  .small { font-size: var(--sm); }
+  .accent { color: var(--primary); }
+  strong { font-weight: 600; }
+  code { font-family: inherit; font-size: 0.92em; background: var(--muted); border-radius: var(--r-sm); padding: 0 3px; }
+  section { margin-bottom: var(--s-6); }
+  section:last-child { margin-bottom: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4); }
+  .card {
+    border: 1px solid var(--border); border-radius: var(--r-lg);
+    padding: var(--s-4); background: var(--bg);
+  }
+  .card.fill { background: var(--muted); border-color: var(--muted); }
+  .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+  .card h4 { margin-bottom: var(--s-2); }
+
+  ul.clean { list-style: none; }
+  ul.clean li { padding-left: 14px; position: relative; margin-bottom: var(--s-1); }
+  ul.clean li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 5px; height: 5px; border-radius: 50%; background: var(--primary); }
+  ul.clean.out li::before { background: var(--border-strong); }
+
+  table { width: 100%; border-collapse: collapse; font-size: var(--sm); }
+  th { text-align: left; font-weight: 600; font-size: var(--xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-fg); padding: 0 var(--s-3) var(--s-2) 0; border-bottom: 1px solid var(--border-strong); }
+  td { padding: var(--s-2) var(--s-3) var(--s-2) 0; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; }
+  td:first-child { font-weight: 600; }
+  td.adr { color: var(--muted-fg); white-space: nowrap; font-weight: 400; }
+  tr:last-child td { border-bottom: none; }
+
+  .chip {
+    display: inline-block; font-size: var(--xs); font-weight: 500;
+    border: 1px solid var(--border); border-radius: var(--r-sm);
+    padding: 1px 6px; color: var(--muted-fg); margin: 0 var(--s-1) var(--s-1) 0;
+  }
+
+  /* Cover */
+  .cover { justify-content: space-between; padding-top: 28mm; padding-bottom: 28mm; }
+  .cover .logo { width: 82mm; margin-bottom: var(--s-7); }
+  .cover h1 { font-size: var(--display); letter-spacing: -0.035em; line-height: 1.02; max-width: 12em; margin-bottom: var(--s-5); }
+  .cover .lede { max-width: 30em; }
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); border-top: 1px solid var(--border); padding-top: var(--s-5); }
+  .fact .num { font-size: var(--2xl); font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; }
+  .fact .label { font-size: var(--xs); color: var(--muted-fg); }
+
+  /* Flow */
+  .flow { display: flex; gap: var(--s-2); align-items: stretch; margin-bottom: var(--s-5); }
+  .flow .step { flex: 1; border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-3); }
+  .flow .step .n { font-size: var(--xs); color: var(--primary); font-weight: 600; margin-bottom: var(--s-1); }
+  .flow .step h4 { margin-bottom: var(--s-1); }
+  .flow .step p { font-size: var(--sm); color: var(--muted-fg); margin: 0; line-height: 1.4; }
+
+  /* Architecture */
+  .arch { display: grid; grid-template-columns: 1fr 26px 1.25fr 26px 1fr; grid-template-rows: 1fr 1fr; row-gap: var(--s-2); align-items: stretch; margin-bottom: var(--s-4); }
+  .arch .span { grid-row: 1 / 3; grid-column: 5; }
+  .arch .arrow { display: flex; align-items: center; justify-content: center; }
+  .node { border: 1px solid var(--border-strong); border-radius: var(--r-lg); padding: var(--s-3); background: var(--bg); }
+  .node.key { border-color: var(--primary); background: var(--primary-soft); }
+  .node .where { font-size: var(--xs); color: var(--muted-fg); }
+  .node h4 { margin-bottom: 2px; }
+  .node p { font-size: var(--sm); margin: 0; line-height: 1.4; }
+  .arrow { text-align: center; color: var(--muted-fg); font-size: var(--lg); }
+  .stack { display: flex; flex-direction: column; gap: var(--s-2); }
+  .legend { font-size: var(--sm); color: var(--muted-fg); }
+
+  /* Design tokens */
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
+  .sw { border-radius: var(--r-md); height: 38px; border: 1px solid var(--border); }
+  .sw-label { font-size: var(--xs); color: var(--muted-fg); margin-top: var(--s-1); line-height: 1.3; }
+  .scale div { display: flex; align-items: baseline; gap: var(--s-3); border-bottom: 1px solid var(--border); padding: 3px 0; }
+  .scale span.t { width: 48px; font-size: var(--xs); color: var(--muted-fg); flex: none; }
+  .scale span.s { font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; white-space: nowrap; }
+
+  .quote {
+    border-left: 2px solid var(--primary); padding-left: var(--s-4);
+    font-size: var(--lg); line-height: 1.45; margin-bottom: var(--s-5); max-width: 36em;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 · Cover -->
+<div class="page cover">
+  <div>
+    <img class="logo" src="../brand/richertext-logotype-on-light.svg" alt="RicherText">
+    <div class="eyebrow">Project brief · October 2026</div>
+    <h1>A calm, fast place to write.</h1>
+    <p class="lede">RicherText is a minimal rich text editor for professionals: discover it, pay, and start writing in under two minutes. A small product built end to end, from landing page to live deployment.</p>
+    <p class="small muted">Live demo (Stripe sandbox): richertext--richer-text-55ffe.europe-west4.hosted.app</p>
+  </div>
+  <div class="facts">
+    <div class="fact"><div class="num">34</div><div class="label">decision records, each with the options weighed</div></div>
+    <div class="fact"><div class="num">690+</div><div class="label">automated tests: unit, rules, Functions, end to end</div></div>
+    <div class="fact"><div class="num">3 days</div><div class="label">from first commit to production, test-first</div></div>
+    <div class="fact"><div class="num">EU</div><div class="label">data and servers in Belgium and the Netherlands</div></div>
+  </div>
+  <div class="folio"><span>RicherText · Project brief</span><span>1</span></div>
+</div>
+
+<!-- 2 · Product -->
+<div class="page">
+  <section>
+    <div class="eyebrow">The product</div>
+    <h2>The problem</h2>
+    <p>People who write every day (consultants, PMs, lawyers, founders) choose between heavy suites that are slow and cluttered, and Markdown tools that are fast but make non-technical people learn syntax and paste badly into email. RicherText sits in the gap: it opens instantly, formats like a word processor, and gets out of the way.</p>
+  </section>
+
+  <section>
+    <h3>One complete path, end to end</h3>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><h4>Land</h4><p>Statically rendered landing page; pricing is a section, not a page.</p></div>
+      <div class="step"><div class="n">02</div><h4>Sign up</h4><p>Email and password; the Free plan opens straight away.</p></div>
+      <div class="step"><div class="n">03</div><h4>Pay</h4><p>Stripe Checkout; access unlocks when the webhook lands.</p></div>
+      <div class="step"><div class="n">04</div><h4>Write</h4><p>Editor with autosave every second, online or offline.</p></div>
+      <div class="step"><div class="n">05</div><h4>Manage</h4><p>Card, plan and cancel in Stripe's Customer Portal.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Principles that broke ties</h3>
+    <div class="grid-2">
+      <div class="card fill"><h4>Never lose a keystroke</h4><p class="small">Data safety outranks every other editor concern. It decided autosave, the offline cache and the content format.</p></div>
+      <div class="card fill"><h4>Fast beats featureful</h4><p class="small">Every feature has to justify its cost in load time and clutter. It's why images, tables and AI are out.</p></div>
+      <div class="card fill"><h4>Small but complete</h4><p class="small">A narrow product that works end to end beats a broad one that half works: landing, payments and editor all ship.</p></div>
+      <div class="card fill"><h4>Boring infrastructure</h4><p class="small">Managed, proven services for auth, payments and hosting, so the effort goes into the writing experience.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Who it's for</h3>
+    <p>Individuals who write daily and pay for their own tools. They value speed, focus, reliability and clean output; they don't need collaboration, databases or templates. That one sentence removed most of the feature list.</p>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>2</span></div>
+</div>
+
+<!-- 3 · Scope -->
+<div class="page">
+  <section>
+    <div class="eyebrow">Scope decisions</div>
+    <h2>What's in, what's out, and why</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h4>In v1</h4>
+        <ul class="clean small">
+          <li>Headings, bold, italic, underline, strike, lists, links, quotes</li>
+          <li>Text size, six text colours, writing font per document (Geist or IBM Plex Serif)</li>
+          <li>Undo / redo and keyboard shortcuts for everything</li>
+          <li>Autosave with a quiet "Saved" indicator; works offline</li>
+          <li>Clean copy and paste to and from Docs, Word, Outlook and Gmail</li>
+          <li>Free plan, monthly and yearly subscriptions, Customer Portal</li>
+          <li>Light and dark, desktop and phone</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Deliberately out</h4>
+        <ul class="clean out small">
+          <li>Collaboration, sharing and comments: not what this user needs</li>
+          <li>Images, tables and embeds: cost load time and clutter</li>
+          <li>Templates, AI and plugins: a different product</li>
+          <li>Full-text search: needs an external index; titles filter instead</li>
+          <li>Native apps: the web app works at phone width</li>
+          <li>Export: moved to next steps to ship the core first</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Business model choices</h3>
+    <table>
+      <tr><th style="width:26%">Decision</th><th>Why</th><th style="width:9%">ADR</th></tr>
+      <tr><td>Free plan instead of a trial</td><td>Full editor, one document at a time, no card. People feel the product before paying, and there's no trial expiry to engineer.</td><td class="adr">0020</td></tr>
+      <tr><td>Nothing is deleted on downgrade</td><td>When a paid plan ends, the newest document stays editable and the rest become read-only. Trust over pressure.</td><td class="adr">0020</td></tr>
+      <tr><td>Access during failed payments</td><td>Access continues while Stripe retries the card and locks only when it gives up. A declined card shouldn't lock someone out mid-sentence.</td><td class="adr">0027</td></tr>
+      <tr><td>Plan changes in the Portal</td><td>Card updates, monthly ↔ yearly and cancel all live in Stripe's Customer Portal: less code, fewer edge cases, the same UI customers know.</td><td class="adr">0027</td></tr>
+      <tr><td>No trials or promo codes</td><td>The Free plan does the trial's job; fewer states to keep consistent.</td><td class="adr">0027</td></tr>
+      <tr><td>No email verification in v1</td><td>Removes a step between landing and writing. Known cost: a mistyped email can't recover the account; it's first on the next-steps list.</td><td class="adr">0017</td></tr>
+      <tr><td>Sandbox payments only</td><td>A demo takes real Checkout flows without real charges; going live is a key swap plus tax handling.</td><td class="adr">0003</td></tr>
+    </table>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>3</span></div>
+</div>
+
+<!-- 4 · Architecture -->
+<div class="page">
+  <section>
+    <div class="eyebrow">Architecture</div>
+    <h2>Few moving parts, one source of truth</h2>
+    <p>The browser writes documents straight to Firestore, so its offline queue and retries protect every keystroke. Anything that must not be forged (creating documents, billing, the plan) goes through the server. Firestore is the only place that decides who has access.</p>
+  </section>
+
+  <div class="arch">
+    <div class="node" style="grid-row:1;grid-column:1"><div class="where">Browser</div><h4>Editor</h4><p>Tiptap, autosave, offline cache in IndexedDB</p></div>
+    <div class="arrow" style="grid-row:1;grid-column:2">→</div>
+    <div class="node" style="grid-row:1;grid-column:3"><div class="where">App Hosting · europe-west4</div><h4>Next.js server</h4><p>Static landing, session gating, routes for documents, Checkout and Portal</p></div>
+    <div class="arrow" style="grid-row:1;grid-column:4">→</div>
+    <div class="node" style="grid-row:2;grid-column:1"><div class="where">Stripe (sandbox)</div><h4>Checkout · Portal</h4><p>Hosted payment pages; we never see card data</p></div>
+    <div class="arrow" style="grid-row:2;grid-column:2">→</div>
+    <div class="node" style="grid-row:2;grid-column:3"><div class="where">Cloud Functions · europe-west1</div><h4>Stripe webhook</h4><p>Checks the signature, records the event once, re-reads the subscription</p></div>
+    <div class="arrow" style="grid-row:2;grid-column:4">→</div>
+    <div class="node key span"><div class="where">Firestore · europe-west1</div><h4>Source of truth</h4><p>Documents, plan, document count. Security rules enforce ownership, the Free limit and read-only documents.</p></div>
+  </div>
+  <p class="legend">Documents: browser → Firestore directly (rules decide). Create, delete and billing: browser → Next.js server → Firestore. Payments: Stripe → webhook → Firestore → the app updates live.</p>
+
+  <section style="margin-top: var(--s-5)">
+    <h3>Key technical decisions</h3>
+    <table>
+      <tr><th style="width:26%">Decision</th><th>Why</th><th style="width:9%">ADR</th></tr>
+      <tr><td>Next.js on Firebase</td><td>One framework for a static, indexable landing page and a gated app; Firebase gives auth, database, functions and hosting under one project.</td><td class="adr">0001–2</td></tr>
+      <tr><td>Firestore</td><td>Security rules, an offline write queue and scale-to-zero match the principles; its weak spots (search, lock-in) don't matter here.</td><td class="adr">0004</td></tr>
+      <tr><td>Tiptap</td><td>Mature ProseMirror editor with MIT packages; one shared schema keeps paste, storage and rendering consistent.</td><td class="adr">0006</td></tr>
+      <tr><td>Session cookies</td><td>The client signs in; the server holds an httpOnly cookie and checks it in every layout, action and route, refreshed silently for active writers.</td><td class="adr">0026</td></tr>
+      <tr><td>Hand-written webhook</td><td>Signature-checked, idempotent (event IDs stored in the same transaction) and order-independent (re-reads Stripe), so retries and out-of-order events are safe.</td><td class="adr">0027</td></tr>
+      <tr><td>Server-side create and delete</td><td>Enforces the Free limit with a counter in a transaction; a query there serialised every user (8 parallel creates took 12 s; with the counter, 20 take 30 ms).</td><td class="adr">0028</td></tr>
+      <tr><td>Content as a JSON string</td><td>Firestore rejects maps nested deeper than 20 levels, so a list indented three times could never save. Found in an audit, fixed test-first.</td><td class="adr">0033</td></tr>
+      <tr><td>Offline cache in IndexedDB</td><td>Edits survive a reload or a dropped connection; shared by tabs and deleted on sign out.</td><td class="adr">0029</td></tr>
+    </table>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>4</span></div>
+</div>
+
+<!-- 5 · Trade-offs -->
+<div class="page">
+  <section>
+    <div class="eyebrow">Trade-offs</div>
+    <h2>What I gave up, and why it was worth it</h2>
+    <table>
+      <tr><th style="width:24%">Chose</th><th style="width:38%">Over</th><th>Because</th></tr>
+      <tr><td>Browser writes to Firestore</td><td>Saving through our own API</td><td>Firestore's offline queue and retries for free; rules do the checking. Cost: business rules live partly in security rules, so they get their own test suite.</td></tr>
+      <tr><td>Whole document per save</td><td>Sending only the edits</td><td>Simple and robust for memos of 10–40 KB. Edit-step syncing is collaboration machinery we don't need.</td></tr>
+      <tr><td>One Firebase project</td><td>Staging plus production</td><td>Less to run for a demo. Cost: rules, webhook and deploy changes can't be rehearsed in the cloud first, so the emulators and the deploy checks carry that weight.</td></tr>
+      <tr><td>Local deploy script</td><td>CI/CD and auto-deploys from GitHub</td><td>Every deploy runs the full suite from a clean main, with no extra service to secure. Cost: deploys depend on one machine.</td></tr>
+      <tr><td>Local first on the emulators</td><td>Building against a real project from day one</td><td>No cloud cost or secrets until the end, and fast, repeatable tests. Cost: production-only issues (regions, IAM, cleanup policies) surfaced at deploy time.</td></tr>
+      <tr><td>Stripe Portal for billing</td><td>Our own billing screens</td><td>Less code and fewer states. Cost: plan changes leave the app's design for a moment.</td></tr>
+      <tr><td>Scale to zero</td><td>An always-on server</td><td>Costs nothing while idle, within a €5 budget. Cost: a few seconds' cold start after a quiet spell; the landing page is served from the CDN anyway.</td></tr>
+      <tr><td>Geist only, one accent</td><td>A richer visual identity</td><td>A calm, typographic product; fewer decisions per screen. The writing font is the one place with a choice.</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="quote">Every trade-off was written down before building, with the options weighed, so the reasons survive longer than the conversation that made them.</div>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>5</span></div>
+</div>
+
+<!-- 6 · How it was built -->
+<div class="page">
+  <section>
+    <div class="eyebrow">How it was built</div>
+    <h2>Test-first, decisions on paper, one design system</h2>
+    <div class="grid-3">
+      <div class="card"><h4>Tests first, then locked</h4><p class="small">Every change starts with a test that fails for the right reason. Existing tests can only change with explicit approval, so they hold the business rules in place.</p></div>
+      <div class="card"><h4>Decision records</h4><p class="small">34 ADRs: context, options, decision, consequences. Superseded ones stay, so the history of a choice is readable.</p></div>
+      <div class="card"><h4>Small vertical slices</h4><p class="small">Short-lived branches, conventional commits, merged only when lint, types and all tests pass in light, dark, desktop and phone.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>What the tests cover</h3>
+    <table>
+      <tr><th style="width:24%">Suite</th><th style="width:12%">Count</th><th>What it proves</th></tr>
+      <tr><td>Unit (Vitest)</td><td>416</td><td>Components, forms, autosave timing, paste clean-up, plan mapping, config guards, setup and deploy scripts</td></tr>
+      <tr><td>Emulator</td><td>103</td><td>Security rules (ownership, Free limit, read-only), webhook signatures and idempotency, deep nesting, no secrets in server logs</td></tr>
+      <tr><td>End to end (Playwright)</td><td>174</td><td>Every flow on desktop and phone: sign-up, checkout states, editor, offline, paste, landing without JavaScript, security headers, no secrets in the console</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h3>Security and privacy by default</h3>
+    <div class="grid-2">
+      <ul class="clean small">
+        <li>No secrets in the repo; real values only in Secret Manager</li>
+        <li>Logs never carry tokens or personal data, checked by tests</li>
+        <li>A production build refuses to run without real config</li>
+      </ul>
+      <ul class="clean small">
+        <li>Security headers on every response (no framing, HSTS)</li>
+        <li>Billing data is server-written only; users read only their own</li>
+        <li>Data and servers in the EU</li>
+      </ul>
+    </div>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>6</span></div>
+</div>
+
+<!-- 7 · Design system -->
+<div class="page">
+  <section>
+    <div class="eyebrow">Design system</div>
+    <h2>Typography does the work</h2>
+    <p>Large type and whitespace instead of graphics: no illustrations, no decorative elements. Landing page and editor share one atomic component set (tokens → atoms → molecules → organisms → templates), and nothing new appears on a screen until it's approved into the system.</p>
+  </section>
+
+  <section>
+    <h3>Colour</h3>
+    <div class="swatches">
+      <div><div class="sw" style="background:#6440D8;border-color:#6440D8"></div><div class="sw-label">Accent<br>#6440D8</div></div>
+      <div><div class="sw" style="background:#B3A1FF;border-color:#B3A1FF"></div><div class="sw-label">Accent, dark<br>#B3A1FF</div></div>
+      <div><div class="sw" style="background:oklch(0.2 0.025 292)"></div><div class="sw-label">Text<br>violet-tinted</div></div>
+      <div><div class="sw" style="background:oklch(0.53 0.03 292)"></div><div class="sw-label">Muted text</div></div>
+      <div><div class="sw" style="background:oklch(0.966 0.008 292)"></div><div class="sw-label">Surface</div></div>
+      <div><div class="sw" style="background:oklch(0.17 0.012 292)"></div><div class="sw-label">Dark background</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="grid-2">
+      <div>
+        <h3>Type scale · 1.333</h3>
+        <div class="scale">
+          <div><span class="t">display</span><span class="s" style="font-size:30pt">Aa</span></div>
+          <div><span class="t">3xl</span><span class="s" style="font-size:var(--3xl)">Write</span></div>
+          <div><span class="t">2xl</span><span class="s" style="font-size:var(--2xl)">Write calmly</span></div>
+          <div><span class="t">xl</span><span class="s" style="font-size:var(--xl)">Write calmly</span></div>
+          <div><span class="t">lg</span><span class="s" style="font-size:var(--lg)">Write calmly, fast</span></div>
+          <div><span class="t">base</span><span style="font-size:var(--base)">Body text, 16px on screen</span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Rules</h3>
+        <ul class="clean small">
+          <li>Geist everywhere; the logotype is Geist set italic and stretched</li>
+          <li>One accent; colours only through theme tokens, in light and dark</li>
+          <li>Spacing on a 4px grid: 4, 8, 12, 16, 24, 32, 48</li>
+          <li>Soft radius: 5, 7 and 10px; flat surfaces</li>
+          <li>Never place elements of different heights side by side</li>
+          <li>Gaps inside a space are equal; edges one step larger</li>
+          <li>Nothing changes size on state change</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>7</span></div>
+</div>
+
+<!-- 8 · Next steps -->
+<div class="page">
+  <section>
+    <div class="eyebrow">Next steps</div>
+    <h2>What comes next</h2>
+    <table>
+      <tr><th style="width:28%">Next</th><th>What and why</th></tr>
+      <tr><td>Export</td><td>PDF and Word first, then RTF, Markdown, HTML and plain text; paid plans only, generated in a Cloud Function with the plan check. Already designed (ADR 0022); moved out of v1 to ship the core.</td></tr>
+      <tr><td>Email verification</td><td>Verify at sign-up and before checkout, so receipts and password resets reach the right person and throwaway sign-ups get harder.</td></tr>
+      <tr><td>Content-Security-Policy</td><td>A full policy for scripts, styles and connections to Firebase and Stripe, with nonces for Next's inline scripts. Basic headers are already live.</td></tr>
+      <tr><td>Staging environment</td><td>A second project with its own Stripe sandbox, so rules, webhook and deploy changes are rehearsed before users see them.</td></tr>
+      <tr><td>Automatic rollouts</td><td>Connect GitHub to App Hosting so merges to main deploy themselves, replacing the local script.</td></tr>
+      <tr><td>Soft delete with Undo</td><td>Delete becomes reversible with an Undo toast instead of a confirmation dialog.</td></tr>
+      <tr><td>Account safety</td><td>Sign out of all devices; rate limits and abuse checks on document creation.</td></tr>
+      <tr><td>Paste checks in real apps</td><td>Verify paste and copy against the live Docs, Word, Outlook, Gmail, Pages and Notes, beyond the recorded samples.</td></tr>
+      <tr><td>Going live</td><td>Live Stripe keys, tax handling (Stripe Tax or a merchant of record), real reviews and final legal copy.</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h3>Questions still open</h3>
+    <p class="small muted">Price points and the yearly discount (placeholders: $8 a month, $80 a year) · folders or tags · word count · full-text search · conversion and retention targets once there's traffic.</p>
+  </section>
+  <div class="folio"><span>RicherText · Project brief</span><span>8</span></div>
+</div>
+
+</body>
+</html>
