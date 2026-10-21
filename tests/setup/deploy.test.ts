@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkSteps,
   deploySteps,
+  driftProblems,
   parseArgs,
   preflightProblems,
 } from "../../scripts/deploy.mjs";
@@ -95,5 +96,31 @@ describe("deploySteps", () => {
 
   it("deploys just what was asked", () => {
     expect(deploySteps(["app"]).map((s) => s.name)).toEqual(["app"]);
+  });
+});
+
+describe("driftProblems", () => {
+  const start = { branch: "main", dirty: false, head: "abc1234" };
+
+  it("has none while main stays clean at the same commit", () => {
+    expect(driftProblems(start, { ...start })).toEqual([]);
+  });
+
+  it("stops when the branch changes during the run", () => {
+    expect(
+      driftProblems(start, { ...start, branch: "docs/x" }).join(" "),
+    ).toMatch(/main/);
+  });
+
+  it("stops when files change during the run", () => {
+    expect(driftProblems(start, { ...start, dirty: true }).join(" ")).toMatch(
+      /uncommitted/,
+    );
+  });
+
+  it("stops when the commit changes during the run", () => {
+    expect(
+      driftProblems(start, { ...start, head: "def5678" }).join(" "),
+    ).toMatch(/abc1234/);
   });
 });
