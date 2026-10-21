@@ -62,3 +62,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0031 | [Writing font setting, text size and text colour](0031-writing-font-text-size-colour.md) | accepted; writing-font part superseded by 0032 |
 | 0032 | [Writing font per document, picked in the editor](0032-writing-font-per-document.md) | accepted (supersedes part of 0031, 0024) |
 | 0033 | [Document content stored as a JSON string](0033-content-as-json-string.md) | accepted (amends 0028) |
+| 0034 | [Real Firebase project and region](0034-firebase-project-and-region.md) | accepted (builds on 0002, 0018) |
