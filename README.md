@@ -21,7 +21,6 @@ Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product
 
 - **Deviation from the checklist: a Free user can write.** The checklist says a non-subscriber can't create or edit documents; the FAQ allows a free tier ("paid users get full document features; non-paying users do not"). The Free plan gets one document at a time. A second document needs a subscription (New goes to the plans page), and when a paid plan ends every document except the newest becomes read-only. The rules enforce this, not only the UI (ADR 0019, 0020, 0028).
 - **Export isn't built.** It's designed (ADR 0022) and marked "Coming soon" everywhere it's mentioned: the landing page, the paid pricing cards, the FAQ and the document menu.
-- **Time spent:** about 11 hours of focused work with an AI coding agent, plus my review, over three days. More in [How it was built](#how-it-was-built).
 
 ## Architecture
 
@@ -151,7 +150,7 @@ Locally (above) or on the live demo. Every payment is in the Stripe sandbox.
 
 ## How it was built
 
-I built it with Claude Code as the coding agent, about 11 hours of focused agent and review work over three days.
+I built it with Claude Code as the coding agent.
 
 - **I decided, the agent implemented.** Each choice was discussed first and written down as an ADR (`docs/decisions/`) with the options weighed. Scope, plans and pricing, the Free plan, payment behaviour, regions and the design are mine.
 - **Tests first, and locked.** Every change started with a failing test; the agent couldn't change an existing test without my explicit yes, so the tests hold the business rules in place (ADR 0014).
