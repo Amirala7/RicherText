@@ -1,11 +1,15 @@
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { setGlobalOptions } from "firebase-functions/v2";
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import Stripe from "stripe";
 import { handleStripeWebhook } from "./billing/webhook.js";
 
 initializeApp();
+
+// Same region as Firestore, on the emulators too (ADR 0034).
+setGlobalOptions({ region: "europe-west1" });
 
 // Values live in Secret Manager; locally in functions/.secret.local (ADR 0009).
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");

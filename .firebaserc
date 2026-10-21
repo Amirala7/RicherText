@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "demo-richertext"
+    "default": "demo-richertext",
+    "prod": "richer-text-55ffe"
   }
 }

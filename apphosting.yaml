@@ -1,0 +1,22 @@
+# Firebase App Hosting settings for the real project (ADR 0002, 0034).
+# Values here are public; secrets are only names in Secret Manager (ADR 0009).
+runConfig:
+  minInstances: 0
+  # Keeps a demo inside the budget alert.
+  maxInstances: 2
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: richer-text-55ffe
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: richer-text-55ffe.firebaseapp.com
+    availability: [BUILD, RUNTIME]
+  # The web API key is public in the browser, but kept out of the repo anyway.
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: FIREBASE_WEB_API_KEY
+    availability: [BUILD, RUNTIME]
+  # Stripe sandbox only (ADR 0003); shared with the webhook Function.
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+    availability: [RUNTIME]

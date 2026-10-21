@@ -36,7 +36,7 @@ export function functionsSecretFile(env) {
 }
 
 export function webhookUrl(projectId) {
-  return `http://127.0.0.1:5001/${projectId}/us-central1/stripeWebhook`;
+  return `http://127.0.0.1:5001/${projectId}/europe-west1/stripeWebhook`;
 }
 
 // The API key goes in the environment (STRIPE_API_KEY), never in the
