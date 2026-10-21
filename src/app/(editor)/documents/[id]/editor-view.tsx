@@ -62,6 +62,12 @@ export function EditorView({
     return () => {
       stopAuth();
       stop();
+      // Next keeps this page alive when you leave it (React Activity) and
+      // runs these clean-ups; Tiptap's editor is rebuilt on return. Drop the
+      // copy loaded on the first visit, so the return loads the latest one
+      // (with unsent edits, from the device cache) instead of showing stale
+      // text that the next keystroke would save over.
+      setOpened(null);
     };
   }, [id]);
 
