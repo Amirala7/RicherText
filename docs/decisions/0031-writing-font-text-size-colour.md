@@ -17,3 +17,8 @@ The last Phase 4 item was the writing font setting (ADR 0010: Geist by default, 
 ## Consequences
 - The font is shown once Firestore has it on the device (its snapshot fires at once, also offline), so a reload right after choosing can't lose it; a choice made while sign-in is still being restored waits for it.
 - Size and colour are a separate slice with their own tests; the toolbar pieces go into DESIGN.md and the design-system page before they are used (ADR 0013).
+
+## Built (2026-10-21)
+- **Writing font:** `src/lib/settings/writing.ts`, `WritingSection` in the account organism, `data-writing-font` on the editor column, rules + rules tests (`settings-rules.test.ts`), e2e `writing-font.spec.ts`.
+- **Text size and colour:** marks in `src/lib/editor/text-style.ts` (only `span[data-size|data-color]` with a known value is read; one span can carry both), in the shared schema; the editor shows them through `.rt-doc [data-…]` CSS and the `tc-*` tokens (light and dark); copied HTML also gets inline `color` (light shade) and `font-size` (em) for other apps. Toolbar: Text size and Text colour menus before Link; picking returns focus to the text; when a menu opens it takes the on-screen selection if the editor hasn't caught up yet (shared `src/lib/editor/selection.ts`, also used by the link editor). Approved test changes (user, 2026-10-21): toolbar order and the schema's mark list. Tests: `schema.test.ts`, `paste.test.ts`, `editor-toolbar.test.tsx`, e2e `text-style.spec.ts`. Design page v6.
+

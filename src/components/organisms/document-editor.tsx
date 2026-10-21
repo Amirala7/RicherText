@@ -16,6 +16,7 @@ import { DocumentMenu } from "@/components/organisms/document-menu";
 import { TITLE_MAX, type DocumentJson } from "@/lib/documents/model";
 import type { SaveState } from "@/lib/editor/autosave";
 import { editorExtensions } from "@/lib/editor/schema";
+import { onScreenSelection } from "@/lib/editor/selection";
 import type { WritingFont } from "@/lib/settings/writing";
 import { cn } from "@/lib/utils";
 
@@ -241,24 +242,6 @@ function linkIn(editor: Editor, from: number, to: number) {
       href ??= type.isInSet(node.marks)?.attrs.href;
     });
   return href;
-}
-
-// What's highlighted right now: the editor reads a keyboard selection change
-// a moment later (on selectionchange), so a quick ⌘K could otherwise link the
-// previous one (seen on Android).
-function onScreenSelection(editor: Editor) {
-  const { view, state } = editor;
-  const sel = view.dom.ownerDocument.getSelection();
-  if (
-    !sel?.anchorNode ||
-    !sel.focusNode ||
-    !view.dom.contains(sel.anchorNode) ||
-    !view.dom.contains(sel.focusNode)
-  )
-    return state.selection;
-  const a = view.posAtDOM(sel.anchorNode, sel.anchorOffset);
-  const b = view.posAtDOM(sel.focusNode, sel.focusOffset);
-  return { from: Math.min(a, b), to: Math.max(a, b) };
 }
 
 // A selection gets the link; inside a link, the whole link changes; with

@@ -34,7 +34,15 @@ describe("document schema", () => {
 
   it("has exactly the v1 marks", () => {
     expect(Object.keys(schema.marks).sort()).toEqual(
-      ["bold", "italic", "link", "strike", "underline"].sort(),
+      [
+        "bold",
+        "italic",
+        "link",
+        "strike",
+        "textColor",
+        "textSize",
+        "underline",
+      ].sort(),
     );
   });
 
@@ -92,5 +100,39 @@ describe("document schema", () => {
     );
     const hrefs = JSON.stringify(json).match(/"href":"[^"]*"/g) ?? [];
     expect(hrefs).toEqual(['"href":"mailto:a@b.co"']);
+  });
+});
+
+// Text size and colour (ADR 0031): marks with a fixed set of values, kept as
+// data attributes; anything else (other apps' styles, unknown values) is not
+// read as size or colour.
+describe("text size and colour marks", () => {
+  const marksOf = (html: string) => {
+    const json = generateJSON(html, documentExtensions()) as Json & {
+      content: { content: { marks?: { type: string; attrs?: object }[] }[] }[];
+    };
+    return json.content[0].content[0].marks ?? [];
+  };
+
+  it("reads RicherText's own sizes and colours", () => {
+    expect(
+      marksOf('<p><span data-size="large" data-color="red">Hi</span></p>'),
+    ).toEqual(
+      expect.arrayContaining([
+        { type: "textSize", attrs: { size: "large" } },
+        { type: "textColor", attrs: { color: "red" } },
+      ]),
+    );
+    expect(marksOf('<p><span data-size="small">Hi</span></p>')).toEqual([
+      { type: "textSize", attrs: { size: "small" } },
+    ]);
+  });
+
+  it("ignores unknown values and other apps' styles", () => {
+    expect(marksOf('<p><span data-color="pink">Hi</span></p>')).toEqual([]);
+    expect(marksOf('<p><span data-size="huge">Hi</span></p>')).toEqual([]);
+    expect(
+      marksOf('<p><span style="color:#ff0000;font-size:20pt">Hi</span></p>'),
+    ).toEqual([]);
   });
 });

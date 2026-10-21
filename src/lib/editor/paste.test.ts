@@ -103,3 +103,29 @@ describe("copy out", () => {
     expect(text).toContain("Quoted");
   });
 });
+
+// Text size and colour (ADR 0031): survive copy and paste inside RicherText;
+// copied HTML carries inline styles so email and Docs show them too.
+describe("copy out: text size and colour", () => {
+  const styled =
+    '<p>Plain <span data-color="red">red</span> and <span data-size="large">large</span></p>';
+
+  it("pastes back into RicherText unchanged", () => {
+    const e = editor(styled);
+    e.commands.selectAll();
+    const { dom } = e.view.serializeForClipboard(e.state.selection.content());
+    const back = editor();
+    back.view.pasteHTML(dom.innerHTML, event());
+    expect(back.getJSON()).toEqual(e.getJSON());
+  });
+
+  it("carries the colour and size as inline styles for other apps", () => {
+    const e = editor(styled);
+    e.commands.selectAll();
+    const { dom } = e.view.serializeForClipboard(e.state.selection.content());
+    const red = dom.querySelector('[data-color="red"]') as HTMLElement;
+    const large = dom.querySelector('[data-size="large"]') as HTMLElement;
+    expect(red.style.color).toBe("rgb(194, 40, 38)");
+    expect(large.style.fontSize).toBe("1.125em");
+  });
+});
