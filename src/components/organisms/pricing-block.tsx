@@ -38,7 +38,7 @@ function PlanCard({
   return (
     <li
       aria-label={`${name} plan`}
-      className="flex min-w-0 flex-col gap-5 rounded-lg border border-border p-6 max-sm:gap-4 max-sm:p-5 [&>button]:w-full"
+      className="flex min-w-0 flex-col gap-6 rounded-lg border border-border p-8 max-sm:gap-4 max-sm:p-6 [&>a]:w-full [&>button]:w-full"
     >
       <div className="flex h-control-sm items-center justify-between gap-3">
         <strong className="text-lg leading-none">{name}</strong>
@@ -60,28 +60,35 @@ export function PricingBlock({
   free,
   yearly,
   monthly,
+  id,
+  headingLevel = 1,
 }: {
   free: React.ReactNode;
   yearly: React.ReactNode;
   monthly: React.ReactNode;
+  id?: string;
+  // The page's own heading in the app (h1); a section of the landing page (h2).
+  headingLevel?: 1 | 2;
 }) {
+  const Heading = headingLevel === 1 ? "h1" : "h2";
   return (
     <section
+      id={id}
       aria-labelledby="pricing-title"
-      className="flex flex-col items-center gap-6 px-7 py-24 max-sm:gap-5 max-sm:px-5 max-sm:py-16"
+      className="flex flex-col items-center gap-8 px-12 py-24 max-sm:gap-6 max-sm:px-6 max-sm:py-16"
     >
-      <div className="flex max-w-[760px] flex-col items-center gap-5 text-center max-sm:gap-4">
-        <h1
+      <div className="flex max-w-[760px] flex-col items-center gap-6 text-center max-sm:gap-4">
+        <Heading
           id="pricing-title"
           className="m-0 text-3xl text-balance [text-box:trim-both_cap_alphabetic]"
         >
           Simple pricing
-        </h1>
+        </Heading>
         <p className="m-0 text-lg font-normal text-balance text-muted-foreground [text-box:trim-both_cap_alphabetic] max-sm:text-base max-sm:tracking-normal">
           Start free with one document. Subscribe when you need more.
         </p>
       </div>
-      <ul className="m-0 grid w-full max-w-[1080px] list-none grid-cols-3 items-stretch gap-5 p-0 max-[900px]:mx-auto max-[900px]:max-w-[420px] max-[900px]:grid-cols-1">
+      <ul className="m-0 grid w-full max-w-[1080px] list-none grid-cols-3 items-stretch gap-6 p-0 max-[900px]:mx-auto max-[900px]:max-w-[420px] max-[900px]:grid-cols-1">
         <PlanCard
           name="Free"
           price="$0"
