@@ -56,6 +56,10 @@ export function DocumentsView() {
     };
   }, []);
 
+  // Next keeps this page's state when you leave it (React Activity) and runs
+  // effect clean-ups on the way out, so New isn't still busy when you return.
+  useEffect(() => () => setCreating(false), []);
+
   // Keeps "Edited 2 min ago" current.
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 30_000);
