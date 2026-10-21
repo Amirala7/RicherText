@@ -20,3 +20,8 @@ export function preflightProblems(state: {
 export function checkSteps(state: { emulatorsRunning: boolean }): Step[];
 
 export function deploySteps(targets: Target[]): Step[];
+
+export function driftProblems(
+  start: { branch: string; dirty: boolean; head: string },
+  now: { branch: string; dirty: boolean; head: string },
+): string[];

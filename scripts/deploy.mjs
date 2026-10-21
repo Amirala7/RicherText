@@ -37,6 +37,18 @@ export function preflightProblems({ branch, dirty }) {
   return problems;
 }
 
+// Checked again right before every deploy step: the checks take minutes, and
+// a branch switch or an edit meanwhile would ship code they never tested.
+export function driftProblems(start, now) {
+  const problems = preflightProblems(now);
+  if (now.head !== start.head) {
+    problems.push(
+      `main moved from ${start.head} to ${now.head} during the run.`,
+    );
+  }
+  return problems;
+}
+
 // `pnpm dev:all` already holds the emulator ports, so the checks reuse those
 // emulators instead of starting a second set. e2e runs as CI: a fresh build,
 // no .only, one retry for the known load flakes.
@@ -107,26 +119,34 @@ function run(step) {
   if (result.status !== 0) throw new Error(`${step.name} failed; stopped.`);
 }
 
-async function main() {
-  const { targets, dryRun } = parseArgs(process.argv.slice(2));
-  const problems = preflightProblems({
+function repoState() {
+  return {
     branch: git("branch", "--show-current"),
     dirty: git("status", "--porcelain") !== "",
-  });
+    head: git("rev-parse", "--short", "HEAD"),
+  };
+}
+
+async function main() {
+  const { targets, dryRun } = parseArgs(process.argv.slice(2));
+  const start = repoState();
+  const problems = preflightProblems(start);
   if (problems.length) throw new Error(problems.join("\n"));
-  const steps = [
-    ...checkSteps({ emulatorsRunning: await portOpen(8080) }),
-    ...deploySteps(targets),
-  ];
+  const checks = checkSteps({ emulatorsRunning: await portOpen(8080) });
+  const deploys = deploySteps(targets);
   if (dryRun) {
-    for (const s of steps)
+    for (const s of [...checks, ...deploys])
       process.stdout.write(`${s.name}: ${s.args.join(" ")}\n`);
     return;
   }
-  for (const step of steps) run(step);
-  process.stdout.write(
-    `\nDeployed ${targets.join(", ")} at ${git("rev-parse", "--short", "HEAD")}.\n`,
-  );
+  for (const step of checks) run(step);
+  for (const step of deploys) {
+    const drift = driftProblems(start, repoState());
+    if (drift.length)
+      throw new Error(`Stopped before ${step.name}:\n${drift.join("\n")}`);
+    run(step);
+  }
+  process.stdout.write(`\nDeployed ${targets.join(", ")} at ${start.head}.\n`);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
