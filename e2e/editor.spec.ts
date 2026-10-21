@@ -46,7 +46,7 @@ const serverCopy = async (uid: string, id: string) => {
     db.doc(`users/${uid}/documents/${id}`).get(),
     db.doc(`users/${uid}/documents/${id}/content/current`).get(),
   ]);
-  return { title: meta.get("title"), doc: JSON.stringify(content.get("doc")) };
+  return { title: meta.get("title"), doc: content.get("doc") as string };
 };
 
 async function noSidewaysScroll(page: Page) {

@@ -58,7 +58,7 @@ beforeEach(async () => {
           updatedAt: created,
         });
         await setDoc(doc(db, `users/${uid}/documents/${id}/content/current`), {
-          doc: { type: "doc", content: [{ type: "paragraph" }] },
+          doc: '{"type":"doc","content":[{"type":"paragraph"}]}',
           updatedAt: created,
         });
       }
@@ -76,11 +76,12 @@ const rename = (title: unknown) => ({
   snippet: "",
   updatedAt: serverTimestamp(),
 });
+// Content is a JSON string (ADR 0033).
 const body = (text: string) => ({
-  doc: {
+  doc: JSON.stringify({
     type: "doc",
     content: [{ type: "paragraph", content: [{ type: "text", text }] }],
-  },
+  }),
   updatedAt: serverTimestamp(),
 });
 
@@ -199,7 +200,7 @@ describe("document rules: what an edit may contain", () => {
     );
     await assertFails(
       setDoc(content(PAID, "d1"), {
-        doc: { type: "doc", content: [] },
+        doc: '{"type":"doc","content":[]}',
         updatedAt: created,
       }),
     );
@@ -223,7 +224,7 @@ describe("document rules: what an edit may contain", () => {
     );
   });
 
-  it("requires the content to be a ProseMirror doc", async () => {
+  it("requires the content to be a ProseMirror doc as a JSON string", async () => {
     await assertFails(
       setDoc(content(PAID, "d1"), {
         doc: "plain text",
@@ -232,7 +233,14 @@ describe("document rules: what an edit may contain", () => {
     );
     await assertFails(
       setDoc(content(PAID, "d1"), {
-        doc: { type: "paragraph" },
+        doc: '{"type":"paragraph"}',
+        updatedAt: serverTimestamp(),
+      }),
+    );
+    // A map is refused: maps can't nest past 20 levels (ADR 0033).
+    await assertFails(
+      setDoc(content(PAID, "d1"), {
+        doc: { type: "doc", content: [] },
         updatedAt: serverTimestamp(),
       }),
     );

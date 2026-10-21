@@ -60,7 +60,7 @@ beforeEach(async () => {
           updatedAt: created,
         });
         await setDoc(doc(db, `users/${uid}/documents/${id}/content/current`), {
-          doc: { type: "doc", content: [{ type: "paragraph" }] },
+          doc: '{"type":"doc","content":[{"type":"paragraph"}]}',
           updatedAt: created,
         });
       }
@@ -86,7 +86,8 @@ describe("saveDocument", () => {
     const content = await getDoc(
       doc(db, `users/${PAID}/documents/d1/content/current`),
     );
-    expect(content.get("doc")).toEqual(body);
+    // Stored as a JSON string (ADR 0033).
+    expect(JSON.parse(content.get("doc"))).toEqual(body);
   });
 
   it("saves a title on its own without touching the content", async () => {

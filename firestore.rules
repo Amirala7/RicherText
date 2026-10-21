@@ -58,8 +58,10 @@ service cloud.firestore {
           && part == 'current'
           && canEdit(uid, docId)
           && request.resource.data.keys().hasOnly(['doc', 'updatedAt'])
-          && request.resource.data.doc is map
-          && request.resource.data.doc.get('type', null) == 'doc'
+          // A JSON string, not a map (ADR 0033): maps can't nest past 20 levels.
+          && request.resource.data.doc is string
+          && request.resource.data.doc.size() <= 900000
+          && request.resource.data.doc.matches('(?s)[{]"type":"doc"[,}].*')
           && request.resource.data.updatedAt == request.time;
       }
     }
