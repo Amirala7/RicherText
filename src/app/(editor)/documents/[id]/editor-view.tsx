@@ -1,0 +1,165 @@
+"use client";
+
+import { onAuthStateChanged } from "firebase/auth";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { WritingLoader } from "@/components/atoms/writing-loader";
+import { buttonVariants } from "@/components/atoms/button";
+import { EmptyState } from "@/components/molecules/empty-state";
+import { DocumentEditor } from "@/components/organisms/document-editor";
+import { PageBar } from "@/components/organisms/page-bar";
+import { AccountMenu } from "@/components/organisms/account-menu";
+import {
+  loadDocument,
+  saveDocument,
+  watchDocuments,
+  watchPaid,
+  type OpenedDocument,
+} from "@/lib/documents/client";
+import { editableIds, type ListedDocument } from "@/lib/documents/list";
+import { displayTitle } from "@/lib/documents/model";
+import { createAutosave, type SaveState } from "@/lib/editor/autosave";
+import { getClientAuth, getClientDb } from "@/lib/firebase/client";
+
+type Opened = OpenedDocument | "missing" | "failed" | null;
+
+// The editor page (ADR 0024, 0028, 0029): loads the document (from the device
+// cache when offline), works out whether it's editable the same way the list
+// does, and autosaves title and content straight to Firestore.
+export function EditorView({
+  id,
+  email,
+}: {
+  id: string;
+  email: string | null;
+}) {
+  const [uid, setUid] = useState<string | null>(null);
+  const [opened, setOpened] = useState<Opened>(null);
+  const [documents, setDocuments] = useState<ListedDocument[] | null>(null);
+  const [paid, setPaid] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>("saved");
+
+  useEffect(() => {
+    let stop = () => {};
+    const stopAuth = onAuthStateChanged(getClientAuth(), (user) => {
+      stop();
+      setUid(user?.uid ?? null);
+      if (!user) return;
+      const db = getClientDb();
+      let live = true;
+      loadDocument(db, user.uid, id).then(
+        (loaded) => live && setOpened(loaded ?? "missing"),
+        () => live && setOpened("failed"),
+      );
+      const stopDocs = watchDocuments(db, user.uid, setDocuments, () => {});
+      const stopPaid = watchPaid(db, user.uid, setPaid);
+      stop = () => {
+        live = false;
+        stopDocs();
+        stopPaid();
+      };
+    });
+    return () => {
+      stopAuth();
+      stop();
+    };
+  }, [id]);
+
+  const autosave = useMemo(
+    () =>
+      uid
+        ? createAutosave(
+            (changes) => saveDocument(getClientDb(), uid, id, changes),
+            setSaveState,
+          )
+        : null,
+    [uid, id],
+  );
+
+  // Leaving or hiding the page writes what's waiting into the device cache,
+  // which sends it on the next visit if the server didn't get it (ADR 0029).
+  useEffect(() => {
+    if (!autosave) return;
+    const flush = () => autosave.flush();
+    const hidden = () => document.visibilityState === "hidden" && flush();
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", hidden);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", hidden);
+      autosave.dispose();
+    };
+  }, [autosave]);
+
+  const showTitle = (next: string) => {
+    document.title = `${displayTitle(next)} · RicherText`;
+  };
+  useEffect(() => {
+    if (opened && typeof opened === "object") showTitle(opened.title);
+  }, [opened]);
+
+  const editable = useMemo(
+    () => (documents ? editableIds(documents, paid).has(id) : false),
+    [documents, paid, id],
+  );
+
+  if (opened === "missing" || opened === "failed") {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <PageBar>
+          <AccountMenu email={email} />
+        </PageBar>
+        <main className="mx-auto grid w-full max-w-[808px] flex-1 content-center px-6 py-7 max-sm:p-5">
+          <EmptyState
+            title={
+              opened === "missing"
+                ? "Document not found"
+                : "Couldn't open the document"
+            }
+            line={
+              opened === "missing"
+                ? "It may have been deleted."
+                : "Check your connection, then reload the page."
+            }
+            action={
+              <Link
+                href="/documents"
+                className={buttonVariants({ variant: "secondary" })}
+              >
+                Back to documents
+              </Link>
+            }
+          />
+        </main>
+      </div>
+    );
+  }
+
+  if (!opened || !documents || !autosave) {
+    return (
+      <main
+        aria-busy="true"
+        aria-label="Opening document"
+        className="grid min-h-dvh place-items-center"
+      >
+        <WritingLoader />
+      </main>
+    );
+  }
+
+  return (
+    <DocumentEditor
+      title={opened.title}
+      doc={opened.doc}
+      editable={editable}
+      saveState={saveState}
+      email={email}
+      onTitle={(next) => {
+        showTitle(next);
+        autosave.change({ title: next });
+      }}
+      onDoc={(doc) => autosave.change({ doc })}
+      onRetry={() => autosave.retry()}
+    />
+  );
+}
