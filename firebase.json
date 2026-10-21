@@ -14,9 +14,40 @@
   ],
   "emulators": {
     "singleProjectMode": true,
-    "auth": { "port": 9099 },
-    "firestore": { "port": 8080 },
-    "functions": { "port": 5001 },
-    "ui": { "enabled": true, "port": 4000 }
-  }
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "functions": {
+      "port": 5001
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    }
+  },
+  "apphosting": [
+    {
+      "backendId": "richertext",
+      "rootDir": "/",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        "functions/node_modules",
+        "functions/lib",
+        "functions/.secret.local",
+        "e2e",
+        "tests",
+        "test-results",
+        "playwright-report",
+        "docs",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        ".env.local"
+      ]
+    }
+  ]
 }
