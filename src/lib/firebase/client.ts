@@ -12,19 +12,15 @@ import {
 } from "firebase/firestore";
 import {
   authEmulatorHost,
+  firebaseConfig,
   firestoreEmulatorHost,
-  projectId,
   usesEmulators,
 } from "./config";
 
 function clientApp() {
-  return getApps().length
-    ? getApp()
-    : initializeApp({
-        projectId,
-        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "demo-key",
-        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      });
+  if (getApps().length) return getApp();
+  const { projectId, apiKey, authDomain } = firebaseConfig;
+  return initializeApp({ projectId, apiKey, authDomain });
 }
 
 // Browser Firebase. Auth persists across reloads so Firestore rules and
