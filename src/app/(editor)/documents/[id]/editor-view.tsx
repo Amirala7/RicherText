@@ -23,7 +23,6 @@ import { editableIds, type ListedDocument } from "@/lib/documents/list";
 import { displayTitle } from "@/lib/documents/model";
 import { createAutosave, type SaveState } from "@/lib/editor/autosave";
 import { getClientAuth, getClientDb } from "@/lib/firebase/client";
-import { watchWritingFont, type WritingFont } from "@/lib/settings/writing";
 
 type Opened = OpenedDocument | "missing" | "failed" | null;
 
@@ -41,7 +40,6 @@ export function EditorView({
   const [opened, setOpened] = useState<Opened>(null);
   const [documents, setDocuments] = useState<ListedDocument[] | null>(null);
   const [paid, setPaid] = useState(false);
-  const [font, setFont] = useState<WritingFont>("geist");
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [deleteFailed, setDeleteFailed] = useState<number | null>(null);
   const router = useRouter();
@@ -60,12 +58,10 @@ export function EditorView({
       );
       const stopDocs = watchDocuments(db, user.uid, setDocuments, () => {});
       const stopPaid = watchPaid(db, user.uid, setPaid);
-      const stopFont = watchWritingFont(db, user.uid, setFont);
       stop = () => {
         live = false;
         stopDocs();
         stopPaid();
-        stopFont();
       };
     });
     return () => {
@@ -187,7 +183,7 @@ export function EditorView({
         doc={opened.doc}
         editable={editable}
         paid={paid}
-        font={font}
+        font={opened.font}
         saveState={saveState}
         email={email}
         onTitle={(next) => {
@@ -195,6 +191,7 @@ export function EditorView({
           autosave.change({ title: next });
         }}
         onDoc={(doc) => autosave.change({ doc })}
+        onFont={(font) => autosave.change({ font })}
         onRetry={() => autosave.retry()}
         onDelete={remove}
       />

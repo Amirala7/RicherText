@@ -1,8 +1,7 @@
-import { doc, onSnapshot, setDoc, type Firestore } from "firebase/firestore";
-
-// Writing font (ADR 0010, 0031): a per-user display setting in
-// users/{uid}/settings/writing, Geist by default. It only changes how the
-// body text looks to this user; documents never store it.
+// Writing font (ADR 0010, 0032): each document's body font, Geist by default,
+// saved with the document's title (users/{uid}/documents/{id}.font) and
+// picked in the editor toolbar. Not part of the content, so copy and paste
+// are unaffected.
 export const WRITING_FONTS = [
   { id: "geist", label: "Geist" },
   { id: "plex-serif", label: "IBM Plex Serif" },
@@ -16,23 +15,4 @@ export function writingFont(value: unknown): WritingFont {
 
 export function fontLabel(font: WritingFont): string {
   return WRITING_FONTS.find((f) => f.id === font)!.label;
-}
-
-const settings = (db: Firestore, uid: string) =>
-  doc(db, "users", uid, "settings", "writing");
-
-export function watchWritingFont(
-  db: Firestore,
-  uid: string,
-  onChange: (font: WritingFont) => void,
-) {
-  return onSnapshot(
-    settings(db, uid),
-    (snap) => onChange(writingFont(snap.get("font"))),
-    () => {},
-  );
-}
-
-export function saveWritingFont(db: Firestore, uid: string, font: WritingFont) {
-  return setDoc(settings(db, uid), { font });
 }

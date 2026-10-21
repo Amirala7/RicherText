@@ -247,3 +247,40 @@ describe("document rules: the editable pointer", () => {
     );
   });
 });
+
+// Writing font (ADR 0032): each document keeps its own font, saved with its
+// title and snippet under the same edit rules. The old per-user setting is
+// closed again.
+describe("document rules: writing font", () => {
+  const font = (value: unknown) => ({
+    font: value,
+    updatedAt: serverTimestamp(),
+  });
+
+  it("lets the owner set an offered font", async () => {
+    await assertSucceeds(updateDoc(meta(PAID, "d1"), font("plex-serif")));
+    await assertSucceeds(updateDoc(meta(PAID, "d1"), font("geist")));
+    await assertSucceeds(updateDoc(meta(FREE, "d2"), font("plex-serif")));
+  });
+
+  it("refuses fonts that aren't offered", async () => {
+    await assertFails(updateDoc(meta(PAID, "d1"), font("comic-sans")));
+    await assertFails(updateDoc(meta(PAID, "d1"), font(1)));
+  });
+
+  it("keeps the font of read-only and other users' documents", async () => {
+    await assertFails(updateDoc(meta(FREE, "d1"), font("plex-serif")));
+    await assertFails(
+      updateDoc(
+        doc(as(OTHER), `users/${PAID}/documents/d1`),
+        font("plex-serif"),
+      ),
+    );
+  });
+
+  it("no longer opens the per-user writing setting", async () => {
+    const setting = doc(as(PAID), `users/${PAID}/settings/writing`);
+    await assertFails(getDoc(setting));
+    await assertFails(setDoc(setting, { font: "plex-serif" }));
+  });
+});

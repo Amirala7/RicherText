@@ -13,7 +13,7 @@ import {
   type Firestore,
 } from "firebase/firestore";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { saveDocument } from "@/lib/documents/client";
+import { loadDocument, saveDocument } from "@/lib/documents/client";
 
 // Autosave's write (Phase 4 slice 3, ADR 0028): title, snippet and content in
 // one batch from the browser, accepted by the document rules.
@@ -108,5 +108,31 @@ describe("saveDocument", () => {
 
   it("is refused for someone else's document", async () => {
     await assertFails(saveDocument(as(FREE), PAID, "d1", { title: "x" }));
+  });
+});
+
+// Writing font (ADR 0032): saved with the document by autosave; a document
+// that never had one opens in Geist.
+describe("the document's writing font", () => {
+  it("opens in Geist when none was saved", async () => {
+    const opened = await loadDocument(as(PAID), PAID, "d1");
+    expect(opened?.font).toBe("geist");
+  });
+
+  it("saves the font on its own and opens with it", async () => {
+    const db = as(PAID);
+    await assertSucceeds(saveDocument(db, PAID, "d1", { font: "plex-serif" }));
+    const content = await getDoc(
+      doc(db, `users/${PAID}/documents/d1/content/current`),
+    );
+    expect(content.get("updatedAt").toMillis()).toBe(created.toMillis());
+    expect((await loadDocument(db, PAID, "d1"))?.font).toBe("plex-serif");
+    expect((await loadDocument(db, PAID, "d2"))?.font).toBe("geist");
+  });
+
+  it("is refused for an older document on Free (read-only)", async () => {
+    await assertFails(
+      saveDocument(as(FREE), FREE, "d1", { font: "plex-serif" }),
+    );
   });
 });
