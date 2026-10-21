@@ -23,7 +23,7 @@ ADR 0003 picked Stripe (sandbox) with Checkout, Customer Portal and our own webh
 1. Setup script, data model + rules, webhook.
 2. Checkout + activation page.
 3. Customer Portal + account page states (built 2026-10-21).
-4. End-to-end in the real sandbox via the Stripe CLI (needs the user's test keys in `.env.local`).
+4. End-to-end in the real sandbox via the Stripe CLI (done 2026-10-21).
 
 ## Consequences
 - "Failed payment locks it" (CONTEXT §4.2) now means: locks once Stripe gives up retrying, not on the first failure. During retries a user can be open while unpaid; this is deliberate (CONTEXT §8).
@@ -35,6 +35,12 @@ ADR 0003 picked Stripe (sandbox) with Checkout, Customer Portal and our own webh
 - Webhook: `functions/src/billing/webhook.ts` (logic, testable with a fake Stripe) and `stripeWebhook` in `functions/src/index.ts`. Secrets via `defineSecret` (Secret Manager in production; `functions/.secret.local` for the emulator, gitignored; needed only from slice 4). The Stripe client is made only after the signature checks out.
 - Each subscription record also stores `customerId`, `priceId` and `lookupKey`.
 - The Stripe customer must carry `metadata.uid`; slice 2 sets it when it creates the customer. Subscriptions whose customer has no `uid` are ignored (200, logged by event ID only).
+
+## Built (slice 4, 2026-10-21)
+- `pnpm stripe:secrets` writes `functions/.secret.local` from `.env.local` (sandbox keys only); `pnpm dev:all` runs it first and skips it when no keys are set. `pnpm stripe:listen` forwards the four handled events to the emulator's `stripeWebhook`, passes the API key by environment and hides secrets in the CLI's output (ADR 0026).
+- Real sandbox run against `pnpm dev:all`: sign up with `?plan=monthly` → Checkout with 4242 → `/welcome` → Documents; `/account` "Monthly, renews 21 Nov"; Portal cancel → "Ends 21 Nov" + Resubscribe; Portal renew → back to "renews". Every event answered 200 within about 2s.
+- **Found and fixed:** the Portal cancels "at period end" by setting `cancel_at` to the period end and leaving `cancel_at_period_end` false (API version 2025-01-27.acacia and later). The webhook now records `cancelAtPeriodEnd` when either is set.
+- Not run against the real sandbox: failed payments (`past_due`) and the end of a period; both stay covered by the emulator tests. The Dashboard retry setting is the user's to check.
 
 ## Built (slice 3, 2026-10-21)
 - **Account page `/account`** (Documents · Account in the app bar; Account in the account menu): Profile shows the email only (no Change yet; user, 2026-10-21); Subscription has one row: Free (chip, "One document at a time", Upgrade → `/plans`) · Active ("Yearly, renews 19 Nov 2027", Manage) · Ends on date (warning chip "Ends 19 Nov", Resubscribe) · Payment due (warning chip, Update card, warning notice on top). Dates in UTC, year shown only when it isn't this year. Writing joins in Phase 4.
