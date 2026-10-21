@@ -18,7 +18,7 @@ ADR 0005 picked Firebase Auth (email + password) with Admin SDK session cookies;
 - No `users/{uid}` document in Phase 2; no subscription means Free (Phase 3/4 adds data).
 - Emulators: client `connectAuthEmulator`, Admin SDK via `FIREBASE_AUTH_EMULATOR_HOST`.
 
-- **Logs never carry tokens or personal data** (user, 2026-10-21): no `console` in `src/` (ESLint `no-console`); tests check the server output (`tests/emulators/no-secrets-in-server-logs.test.ts`, a real `next dev` through every session path) and the browser console (`e2e/no-secrets-in-console.spec.ts`) for the email, password, uid, ID token, session cookie and anything shaped like a JWT. The Auth emulator's own debug logs are local only and gitignored.
+- **Logs never carry tokens or personal data** (2026-10-21): no `console` in `src/` (ESLint `no-console`); tests check the server output (`tests/emulators/no-secrets-in-server-logs.test.ts`, a real `next dev` through every session path) and the browser console (`e2e/no-secrets-in-console.spec.ts`) for the email, password, uid, ID token, session cookie and anything shaped like a JWT. The Auth emulator's own debug logs are local only and gitignored.
 
 ## Built (slice 1, 2026-10-21)
 - Sign in was folded into slice 1 (gating redirects to it, so it had to exist); slice 2 is now only password reset.

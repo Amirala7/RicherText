@@ -5,7 +5,7 @@ import { LinkEditor } from "./link-editor";
 // Link editor molecule (ADR 0015, DESIGN.md §3): input sm with a link icon,
 // Apply, and Remove when editing a link; a floating panel under the
 // selection. Enter applies, Esc closes; a bad address marks the input invalid
-// and keeps the panel open (slice 4, user 2026-10-21).
+// and keeps the panel open (slice 4, 2026-10-21).
 const anchor = () => new DOMRect(10, 10, 40, 20);
 
 function setup(href?: string) {

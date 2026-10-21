@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { DocumentMenu } from "./document-menu";
 
 // Document menu in the editor bar (ADR 0024, DESIGN.md app screens): label
-// "Export as" and the six formats, disabled until export is built (user,
-// 2026-10-21; on Free the label reads "Export · paid plans" and the items
+// "Export as" and the six formats, disabled until export is built
+// (2026-10-21; on Free the label reads "Export · paid plans" and the items
 // show a lock); divider; Delete document (danger), which asks first.
 const FORMATS = [
   "PDF",

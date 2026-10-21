@@ -1,4 +1,4 @@
-// Link editor addresses (slice 4, user 2026-10-21): the schema only keeps
+// Link editor addresses (slice 4, 2026-10-21): the schema only keeps
 // http(s) and mailto links, so the editor only makes those. A bare address
 // gets https://, an email address mailto:; anything else is refused (null).
 const KEPT = /^(https?:\/\/|mailto:)/i;

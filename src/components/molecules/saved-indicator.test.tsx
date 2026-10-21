@@ -49,7 +49,7 @@ describe("SavedIndicator", () => {
   });
 });
 
-// Quiet placement (user, 2026-10-21): xs text, faded; problems never faded.
+// Quiet placement (2026-10-21): xs text, faded; problems never faded.
 describe("SavedIndicator, quiet", () => {
   const box = () => screen.getAllByTestId("saved-state")[0].parentElement!;
 

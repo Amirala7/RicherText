@@ -4,7 +4,7 @@
 - Date: 2026-10-19
 
 ## Context
-The molecules were proposed and reviewed on https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE. In review, the user found text running out of its box and uneven left/right padding in places, and set a rule against both.
+The molecules were proposed and reviewed on a design canvas. In review I found text running out of its box and uneven left/right padding in places, and set a rule against both.
 
 ## Decision
 **Molecules** are final as shown on that page (v3); all review defaults were accepted. Details in `docs/DESIGN.md` §3.

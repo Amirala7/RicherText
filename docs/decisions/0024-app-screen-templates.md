@@ -4,10 +4,10 @@
 - Date: 2026-10-20
 
 ## Context
-The last Phase 0 step: arrange the final organisms (ADR 0016) into every app screen, with the Free plan (ADR 0020) and export (ADR 0022) worked in. Designed in two rounds (https://claude.ai/artifact/PbSqEU9tYHQNB3vE1XDbVG).
+The last Phase 0 step: arrange the final organisms (ADR 0016) into every app screen, with the Free plan (ADR 0020) and export (ADR 0022) worked in. Designed in two rounds.
 
 ## Options considered
-- **Where a new account lands:** the editor on a new "Untitled" document vs **the documents page** (chosen by the user).
+- **Where a new account lands:** the editor on a new "Untitled" document vs **the documents page** (chosen).
 - **Export on Free:** items open the upgrade dialog, hidden, or **shown locked** (chosen).
 - **Back from Checkout:** editor + toast vs **an activation page that waits for the webhook** (chosen).
 - **Pricing for signed-in users:** a separate marketing pricing page vs **the landing pricing section reused in the app** (chosen; no separate marketing pricing page).
@@ -21,7 +21,7 @@ Screens: sign up, sign in, reset link sent, documents (paid / Free / plan ended 
 - **Free plan:** New document with one document already opens the upgrade dialog (Not now · See plans). Export items stay in the document menu, disabled with a lock ("Export · paid plans").
 - **Plan ended:** neutral notice with Resubscribe on the list and on each read-only document; Read-only chip on rows and in the editor bar (in Saved's place); toolbar disabled.
 
-New elements approved by the user: document menu, upgrade dialog (dialog with a primary action), disabled menu item, activation page + loader success state, read-only state, empty-document placeholders ("Untitled", "Start writing…"), account menu contents (email, Documents, Account, Theme, Sign out), not-found page.
+New elements approved in review: document menu, upgrade dialog (dialog with a primary action), disabled menu item, activation page + loader success state, read-only state, empty-document placeholders ("Untitled", "Start writing…"), account menu contents (email, Documents, Account, Theme, Sign out), not-found page.
 
 ## Consequences
 - Phase 0 is complete; next is Phase 1 (scaffold).

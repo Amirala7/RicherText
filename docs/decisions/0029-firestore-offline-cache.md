@@ -8,7 +8,7 @@ With Firestore's default memory cache, a write still on its way to the server is
 
 ## Options considered
 - **Memory cache** (the default): nothing stays on the device, but queued writes die with the tab.
-- **Persistent cache in IndexedDB** (chosen, user, 2026-10-21): data and queued writes survive reloads and lost connections; documents open from the device while offline. Document data stays on the device, so sign out must remove it.
+- **Persistent cache in IndexedDB** (chosen, 2026-10-21): data and queued writes survive reloads and lost connections; documents open from the device while offline. Document data stays on the device, so sign out must remove it.
 
 ## Decision
 - The browser's Firestore uses `persistentLocalCache` with `persistentMultipleTabManager` (every open tab shares one cache; `src/lib/firebase/client.ts`).

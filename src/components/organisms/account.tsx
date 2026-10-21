@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 // Account organism (ADR 0016, 0024): sections of settings rows, lg heading,
 // gap s-3. Everything about a paid subscription opens the Stripe Customer
 // Portal (ADR 0027). The writing font is picked per document in the editor
-// (ADR 0032); changing email or password later (user, 2026-10-21).
+// (ADR 0032); changing email or password later (2026-10-21).
 function Section({
   title,
   children,

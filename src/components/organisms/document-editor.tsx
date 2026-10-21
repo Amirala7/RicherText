@@ -254,7 +254,7 @@ function linkIn(editor: Editor, from: number, to: number) {
 
 // A selection gets the link; inside a link, the whole link changes; with
 // nothing selected the address is typed in as linked text, and what's typed
-// next isn't part of it (user, 2026-10-21).
+// next isn't part of it (2026-10-21).
 function applyLink(
   editor: Editor,
   { from, to, href: editing }: LinkTarget,

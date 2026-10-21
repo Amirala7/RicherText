@@ -5,6 +5,9 @@ import {
   onSnapshot,
   type Firestore,
 } from "firebase/firestore";
+// One plan rule for the webhook and the app: imported straight from the
+// Functions package instead of a shared workspace package, to keep one copy
+// without a third package to build and deploy.
 import { planFor } from "../../../functions/src/billing/plan";
 import { planNameForInterval } from "./plans";
 

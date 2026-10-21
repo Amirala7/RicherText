@@ -4,7 +4,7 @@
 - Date: 2026-10-20
 
 ## Context
-ADR 0005 required users to verify their email (Firebase verification link) before checkout, with a "check your inbox" screen. The user decided email + password alone is enough for v1.
+ADR 0005 required users to verify their email (Firebase verification link) before checkout, with a "check your inbox" screen. I decided email + password alone is enough for v1.
 
 ## Decision
 Sign-up is email + password only. No verification email, no "check your inbox" screen, and no `email_verified` check before checkout or when gating the editor. Everything else in ADR 0005 stands (session cookies, UID as the key, password reset).

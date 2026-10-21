@@ -4,7 +4,7 @@
 - Date: 2026-10-19
 
 ## Context
-ADR 0007 left the typeface(s) and the accent colour open. The landing page and the editor must share one design language. Options were compared side by side in light and dark in a comparison artifact (https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b).
+ADR 0007 left the typeface(s) and the accent colour open. The landing page and the editor must share one design language. Options were compared side by side in light and dark in a comparison artifact.
 
 ## Options considered
 - **Headings:** Geist only · Instrument Serif + Geist · Newsreader + Geist. Earlier pairings (IBM Plex, Hanken Grotesk, Newsreader as the writing face) were dropped once Geist was chosen as the interface and default writing font.
@@ -19,4 +19,4 @@ ADR 0007 left the typeface(s) and the accent colour open. The landing page and t
 - Only one font family to load for the app and landing page (plus any writing fonts a user picks).
 - The accent is used only for primary actions, links, the caret, selection and focus; everything else is neutral (0007).
 - The neutral scale (slightly biased toward violet or plain), type scale, spacing, radius and motion are set in the token step, documented in `docs/DESIGN.md`.
-- ~~OPEN: further fonts~~ Closed by ADR 0031 (user, 2026-10-21): only Geist and IBM Plex Serif.
+- ~~OPEN: further fonts~~ Closed by ADR 0031 (2026-10-21): only Geist and IBM Plex Serif.

@@ -4,7 +4,7 @@
 - Date: 2026-10-20
 
 ## Context
-ADR 0019 made the Free plan plain text only, with its details open. On review the user changed it and answered the open questions.
+ADR 0019 made the Free plan plain text only, with its details open. On review I changed it and answered the open questions.
 
 ## Decision
 - **Free:** sign up with no card, and the app opens. The full editor, formatting included. **One document at a time** (delete it to create another). No export.

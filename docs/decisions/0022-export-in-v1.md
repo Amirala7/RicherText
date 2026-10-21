@@ -4,7 +4,7 @@
 - Date: 2026-10-20
 
 ## Context
-ADR 0020 put export (Word, PDF) after v1, paid only. The landing page proposal showed an export card with six formats, and the user decided to ship it in v1.
+ADR 0020 put export (Word, PDF) after v1, paid only. The landing page proposal showed an export card with six formats, and I decided to ship it in v1.
 
 ## Decision
 - Export is part of v1, on paid plans (Monthly, Yearly). The Free plan has no export.

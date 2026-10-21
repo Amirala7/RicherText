@@ -21,7 +21,7 @@ type Toasted = { text: string; tone: "neutral" | "error"; at: number };
 
 // The documents page (ADR 0024, 0028): a live list from Firestore; New and
 // Delete go through the server routes. A Free user who already has a document
-// goes to the plans page (user, 2026-10-21).
+// goes to the plans page (2026-10-21).
 export function DocumentsView() {
   const router = useRouter();
   const [uid, setUid] = useState<string | null>(null);

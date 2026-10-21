@@ -14,7 +14,7 @@ const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
 // Apply (button sm), Remove link (icon button sm) when editing a link; all
 // items h-sm, gap s-2, edges s-3; a floating layer (border + shadow, r-md)
 // under the selection. Enter applies, Esc closes. A bad address only marks
-// the input invalid, so nothing changes size (slice 4, user 2026-10-21).
+// the input invalid, so nothing changes size (slice 4, 2026-10-21).
 export function LinkEditor({
   open,
   anchor,

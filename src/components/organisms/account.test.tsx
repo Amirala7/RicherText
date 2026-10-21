@@ -7,7 +7,7 @@ import {
 } from "./account";
 
 // Account page sections (ADR 0016, 0024): Profile shows the email (no change
-// yet, user 2026-10-21); Subscription has one row per state; everything about
+// yet, 2026-10-21); Subscription has one row per state; everything about
 // a paid subscription opens the Stripe Customer Portal (ADR 0027).
 const now = new Date("2026-10-21T09:00:00Z");
 const nov19 = new Date("2026-11-19T12:00:00Z");
