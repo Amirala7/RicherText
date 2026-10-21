@@ -1,6 +1,6 @@
 # 0009 — Secrets: none in the repo, `.env.example` only, values in GCP
 
-- Status: accepted
+- Status: accepted (local pull script dropped, 2026-10-22)
 - Date: 2026-10-19
 
 ## Context
@@ -10,7 +10,7 @@ The app and functions need configuration and secrets (Stripe sandbox keys, webho
 - **No secret values in the repo, ever.** The only env file committed is `.env.example`: every variable the app and functions read, with placeholder values and a one-line comment each.
 - **All real values live in GCP**, in Cloud Secret Manager of the Firebase project. It is the single source of truth.
 - App Hosting reads them through secret references in `apphosting.yaml`; Cloud Functions through `defineSecret`.
-- Local development: real values (where the emulators aren't enough, e.g. Stripe sandbox keys) are pulled from Secret Manager into a gitignored `.env.local` with a small script; they are never typed into tracked files. Until a GCP project exists, the values are typed by hand into `.env.local` instead (ADR 0018).
+- Local development: real values (where the emulators aren't enough, e.g. Stripe sandbox keys) are typed by hand into a gitignored `.env.local`; they are never typed into tracked files. A script to pull them from Secret Manager was planned and dropped (user, 2026-10-22): local work uses only Stripe sandbox keys, which the developer already has.
 
 ## Consequences
 - `.gitignore` ignores `.env*` except `.env.example`, plus service-account keys (`*-sa.json`, `service-account*.json`).

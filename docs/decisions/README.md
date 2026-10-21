@@ -37,7 +37,7 @@ What becomes easier, what becomes harder, what we must now do.
 | 0006 | [Editor engine: Tiptap](0006-editor-engine-tiptap.md) | accepted |
 | 0007 | [Styling and UI: shadcn/ui, minimal typographic design, light + dark](0007-styling-shadcn.md) | accepted |
 | 0008 | [Tooling: package manager, quality, forms, tests, repo layout](0008-tooling.md) | accepted |
-| 0009 | [Secrets: none in the repo, `.env.example` only, values in GCP](0009-secrets-management.md) | accepted |
+| 0009 | [Secrets: none in the repo, `.env.example` only, values in GCP](0009-secrets-management.md) | accepted (local pull script dropped) |
 | 0010 | [Typography and accent colour: Geist only, violet](0010-typography-and-accent.md) | accepted |
 | 0011 | [Design tokens](0011-design-tokens.md) | accepted |
 | 0012 | [Logotype and loading indicators](0012-logotype-and-loaders.md) | accepted |
