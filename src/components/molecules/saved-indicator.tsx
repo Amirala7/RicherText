@@ -4,9 +4,17 @@ import { cn } from "@/lib/utils";
 
 const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
 
-// Saved indicator molecule (ADR 0015, 0029): every state stacked in one box,
-// so the width never changes; muted, danger for errors. Screen readers hear
-// only errors and Saved on device, through a polite live region.
+// Saved indicator molecule (ADR 0015, 0029, 0030): every state stacked in one
+// box, so the width never changes, right-aligned for its corner. Quiet: xs
+// text, Saved at 50%, Saving and Saved on device at 70%; Not saved stays full
+// danger red. Screen readers hear only errors and Saved on device, through a
+// polite live region.
+const fade = {
+  saved: "opacity-50",
+  saving: "opacity-70",
+  device: "opacity-70",
+  error: "opacity-100",
+} as const;
 export function SavedIndicator({
   state,
   onRetry,
@@ -18,13 +26,14 @@ export function SavedIndicator({
 }) {
   const layer = (on: boolean) =>
     cn(
-      "col-start-1 row-start-1 inline-flex items-center gap-2 whitespace-nowrap [&>svg]:size-4",
+      "col-start-1 row-start-1 inline-flex items-center gap-1.5 whitespace-nowrap [&>svg]:size-3.5",
       !on && "invisible",
     );
   return (
     <span
       className={cn(
-        "inline-grid h-control-sm flex-none items-center text-sm text-muted-foreground",
+        "inline-grid h-control-sm flex-none items-center justify-items-end text-xs text-muted-foreground transition-opacity duration-(--dur-2) ease-standard",
+        fade[state],
         className,
       )}
     >
@@ -35,7 +44,7 @@ export function SavedIndicator({
       <span data-testid="saved-state" className={layer(state === "saving")}>
         <span
           aria-hidden="true"
-          className="size-3.5 animate-spin rounded-full border-[1.75px] border-current border-r-transparent [animation-duration:700ms]"
+          className="size-3 animate-spin rounded-full border-[1.5px] border-current border-r-transparent [animation-duration:700ms]"
         />
         Saving
       </span>

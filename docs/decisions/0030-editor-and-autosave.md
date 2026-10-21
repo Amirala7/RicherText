@@ -20,3 +20,7 @@ Phase 4 slice 3: the Tiptap editor at `/documents/[id]` with the v1 feature set 
 
 ## Built (slice 3, 2026-10-21)
 Tests: `schema.test.ts`, `snippet.test.ts`, `autosave.test.ts`, `saved-indicator.test.tsx`, `editor-toolbar.test.tsx`, `tests/emulators/document-save.test.ts`, `e2e/editor.spec.ts`.
+
+## Amended (2026-10-21)
+- **Quiet Saved indicator** (user): out of the bar, floating in the bottom-right corner (24px from the edges, 16px on phones), xs text, Saved at 50% opacity, Saving / Saved on device at 70%, Not saved never faded. The Read-only chip stays in the bar, before the account button.
+- **Fix:** Next 16 keeps a page's state when you leave it (React Activity), so the list's New stayed busy after coming back from the editor; it now resets when the list is hidden. The editor page also sets `instant = false` (it reads the session, like its layout).
