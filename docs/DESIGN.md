@@ -44,7 +44,7 @@ Used only on the marketing pages, never in the app.
 **Hero glow:** two very soft radial gradients of `glow` / `glow-2` behind the hero (behind the keyboard on desktop, behind the toolbar on phone). The only gradient in the system.
 
 ### Typography
-**Geist** everywhere (UI, headings, default writing font). Writing font is a per-user setting; IBM Plex Serif is offered (ADR 0010). Scale ratio **1.333 (Expressive)**, base 16px; `xs` and `sm` are fixed UI sizes.
+**Geist** everywhere (UI, headings, default writing font). Writing font is a per-user setting: Geist or IBM Plex Serif, nothing else (ADR 0010, 0031). Scale ratio **1.333 (Expressive)**, base 16px; `xs` and `sm` are fixed UI sizes.
 
 | Token | px | Used for | Weight · tracking · line-height |
 |---|---|---|---|
@@ -214,5 +214,5 @@ Reviews and portraits are placeholders until launch (CONTEXT §6).
 | New account | documents page with the empty state ("No documents yet" · New document) |
 | Back from Checkout | logotype bar, centred: mark box 120px (Aa loader 64px) + text group (lg title, sm muted line), gap `s-5`. Waiting: "Activating your plan" / "Waiting for Stripe to confirm…". Success: loader fades + scales to .7 (`dur-2`), check circle (72px, `primary` 14% fill, `primary` tick, stroke 3) scales in with a slight overshoot (400ms) and the tick draws; text crossfades to "You're on Yearly" / "Taking you to your documents…"; both states stacked so nothing moves; 1.6s later fades to Documents. After 20s: "Still waiting on Stripe" / "Your plan switches on by itself as soon as Stripe confirms." + Go to documents (secondary); the button's space is kept from the start so nothing moves. Reduced motion: states swap · built at `/welcome` (ADR 0027) |
 | Pricing (in app) | the landing pricing section exactly (§5 landing); Free card's button "Current plan", disabled, for Free users. Reached from See plans, Upgrade, Resubscribe · built at `/plans` (ADR 0027) |
-| Account | subscription row states: Free (neutral chip, Upgrade) · Active (Manage) · Ends on date (warning chip, Resubscribe) · Payment due (Update card + warning notice). Built at `/account` (ADR 0027): Profile (Email, no Change yet) + Subscription; Writing waits for Phase 4. Change email / password: dialog with the fields, Cancel · Save. Writing font: menu with the fonts as checked items |
+| Account | subscription row states: Free (neutral chip, Upgrade) · Active (Manage) · Ends on date (warning chip, Resubscribe) · Payment due (Update card + warning notice). Built at `/account` (ADR 0027): Profile (Email, no Change yet) + Subscription; Writing (writing font, built 2026-10-21, ADR 0031) between Profile and Subscription. Change email / password: dialog with the fields, Cancel · Save. Writing font: menu with the fonts as checked items |
 | Not found | the empty state alone on an app page: "This page isn't here" · "It may have been deleted, or the link is wrong." · Back to documents |
