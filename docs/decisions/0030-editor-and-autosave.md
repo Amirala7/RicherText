@@ -25,3 +25,13 @@ Tests: `schema.test.ts`, `snippet.test.ts`, `autosave.test.ts`, `saved-indicator
 - **Quiet Saved indicator** (user): out of the bar, floating in the bottom-right corner (24px from the edges, 16px on phones), xs text, Saved at 50% opacity, Saving / Saved on device at 70%, Not saved never faded. The Read-only chip stays in the bar, before the account button.
 - **Fix:** Next 16 keeps a page's state when you leave it (React Activity), so the list's New stayed busy after coming back from the editor; it now resets when the list is hidden. The editor page also sets `instant = false` (it reads the session, like its layout).
 - **Fix (data safety):** leaving a document and opening it again showed the copy loaded on the first visit (Next keeps the page alive; Tiptap rebuilt the editor from that stale copy), and the next keystroke would have saved over the real text. The page now drops its loaded copy when hidden and loads again on return: from the server when online, from the device cache only when offline, with unsent edits applied either way. Rejected writes are not in the cache; autosave keeps them for Retry.
+
+## Slice 4 decisions (user, 2026-10-21)
+- **Order:** link editor → document menu → Read-only chip on list rows → paste fidelity checks, one branch each.
+- **Document menu:** shows the Export items now, disabled, so the final shape is visible; they turn on when export is built (ADR 0022).
+- **Link addresses:** only http(s) and mailto, like the schema. An address without a scheme gets `https://` (`example.com`), an email address gets `mailto:`; anything else marks the input invalid (red border, error read by screen readers, nothing changes size) and the panel stays open. `src/lib/editor/link.ts`.
+- **⌘K / link button:** with a selection, links it; in a link, edits the whole link (Remove link shown); with nothing selected, inserts the address as typed as linked text, and what's typed next isn't part of it. Enter applies, Esc closes, focus returns to the text. Read-only documents can't open it.
+- **On-screen selection:** the link editor reads the selection from the page when it opens, because the editor learns about a keyboard selection change a moment later; a quick ⌘K after Shift+arrows linked the previous selection (seen in the e2e phone run, emulated Android).
+
+## Built (slice 4, link editor, 2026-10-21)
+Link editor molecule (`link-editor.tsx`, Radix Popover under the selection), Link toggle at the end of the toolbar (⌘K), wiring in the editor organism. Tests: `link.test.ts`, `link-editor.test.tsx`, `editor-toolbar.test.tsx` (new tests, plus the approved change: Link added to the expected toggles), three new tests in `e2e/editor.spec.ts`.
