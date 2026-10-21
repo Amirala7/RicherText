@@ -44,6 +44,13 @@ pnpm stripe:setup
 
 It only accepts test-mode keys and is safe to run again. One setting stays in the Stripe Dashboard: **Billing → Revenue recovery → Retries**, when all retries fail, choose **Cancel the subscription** (access continues while Stripe retries, ADR 0027).
 
+To take real sandbox payments locally:
+
+1. Put the webhook signing secret in `.env.local` (`STRIPE_WEBHOOK_SECRET`). It comes from `stripe listen --print-secret` and stays the same for your sandbox, so this is needed once.
+2. Start (or restart) `pnpm dev:all`. It copies the two Stripe secrets into `functions/.secret.local` (gitignored) for the webhook Function; without keys it skips this and payments stay off.
+3. In a second terminal run `pnpm stripe:listen`. It forwards sandbox events to the emulator's webhook and hides the secrets the Stripe CLI prints.
+4. Pay with the test card `4242 4242 4242 4242`, any future date and any CVC.
+
 ## Tests
 
 | Command               | What it runs                                            |

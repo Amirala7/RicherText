@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:all": "pnpm functions:build && node scripts/firebase.mjs emulators:exec --ui \"next dev\"",
+    "dev:all": "pnpm functions:build && pnpm stripe:secrets && node scripts/firebase.mjs emulators:exec --ui \"next dev\"",
     "emulators": "pnpm functions:build && node scripts/firebase.mjs emulators:start",
     "functions:build": "pnpm --dir functions build",
     "build": "next build",
@@ -19,7 +19,9 @@
     "test:emulators": "pnpm functions:build && node scripts/firebase.mjs emulators:exec --only auth,firestore,functions \"vitest run --config vitest.emulators.config.mts\"",
     "check": "pnpm lint && pnpm typecheck && pnpm format:check && pnpm test && pnpm test:emulators",
     "setup": "bash scripts/setup.sh",
-    "stripe:setup": "node --env-file-if-exists=.env.local scripts/stripe-setup.mjs"
+    "stripe:setup": "node --env-file-if-exists=.env.local scripts/stripe-setup.mjs",
+    "stripe:secrets": "node --env-file-if-exists=.env.local scripts/stripe-local.mjs secrets",
+    "stripe:listen": "node --env-file-if-exists=.env.local scripts/stripe-local.mjs listen"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",
