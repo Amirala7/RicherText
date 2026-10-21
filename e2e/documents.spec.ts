@@ -66,15 +66,15 @@ test("a Free user creates, renames and deletes their document", async ({
   await page.getByRole("textbox", { name: "Title" }).fill("Q4 plan");
   await page.keyboard.press("Enter");
   await expect(row(page, "Q4 plan")).toBeVisible();
-  // A reload before the write reaches the server would lose it (memory
-  // cache); wait for the server copy, then check the list reads it back.
+  // The device cache keeps the rename across an immediate reload (ADR 0029);
+  // then the server gets it too.
+  await page.reload();
+  await expect(row(page, "Q4 plan")).toBeVisible();
   await expect
     .poll(async () =>
       (await db.doc(`users/${uid}/documents/${id}`).get()).get("title"),
     )
     .toBe("Q4 plan");
-  await page.reload();
-  await expect(row(page, "Q4 plan")).toBeVisible();
 
   await openMenu(page, "Q4 plan");
   await page.getByRole("menuitem", { name: "Delete" }).click();
