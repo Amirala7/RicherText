@@ -3,7 +3,9 @@
 import type { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import {
+  ALargeSmall,
   Bold,
+  Check,
   Italic,
   Link2,
   List,
@@ -14,9 +16,18 @@ import {
   Underline,
   Undo2,
 } from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 import { Fragment } from "react";
 import { ToolbarToggle } from "@/components/atoms/toolbar-toggle";
 import { Tooltip, TooltipProvider } from "@/components/atoms/tooltip";
+import { menuContent, menuItem } from "@/components/molecules/menu";
+import {
+  TEXT_COLOURS,
+  TEXT_SIZES,
+  type TextColour,
+  type TextSize,
+} from "@/lib/editor/text-style";
+import { onScreenSelection } from "@/lib/editor/selection";
 import { cn } from "@/lib/utils";
 
 const icon = { strokeWidth: 1.75, "aria-hidden": true } as const;
@@ -40,7 +51,7 @@ const heading = (level: 1 | 2 | 3): Item => ({
 });
 
 // Editor toolbar groups (ADR 0015): undo redo · H1 H2 H3 · B I U S · bullets,
-// numbers, quote · link; dividers between groups. The link button opens the
+// numbers, quote · size, colour (ADR 0031) · link; dividers between groups. The link button opens the
 // link editor (slice 4), which the editor organism owns.
 const GROUPS: Item[][] = [
   [
@@ -165,6 +176,15 @@ export function EditorToolbar({
         can: item.can?.(e) ?? true,
       })),
   });
+  const style = useEditorState({
+    editor,
+    selector: ({ editor: e }) => ({
+      size: (e.getAttributes("textSize").size ?? "default") as
+        TextSize | "default",
+      colour: (e.getAttributes("textColor").color ?? "default") as
+        TextColour | "default",
+    }),
+  });
 
   let n = 0;
   return (
@@ -179,12 +199,18 @@ export function EditorToolbar({
       >
         {GROUPS.map((group, g) => (
           <Fragment key={g}>
-            {g > 0 && (
-              <span
-                aria-hidden="true"
-                className="mx-1 h-5 w-px flex-none bg-border"
-              />
+            {g === GROUPS.length - 1 && (
+              <>
+                <Divider />
+                <TextStyleMenus
+                  editor={editor}
+                  size={style.size}
+                  colour={style.colour}
+                  disabled={disabled}
+                />
+              </>
             )}
+            {g > 0 && <Divider />}
             {group.map((item) => {
               const s = state[n++];
               return (
@@ -212,5 +238,169 @@ export function EditorToolbar({
         ))}
       </div>
     </TooltipProvider>
+  );
+}
+
+function Divider() {
+  return (
+    <span aria-hidden="true" className="mx-1 h-5 w-px flex-none bg-border" />
+  );
+}
+
+const radioItem = `${menuItem} [&>svg]:invisible [&>svg]:text-foreground data-[state=checked]:[&>svg]:visible`;
+
+// Text size and colour (ADR 0031): toggles that open a menu; picking applies
+// to the selection (or what's typed next) and returns to the text.
+function TextStyleMenus({
+  editor,
+  size,
+  colour,
+  disabled,
+}: {
+  editor: Editor;
+  size: TextSize | "default";
+  colour: TextColour | "default";
+  disabled: boolean;
+}) {
+  const backToText = (e: Event) => {
+    e.preventDefault();
+    if (!editor.isDestroyed) editor.commands.focus();
+  };
+  // Picks apply to what's highlighted on screen, even if the editor hasn't
+  // caught up with a quick keyboard selection yet.
+  const syncSelection = (open: boolean) => {
+    if (!open || editor.isDestroyed) return;
+    const { from, to } = onScreenSelection(editor);
+    const current = editor.state.selection;
+    // Only when it differs: setting it again would drop a size or colour
+    // picked with nothing selected, waiting for the next keystroke.
+    if (from !== current.from || to !== current.to)
+      editor.commands.setTextSelection({ from, to });
+  };
+  const bar =
+    colour === "default" ? "var(--foreground)" : `var(--tc-${colour})`;
+
+  return (
+    <>
+      <DropdownMenu.Root modal={false} onOpenChange={syncSelection}>
+        <Tooltip label="Text size">
+          <DropdownMenu.Trigger asChild disabled={disabled}>
+            <ToolbarToggle
+              aria-label="Text size"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <ALargeSmall {...icon} />
+            </ToolbarToggle>
+          </DropdownMenu.Trigger>
+        </Tooltip>
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            align="start"
+            sideOffset={10}
+            className={cn(menuContent, "w-[180px]")}
+            onCloseAutoFocus={backToText}
+          >
+            <DropdownMenu.RadioGroup
+              value={size}
+              onValueChange={(value) => {
+                const chain = editor.chain().focus();
+                (value === "default"
+                  ? chain.unsetMark("textSize")
+                  : chain.setMark("textSize", { size: value })
+                ).run();
+              }}
+            >
+              {[
+                { ...TEXT_SIZES[0], className: "text-[13px]" },
+                { id: "default", label: "Default", className: "" },
+                { ...TEXT_SIZES[1], className: "text-base" },
+              ].map((option) => (
+                <DropdownMenu.RadioItem
+                  key={option.id}
+                  value={option.id}
+                  className={radioItem}
+                >
+                  <Check {...icon} />
+                  <span
+                    className={cn("min-w-0 flex-1 truncate", option.className)}
+                  >
+                    {option.label}
+                  </span>
+                </DropdownMenu.RadioItem>
+              ))}
+            </DropdownMenu.RadioGroup>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+      <DropdownMenu.Root modal={false} onOpenChange={syncSelection}>
+        <Tooltip label="Text colour">
+          <DropdownMenu.Trigger asChild disabled={disabled}>
+            <ToolbarToggle
+              aria-label="Text colour"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <span
+                aria-hidden="true"
+                className="grid justify-items-center gap-px text-[13px] leading-none font-semibold"
+              >
+                A
+                <span
+                  className="h-[3px] w-3.5 rounded-[2px]"
+                  style={{ background: bar }}
+                />
+              </span>
+            </ToolbarToggle>
+          </DropdownMenu.Trigger>
+        </Tooltip>
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            align="start"
+            sideOffset={10}
+            className={cn(
+              menuContent,
+              "grid-cols-[repeat(7,var(--spacing-control-sm))]",
+            )}
+            onCloseAutoFocus={backToText}
+          >
+            <DropdownMenu.RadioGroup
+              value={colour}
+              onValueChange={(value) => {
+                const chain = editor.chain().focus();
+                (value === "default"
+                  ? chain.unsetMark("textColor")
+                  : chain.setMark("textColor", { color: value })
+                ).run();
+              }}
+              className="contents"
+            >
+              {[{ id: "default", label: "Default" }, ...TEXT_COLOURS].map(
+                (option) => (
+                  <DropdownMenu.RadioItem
+                    key={option.id}
+                    value={option.id}
+                    aria-label={option.label}
+                    className="grid size-control-sm cursor-pointer place-items-center rounded-sm transition-colors duration-(--dur-1) ease-standard outline-none data-highlighted:bg-secondary"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "size-4 rounded-full shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_12%,transparent)] in-data-[state=checked]:shadow-[0_0_0_2px_var(--popover),0_0_0_4px_var(--foreground)]",
+                        option.id === "default" &&
+                          "bg-[linear-gradient(135deg,transparent_45%,var(--muted-foreground)_45%_55%,transparent_55%)] shadow-[inset_0_0_0_1px_var(--border-strong)]",
+                      )}
+                      style={
+                        option.id === "default"
+                          ? undefined
+                          : { background: `var(--tc-${option.id})` }
+                      }
+                    />
+                  </DropdownMenu.RadioItem>
+                ),
+              )}
+            </DropdownMenu.RadioGroup>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+    </>
   );
 }

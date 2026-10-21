@@ -39,6 +39,8 @@ describe("EditorToolbar", () => {
       "Bulleted list",
       "Numbered list",
       "Quote",
+      "Text size",
+      "Text colour",
       "Link",
     ]);
   });
@@ -132,5 +134,46 @@ describe("EditorToolbar", () => {
   it("is fully disabled on a read-only document", () => {
     setup("<p>hello</p>", true);
     for (const b of screen.getAllByRole("button")) expect(b).toBeDisabled();
+  });
+});
+
+// Text size and colour (ADR 0031): two toggles before Link, each opening a
+// menu; the choice applies to the selection and is a mark in the document.
+describe("EditorToolbar: text size and colour", () => {
+  const open = (name: string) =>
+    fireEvent.pointerDown(toggle(name), { button: 0, ctrlKey: false });
+
+  it("Text size offers Small, Default and Large, and sets the size", () => {
+    setup();
+    open("Text size");
+    const items = screen.getAllByRole("menuitemradio");
+    expect(items.map((i) => i.textContent)).toEqual([
+      "Small",
+      "Default",
+      "Large",
+    ]);
+    expect(items[1]).toHaveAttribute("aria-checked", "true");
+    fireEvent.click(items[2]);
+    expect(editor.isActive("textSize", { size: "large" })).toBe(true);
+    open("Text size");
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "Default" }));
+    expect(editor.isActive("textSize")).toBe(false);
+  });
+
+  it("Text colour offers Default and six colours, and sets the colour", () => {
+    setup();
+    open("Text colour");
+    expect(
+      screen.getAllByRole("menuitemradio").map((i) => i.ariaLabel),
+    ).toEqual(["Default", "Grey", "Red", "Orange", "Green", "Blue", "Violet"]);
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "Red" }));
+    expect(editor.isActive("textColor", { color: "red" })).toBe(true);
+    open("Text colour");
+    expect(screen.getByRole("menuitemradio", { name: "Red" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "Default" }));
+    expect(editor.isActive("textColor")).toBe(false);
   });
 });
