@@ -1,14 +1,19 @@
 import {
   collection,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
+  writeBatch,
   type Firestore,
 } from "firebase/firestore";
+import type { Changes } from "@/lib/editor/autosave";
+import { snippetOf } from "@/lib/editor/snippet";
 import type { ListedDocument } from "./list";
+import { emptyContent, type DocumentJson } from "./model";
 
 // The browser side of documents (ADR 0028): create and delete go through the
 // server routes; the list and renames go straight to Firestore under rules.
@@ -90,4 +95,49 @@ export function renameDocument(
     title,
     updatedAt: serverTimestamp(),
   });
+}
+
+export type OpenedDocument = { title: string; doc: DocumentJson };
+
+// The editor's copy (ADR 0028); null when the document doesn't exist. Offline
+// it comes from the device cache (ADR 0029).
+export async function loadDocument(
+  db: Firestore,
+  uid: string,
+  id: string,
+): Promise<OpenedDocument | null> {
+  const ref = doc(db, "users", uid, "documents", id);
+  const [meta, content] = await Promise.all([
+    getDoc(ref),
+    getDoc(doc(ref, "content", "current")),
+  ]);
+  if (!meta.exists()) return null;
+  return {
+    title: String(meta.get("title") ?? ""),
+    doc: (content.get("doc") as DocumentJson | undefined) ?? emptyContent(),
+  };
+}
+
+// Autosave's write: title, snippet and content in one batch, so the list
+// never shows a snippet from other content. Resolves when the server has it.
+export function saveDocument(
+  db: Firestore,
+  uid: string,
+  id: string,
+  changes: Changes,
+) {
+  const ref = doc(db, "users", uid, "documents", id);
+  const batch = writeBatch(db);
+  batch.update(ref, {
+    ...(changes.title !== undefined && { title: changes.title }),
+    ...(changes.doc && { snippet: snippetOf(changes.doc) }),
+    updatedAt: serverTimestamp(),
+  });
+  if (changes.doc) {
+    batch.set(doc(ref, "content", "current"), {
+      doc: changes.doc,
+      updatedAt: serverTimestamp(),
+    });
+  }
+  return batch.commit();
 }
