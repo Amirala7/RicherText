@@ -1,6 +1,7 @@
 import type { Extensions } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
 import StarterKit from "@tiptap/starter-kit";
+import { PasteCleanup } from "./paste";
 
 // The one document schema (ADR 0006), exactly CONTEXT §5: paragraphs,
 // headings 1–3, bold, italic, underline, strikethrough, lists, links, quotes.
@@ -28,10 +29,12 @@ export function documentExtensions(): Extensions {
   ];
 }
 
-// The editor adds what only matters while writing (ADR 0024, empty document).
+// The editor adds what only matters while writing: the empty-document
+// placeholder (ADR 0024) and the paste clean-up (ADR 0030).
 export function editorExtensions(): Extensions {
   return [
     ...documentExtensions(),
     Placeholder.configure({ placeholder: "Start writing…" }),
+    PasteCleanup,
   ];
 }
