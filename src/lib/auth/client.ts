@@ -5,7 +5,7 @@ import {
   signInWithEmailAndPassword,
   type User,
 } from "firebase/auth";
-import { getClientAuth } from "@/lib/firebase/client";
+import { clearClientDb, getClientAuth } from "@/lib/firebase/client";
 import type { ResetValues, SignInValues, SignUpValues } from "./schemas";
 
 const refreshedAtKey = "rt.session.refreshedAt";
@@ -51,9 +51,11 @@ export async function signIn({ email, password }: SignInValues) {
   await startSession(user);
 }
 
-// This device only: drop the cookie, then the browser's Firebase session.
+// This device only: drop the cookie, the offline cache (ADR 0029), then the
+// browser's Firebase session.
 export async function signOut() {
   await fetch("/api/session", { method: "DELETE" });
+  await clearClientDb();
   await firebaseSignOut(getClientAuth());
   try {
     localStorage.removeItem(refreshedAtKey);
