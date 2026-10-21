@@ -2,7 +2,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { getAdminAuth } from "@/lib/firebase/admin";
 
-// No token, cookie or personal data ever reaches the server's logs (user, 2026-10-21).
+// No token, cookie or personal data ever reaches the server's logs (2026-10-21).
 // Starts the app on its own port, runs every session path, then reads what it printed.
 const port = 3200;
 const base = `http://localhost:${port}`;

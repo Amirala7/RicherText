@@ -4,7 +4,7 @@
 - Date: 2026-10-20
 
 ## Context
-Until now the editor was locked without an active subscription. The user wants a free tier so people can sign up, see the app and write before paying.
+Until now the editor was locked without an active subscription. I want a free tier so people can sign up, see the app and write before paying.
 
 ## Options considered
 - **No free access** (previous): simplest gating, but visitors must pay before seeing the product.

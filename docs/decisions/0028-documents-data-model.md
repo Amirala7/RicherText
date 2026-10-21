@@ -8,14 +8,14 @@ ADR 0004 set the shape (list info and content stored separately). ADR 0020 sets 
 
 ## Options considered
 - **Counter document checked by rules in a transaction:** keeps everything in the browser, but the rules get fiddly and the counter itself becomes something to protect.
-- **Server route for create and delete** (chosen): a Next route checks the plan and the count in an Admin SDK transaction. It also gives us one place to add rate limits and abuse checks later (user, 2026-10-21).
+- **Server route for create and delete** (chosen): a Next route checks the plan and the count in an Admin SDK transaction. It also gives us one place to add rate limits and abuse checks later (2026-10-21).
 
 ## Decision
 - **Paths:** `users/{uid}/documents/{docId}` = `title`, `snippet` (both ≤ 200 chars), `createdAt`, `updatedAt`; `…/content/current` = `doc` (ProseMirror JSON, `type: "doc"`), `updatedAt`. An empty title displays as "Untitled".
 - **Create and delete only via the server:** `POST /api/documents` → 201 `{ id }` or 403 `{ error: "limit" }`; `DELETE /api/documents/{id}` → 204 / 404. Same-origin + session cookie, like the billing routes. Rules deny client create/delete.
-- **Editable pointer and count:** `users/{uid}.newestDocId` and `users/{uid}.documentCount`, kept by the server on every create and delete. The limit check reads the count, not a query: a query inside a transaction made the emulator serialise every user's transactions (8 parallel creates took ~12 s; with the count, 20 take ~30 ms). "Newest" = most recently **created** (stable; editing doesn't change which document is unlocked; user, 2026-10-21). The `users/{uid}` record is server-only.
+- **Editable pointer and count:** `users/{uid}.newestDocId` and `users/{uid}.documentCount`, kept by the server on every create and delete. The limit check reads the count, not a query: a query inside a transaction made the emulator serialise every user's transactions (8 parallel creates took ~12 s; with the count, 20 take ~30 ms). "Newest" = most recently **created** (stable; editing doesn't change which document is unlocked; 2026-10-21). The `users/{uid}` record is server-only.
 - **Edits from the browser** (keeps Firestore's offline queue and retries, principle "never lose a keystroke"): the owner may update `title`/`snippet`/`updatedAt` and `content/current` (`doc`/`updatedAt`) if the plan is paid **or** the document is `newestDocId`. `updatedAt` must be the server time; no other fields.
-- **Upgrade prompt:** when a Free user hits the limit, New goes straight to `/plans`; the Upgrade dialog in DESIGN.md is not used (user, 2026-10-21).
+- **Upgrade prompt:** when a Free user hits the limit, New goes straight to `/plans`; the Upgrade dialog in DESIGN.md is not used (2026-10-21).
 
 ## Consequences
 - The Stripe webhook needs no change for downgrades: the pointer already names the newest document, and deleting down to one leaves the remaining one as newest.

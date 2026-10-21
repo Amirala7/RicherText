@@ -4,7 +4,7 @@
 - Date: 2026-10-20
 
 ## Context
-The organisms were proposed and reviewed in two rounds on https://claude.ai/artifact/RaFk4SGCtxNByEdQCWdcT7 (v1 2026-10-19, v3 final 2026-10-20). They are built only from the approved atoms and molecules (ADR 0013, 0015).
+The organisms were proposed and reviewed in two rounds on a design canvas (v1 2026-10-19, v3 final 2026-10-20). They are built only from the approved atoms and molecules (ADR 0013, 0015).
 
 ## Decision
 **Organisms** are final as shown on that page (v3): site header, pricing block, site footer, auth forms (sign up, sign in, reset password), document list (full, empty, loading, delete dialog), editor, account. The hero there is a placeholder; it gets its own design step. Details in `docs/DESIGN.md` §4.

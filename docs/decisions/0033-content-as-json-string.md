@@ -19,5 +19,5 @@ ADR 0028 stores the editor's ProseMirror JSON as a Firestore map (`content/curre
 
 ## Consequences
 - Lists and quotes can nest as deep as the editor allows.
-- Approved test changes needed (rules, create and save tests that assert the stored map format); see `WHERE_WE_ARE.md`.
+- Test changes (rules, create and save tests that assert the stored map format), approved before they were made.
 - If documents ever approach the cap: compress to bytes (Options), or split the content across records.

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// The browser console never shows a token or personal data (user, 2026-10-21).
+// The browser console never shows a token or personal data (2026-10-21).
 const jwt = /eyJ[\w-]{8,}\.[\w-]{8,}\./;
 
 test("signing up, in and out prints no email, password or token", async ({

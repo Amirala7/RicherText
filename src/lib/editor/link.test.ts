@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { normalizeLink } from "./link";
 
-// Link editor addresses (slice 4, user 2026-10-21): only http(s) and mailto
+// Link editor addresses (slice 4, 2026-10-21): only http(s) and mailto
 // links, like the schema allows; an address without a scheme gets https://,
 // an email address gets mailto:; anything else is refused.
 describe("normalizeLink", () => {

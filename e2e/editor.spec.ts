@@ -219,7 +219,7 @@ test("leaving and opening a document again shows the latest text", async ({
   expect((await serverCopy(uid, id)).doc).toContain("Body words and more");
 });
 
-// Slice 4: the link editor (DESIGN.md §3 link editor, user 2026-10-21).
+// Slice 4: the link editor (DESIGN.md §3 link editor, 2026-10-21).
 const linkEditor = (page: Page) => page.getByRole("dialog", { name: "Link" });
 const address = (page: Page) =>
   linkEditor(page).getByRole("textbox", { name: "Link address" });
@@ -289,7 +289,7 @@ test("a bad address stays open as invalid; Esc closes without a link", async ({
   await expect(body(page).locator("a")).toHaveCount(0);
 });
 
-// Slice 4: the document menu (DESIGN.md app screens, user 2026-10-21).
+// Slice 4: the document menu (DESIGN.md app screens, 2026-10-21).
 test("the document menu deletes the document after asking", async ({
   page,
 }) => {

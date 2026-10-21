@@ -6,7 +6,7 @@ import { AccountView } from "./account-view";
 
 export const metadata: Metadata = { title: "Account · RicherText" };
 
-// The account page (ADR 0024): Profile and Subscription (user, 2026-10-21).
+// The account page (ADR 0024): Profile and Subscription (2026-10-21).
 // Rendered with the plan as it is now; the view then follows live changes.
 export default async function AccountPage() {
   const user = await requireUser();

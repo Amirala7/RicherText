@@ -1,8 +1,8 @@
 # RicherText Design System
 
-One design language for the landing page and the editor (CLAUDE.md, ADR 0007). Built atomically: **tokens → atoms → molecules → organisms → templates**. No one-off styles per surface; if a screen needs something new, it is added here first.
+One design language for the landing page and the editor (ADR 0007). Built atomically: **tokens → atoms → molecules → organisms → templates**. No one-off styles per surface; if a screen needs something new, it is added here first.
 
-Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4), 0016 (organisms), 0021 (hero), 0023 (landing page), 0024 (app screens). Reference pages: type & colour https://claude.ai/artifact/7rSzxW5Wq2FGyeXB1ZYW5b · tokens https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL · atoms https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne · molecules https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE · logo canvas https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A · landing hero https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND · landing page https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY · app screens https://claude.ai/artifact/PbSqEU9tYHQNB3vE1XDbVG. Brand files: `docs/brand/`.
+Decisions: ADR 0007 (rules), 0010 (Geist, violet), 0011 (tokens), 0012 (logotype, icon, loaders), 0013 (atoms, layout rules), 0015 (molecules, rule 4), 0016 (organisms), 0021 (hero), 0023 (landing page), 0024 (app screens). The design was reviewed on private canvases that aren't linked here; this file and the ADRs are the record. Brand files: `docs/brand/`.
 
 ## 1. Tokens
 
@@ -93,7 +93,7 @@ In code (Tailwind): `h-control-sm` / `h-control-md` / `h-control-lg`. All tokens
 ### Layout rules (ADR 0013, rule 4 ADR 0015)
 These apply to every atom, molecule, organism and screen.
 
-0. **No new elements without approval.** Screens use only what is in this design system. A new element, a new variant, or an inline one-off style is never added directly: propose it to the user, and once confirmed, add it here (and on the design-system page) first, then use it.
+0. **No new elements without approval.** Screens use only what is in this design system. A new element, a new variant, or an inline one-off style is never added directly: propose it first, and once confirmed, add it here (and on the design-system page) first, then use it.
 
 1. **Never put elements of different heights next to each other.** Anything side by side in a row shares one height: a control height (`h-sm` 32 / `h-md` 36 / `h-lg` 44) for interactive items, or the same text line box for text. If two things can't share a height, they don't share a row: stack them, or make the smaller one the same height (e.g. a badge in a toolbar row becomes an `h-sm` chip, never a 22px pill beside a 36px button).
 2. **Gaps inside a space are all equal.** Within one container, every gap between its children uses the same spacing step, horizontally and vertically. No mixed gaps between siblings.
@@ -111,7 +111,7 @@ These apply to every atom, molecule, organism and screen.
 
 Exception: controls with a fixed height (buttons, inputs, toasts, toolbars) centre their content vertically, so only their horizontal padding follows rule 3.
 
-4. **Text always fits its box, and left and right padding are equal.** Text never runs past a container's padding or gets cut off mid-letter. Where a row is too narrow, shorten the copy or stack the parts; a single-line title may end in “…” only where truncation is the designed behaviour (document titles). Left and right edge padding are always the same step (user, 2026-10-19).
+4. **Text always fits its box, and left and right padding are equal.** Text never runs past a container's padding or gets cut off mid-letter. Where a row is too narrow, shorten the copy or stack the parts; a single-line title may end in “…” only where truncation is the designed behaviour (document titles). Left and right edge padding are always the same step (2026-10-19).
 
 5. **Spacing is measured on the ink** (ADR 0021). Text blocks are trimmed to cap height and baseline (`text-box: trim-both cap alphabetic`) wherever gaps between text and other elements must look equal, so a gap is the distance you see, not the invisible line box. Icons next to trimmed text must not make the row taller (negative block margin). Chrome and Safari support it; Firefox falls back to normal line boxes (accepted).
 
@@ -128,10 +128,10 @@ Exception: controls with a fixed height (buttons, inputs, toasts, toolbars) cent
 | Opening a document | writing lines | three neutral lines (100 / 78 / 52%) drawn in turn with a violet caret, fade out, reset while invisible, fade in; 2.6s seamless loop |
 | Buttons | ring spinner | overlays the hidden label, width never changes |
 
-Reduced motion: static "Aa", gently fading dots, static lines. Canvas: https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A.
+Reduced motion: static "Aa", gently fading dots, static lines.
 
 ## 2. Atoms
-**Final** (2026-10-19, ADR 0013): https://claude.ai/artifact/MQ27jvFsTFAymw2m4wWWne (includes logotype, icon and loaders). Review defaults accepted: secondary buttons outlined with a 1px pressed nudge; toolbar "on" state in violet tint; links in documents match app links; labels always above fields, never placeholder-as-label; badges keep the status dot; Lucide icons at stroke 1.75; toasts `h-md`, editor toolbar `h-lg` with `h-sm` toggles. Still **OPEN:** document title 38px vs 28px (decide on the editor template).
+**Final** (2026-10-19, ADR 0013), including logotype, icon and loaders. Review defaults accepted: secondary buttons outlined with a 1px pressed nudge; toolbar "on" state in violet tint; links in documents match app links; labels always above fields, never placeholder-as-label; badges keep the status dot; Lucide icons at stroke 1.75; toasts `h-md`, editor toolbar `h-lg` with `h-sm` toggles. Still **OPEN:** document title 38px vs 28px (decide on the editor template).
 
 **Rule: components never change size when their state changes.** Hover, focus, pressed, disabled and loading must not move layout. A loading button keeps its label in place (hidden with `visibility: hidden`, still taking space) and shows the spinner centred on top; no label swaps such as "Save" → "Saving…". Same for toggles, badges and inputs (focus uses outline/box-shadow, never a thicker border).
 
@@ -140,7 +140,7 @@ Atoms: text styles, button (primary, secondary, ghost, danger; sm/md/lg; all sta
 **Changes after approval:** toast padding equal on both sides (published to the atoms page v5); input with an icon inside (leading search icon; trailing show/hide button, a ghost `h-sm` icon button inset 2px) added in ADR 0015; toast padding is `s-4` on both sides, the action is a text button with no own padding (rule 4).
 
 ## 3. Molecules
-**Final** (2026-10-19, ADR 0015): https://claude.ai/artifact/XXtkEkC2j9rV85HyaSHJDE. Built only from atoms; every one checked against the layout rules.
+**Final** (2026-10-19, ADR 0015). Built only from atoms; every one checked against the layout rules.
 
 | Molecule | Built from | Spec |
 |---|---|---|
@@ -150,27 +150,27 @@ Atoms: text styles, button (primary, secondary, ghost, danger; sm/md/lg; all sta
 | Nav group | nav links, button | every item in an `h-md` box, gap `s-5`; current page full strength |
 | List row (base) | — | `h-lg` 44 row, every child in an `h-sm` 32 box, gap `s-3`, edges `s-4`; rows split by 1px borders inside an `r-lg` bordered list |
 | Document row | icon, title, meta, icon button sm | title sm 500, one line, "…"; meta "Edited 2 min ago" sm muted, tabular (drops "Edited" under 420px); whole row opens the doc; menu button on hover/focus, always on touch; rename in place (title → input sm, same height; Enter saves, Esc cancels); states: hover, focus, renaming, menu open |
-| Settings row | key, value, button sm | key sm muted in a fixed column; value one line with "…"; status badge as an `h-sm` chip; under 440px the key moves onto its own line (gap `s-3`, edges `s-4`); the button is optional, a row can show a value only (user, 2026-10-21) |
+| Settings row | key, value, button sm | key sm muted in a fixed column; value one line with "…"; status badge as an `h-sm` chip; under 440px the key moves onto its own line (gap `s-3`, edges `s-4`); the button is optional, a row can show a value only (2026-10-21) |
 | Menu | menu items, divider, label | items `h-sm`, sm, icon + label (+ shortcut), gap 0, edge `s-1`; inside an item gap `s-2`, edge `s-3`; Delete is the only danger item; theme as checked items (System / Light / Dark); border + shadow; arrows / Enter / Esc |
 | Editor toolbar groups | toolbar toggles, dividers, tooltips | undo redo · H1 H2 H3 · B I U S · bullets, numbers, quote · size, colour (2026-10-21) · link; bar `h-lg`, toggles `h-sm`; headings exclusive; on phone scrolls sideways, never wraps |
 | Writing font | toolbar toggle, menu items | toggle: serif "Ag" (15px, system serif `font-serif`, so the toolbar never loads IBM Plex Serif itself) before Text size (ADR 0032), opens Geist · IBM Plex Serif as checked items, menu 180 wide like Text size; sets the document's font. Design page v7; built 2026-10-21 |
 | Text size and colour | toolbar toggles, menu items, swatch (new) | two toggles before Link (ADR 0031): Text size (icon) opens a menu of Small 15 · Default 16 · Large 18 as checked items, each label in its size; Text colour ("A" over a 14×3 bar in the colour at the cursor) opens one row of 7 swatches: Default (slashed) + grey, red, orange, green, blue, violet; swatches `h-sm` squares with a 16px dot, gap 0, edge `s-1`, checked = 2px ring; menus follow the menu molecule (arrows, Enter, Esc). Saved in the document; pasted colours and sizes from other apps are dropped. Design page v6; built 2026-10-21 |
 | Link editor | input sm with link icon, button sm, icon button sm | opens under the selection (link button / ⌘K); all items `h-sm`, gap `s-2`, edges `s-3`; floating layer, max 380 (phone: screen width less 16px each side). Placeholder "Paste or type a link"; Apply (primary sm); Remove link (ghost icon, unlink) only when editing a link. Enter applies, Esc closes. Bad address: input invalid state only (red border; the hint is for screen readers), nothing changes size. Built 2026-10-21 (ADR 0030) |
-| Saved indicator | icon, spinner, text, link | **Quiet (user, 2026-10-21):** floats in the editor's bottom-right corner, `s-5` from the edges (phone `s-4`), right-aligned, no box; xs text, 14px icons; Saved at 50% opacity, Saving and Saved on device at 70%, Not saved · Retry never faded. `h-sm`; states Saved / Saving / Saved on device / Not saved · Retry, stacked in one box so the width never changes; muted, danger for errors; polite live region, announces errors and Saved on device. **Saved on device** (user, 2026-10-21, ADR 0029): Lucide `CloudOff` + "Saved on device", muted, no tooltip; shown while edits wait offline in the device cache, back to Saved once the server confirms |
+| Saved indicator | icon, spinner, text, link | **Quiet (2026-10-21):** floats in the editor's bottom-right corner, `s-5` from the edges (phone `s-4`), right-aligned, no box; xs text, 14px icons; Saved at 50% opacity, Saving and Saved on device at 70%, Not saved · Retry never faded. `h-sm`; states Saved / Saving / Saved on device / Not saved · Retry, stacked in one box so the width never changes; muted, danger for errors; polite live region, announces errors and Saved on device. **Saved on device** (2026-10-21, ADR 0029): Lucide `CloudOff` + "Saved on device", muted, no tooltip; shown while edits wait offline in the device cache, back to Saved once the server confirms |
 | Price line + feature item | text styles, icon | amount 3xl 600 + period sm muted on one baseline; feature = check icon + sm text, gap `s-2`; list gap `s-2` |
 | Notice | icon, text, button sm | one `h-lg` line when ≥ 560px, else stacks (text, then button); padding `s-4` both sides; neutral (subtle) or warning tint (billing only); text wraps, never cut; the button is optional (payment-due notice has none: the row below has Update card) |
 | Empty state | text styles, button | text group (lg title + sm muted line, gap `s-1`) and action; gap `s-4`, edges `s-5`; no illustration |
 
 ## 4. Organisms
-**Final** (2026-10-20, ADR 0016): https://claude.ai/artifact/RaFk4SGCtxNByEdQCWdcT7. Built only from atoms and molecules.
+**Final** (2026-10-20, ADR 0016). Built only from atoms and molecules.
 
 New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0.025 292 / .4)` light, `rgb(0 0 0 / .6)` dark).
 
 | Organism | Built from | Spec |
 |---|---|---|
-| Pill header (landing) | icon tile, nav links, button sm, icon button | ADR 0021. Floating, centred, `glass`, `r-full`, `h-lg` 44; every item `h-sm` 32 (icon in a 32px **circle**, not the rounded square, user 2026-10-20; links, Subscribe sm, menu button), gap `s-1`, sides `s-2`; `s-5` above. Phone: icon tile + Subscribe + menu button |
+| Pill header (landing) | icon tile, nav links, button sm, icon button | ADR 0021. Floating, centred, `glass`, `r-full`, `h-lg` 44; every item `h-sm` 32 (icon in a 32px **circle**, not the rounded square, 2026-10-20; links, Subscribe sm, menu button), gap `s-1`, sides `s-2`; `s-5` above. Phone: icon tile + Subscribe + menu button |
 | Site header | logotype, nav group, button, menu | `h-bar`, border below, sticky; sides `s-6`, gap `s-5`; phone: logotype + small Start writing + menu button (Pricing, Sign in), sides `s-4`, gap `s-3` |
-| Hero (landing) | logotype, typed line, text styles, action group lg, feature items, hero toolbar, keyboard | **Final, variant C** (ADR 0021, https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND). One centred column, one gap between every element: logo (`logo-hero`, static) · typed headline (xl 28, phone lg 21, one line, violet caret) · subhead (base muted, max 52ch) · Subscribe + Start free (lg) · price note (xs muted) · three benefits · hero toolbar · keyboard. Gap `s-6` 32, edges `s-7` 48, keyboard flush with the bottom; phone gap `s-4` 16, edges `s-5` 24, no keyboard, toolbar moves under the logo. Typed line: rests on the headline, then select-all + delete and types the next line (with ⌘B/⌘I/⌘U shown on the keyboard and toolbar); visitor typing takes over and joins the queue (last 3), erased the same way. Glow behind. Reduced motion: headline static, no key animation |
+| Hero (landing) | logotype, typed line, text styles, action group lg, feature items, hero toolbar, keyboard | **Final, variant C** (ADR 0021). One centred column, one gap between every element: logo (`logo-hero`, static) · typed headline (xl 28, phone lg 21, one line, violet caret) · subhead (base muted, max 52ch) · Subscribe + Start free (lg) · price note (xs muted) · three benefits · hero toolbar · keyboard. Gap `s-6` 32, edges `s-7` 48, keyboard flush with the bottom; phone gap `s-4` 16, edges `s-5` 24, no keyboard, toolbar moves under the logo. Typed line: rests on the headline, then select-all + delete and types the next line (with ⌘B/⌘I/⌘U shown on the keyboard and toolbar); visitor typing takes over and joins the queue (last 3), erased the same way. Glow behind. Reduced motion: headline static, no key animation |
 | Hero toolbar | toolbar toggles, dividers | editor toolbar groups shortened to H1 H2 · B I U S · link, `glass`; a glass lens slides to the last pressed button; clickable for B I U |
 | Keyboard | — | CSS keycaps, Mac layout, 15.7 units wide, max 720, tilted back 24° (`perspective(1400px)` inside the keyboard's own transform, for Safari); keys press (down 0.07u) for demo and visitor keys; `return` in `primary`; hidden on phone; `aria-hidden` |
 | Pricing block | price line, feature items, action group, badge chip | section heading 3xl + lg muted, gap `s-6` to the cards; three cards Free · Yearly · Monthly (ADR 0020, 0023), same parts in the same order (name row `h-sm`, price, features, action, note), equal height, gap `s-5`; Yearly with a "Save" chip and the only primary button; card gap `s-5`, edges `s-6` (phone `s-4` / `s-5`); stack when narrow |
@@ -185,7 +185,7 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 ## 5. Templates
 Done (desktop + phone, light + dark): landing, auth, document list, editor, pricing (landing section reused in the app), account, back from Checkout, not found.
 
-**Landing: final** (2026-10-20, ADR 0023, https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY). Order: sticky pill header · hero C · Features · Reviews · Pricing · FAQ · closing call to action · footer (minimal). **Built** 2026-10-21 at `/` (statically prerendered): landing-only tokens and styles in `src/app/landing.css` (never imported by the app, phone = 560px and under); organisms `pill-header`, `landing-hero`, `feature-demos`; marks in `atoms/brand-marks`; the Pricing block is the app's, with an h2 heading and `id="pricing"` here. Link buttons use `cn(buttonVariants(…))` so the variant's border wins.
+**Landing: final** (2026-10-20, ADR 0023). Order: sticky pill header · hero C · Features · Reviews · Pricing · FAQ · closing call to action · footer (minimal). **Built** 2026-10-21 at `/` (statically prerendered): landing-only tokens and styles in `src/app/landing.css` (never imported by the app, phone = 560px and under); organisms `pill-header`, `landing-hero`, `feature-demos`; marks in `atoms/brand-marks`; the Pricing block is the app's, with an h2 heading and `id="pricing"` here. Link buttons use `cn(buttonVariants(…))` so the variant's border wins.
 
 | Element | Spec |
 |---|---|
@@ -201,7 +201,7 @@ Done (desktop + phone, light + dark): landing, auth, document list, editor, pric
 
 Reviews and portraits are placeholders until launch (CONTEXT §6).
 
-**App screens: final** (2026-10-20, ADR 0024, https://claude.ai/artifact/PbSqEU9tYHQNB3vE1XDbVG). Built only from the organisms; new elements approved by the user.
+**App screens: final** (2026-10-20, ADR 0024). Built only from the organisms; new elements approved in review.
 
 | Screen / element | Spec |
 |---|---|
@@ -209,10 +209,10 @@ Reviews and portraits are placeholders until launch (CONTEXT §6).
 | Password rule | sign up help reads "At least 8 characters." and the error "Use at least 8 characters." (ADR 0026; the template showed 10) |
 | Reset link sent | same card: heading "Reset link sent" + one line (doesn't reveal whether the account exists) + Back to sign in. Forgot-password only; no verification (ADR 0017) |
 | Account menu | from the user icon button; menu label (email) · Documents · Account · divider · label Theme · System / Light / Dark (checked items) · divider · Sign out; drops `s-1` under the bar, right-aligned. The only navigation on phone |
-| Document menu | `h-lg` ghost menu button between Saved and the account button (phone header row: back · saved · menu · account); label "Export as" · PDF, Word (.docx), Rich Text (.rtf), Markdown, HTML, Plain text (download icon) · divider · Delete document (danger, asks first). Export: toast "Preparing PDF…" → download → toast "PDF downloaded". Built 2026-10-21 with the Export items disabled until export exists (user); with Saved now floating, the bar reads … · Read-only chip · menu · account (phone: back · menu · account). After Delete the list shows the toast "Document deleted" |
+| Document menu | `h-lg` ghost menu button between Saved and the account button (phone header row: back · saved · menu · account); label "Export as" · PDF, Word (.docx), Rich Text (.rtf), Markdown, HTML, Plain text (download icon) · divider · Delete document (danger, asks first). Export: toast "Preparing PDF…" → download → toast "PDF downloaded". Built 2026-10-21 with the Export items disabled until export exists; with Saved now floating, the bar reads … · Read-only chip · menu · account (phone: back · menu · account). After Delete the list shows the toast "Document deleted" |
 | Coming soon badge | Badge atom, `primary` tone, default 22px, text "Coming soon". Marks a promised feature that isn't built (export, ADR 0022): above the title in a landing feature card, stacked under the text in a pricing feature item, at the end of the menu label row. Removed when the feature ships |
 | Disabled menu item | `disabled`, 45% opacity, no hover, not focusable; on Free every export item shows a lock and the label reads "Export · paid plans" |
-| Upgrade dialog | **Not used** (user, 2026-10-21, ADR 0028): New document on Free with one document goes straight to `/plans`. Kept here in case it comes back: dialog organism with a primary action: heading + one line · Not now (secondary) · See plans (primary) |
+| Upgrade dialog | **Not used** (2026-10-21, ADR 0028): New document on Free with one document goes straight to `/plans`. Kept here in case it comes back: dialog organism with a primary action: heading + one line · Not now (secondary) · See plans (primary) |
 | Read-only state | chip (`bd-neutral`, lock + "Read-only", `h-sm`) in the row before the menu (meta drops, title muted, under 420px lock only) and in the editor bar before the account button; toolbar disabled; neutral notice with Resubscribe above the title (68ch column, `s-6` below, phone `s-5`) and on the list (between the filter row and the rows; built 2026-10-21). Text selectable, no caret |
 | Empty document | title placeholder "Untitled", body "Start writing…", `muted`, gone on the first keystroke; caret in the body |
 | New account | documents page with the empty state ("No documents yet" · New document) |

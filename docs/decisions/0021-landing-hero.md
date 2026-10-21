@@ -4,7 +4,7 @@
 - Date: 2026-10-20
 
 ## Context
-The hero was designed in its own step (ADR 0016). The user wanted a centred layout with a huge logotype, a rich-text toolbar in frosted glass, and a large mechanical keyboard that types the subtext. Three variants were compared (https://claude.ai/artifact/1NoWeSTfCmPube65ZuGFND).
+The hero was designed in its own step (ADR 0016). I wanted a centred layout with a huge logotype, a rich-text toolbar in frosted glass, and a large mechanical keyboard that types the subtext. Three variants were compared.
 
 ## Options considered
 - **A: the logo formats itself** (animated logotype + glass toolbar): striking, but the selection highlight and overlap read poorly.

@@ -4,7 +4,7 @@
 - Date: 2026-10-19
 
 ## Context
-The product needed a logo and a loading indicator that fit the typography-led, one-accent design (0007, 0010, 0011). Explored on a design canvas: https://claude.ai/artifact/6CDbDc7iEf1dJ9915g4A5A.
+The product needed a logo and a loading indicator that fit the typography-led, one-accent design (0007, 0010, 0011). Explored on a design canvas.
 
 ## Options considered
 - **Coloured echo:** the last "t" repeated three times behind itself in yellow, red and blue as a motion trail. Dropped: not as imagined, and it added three colours outside the palette.

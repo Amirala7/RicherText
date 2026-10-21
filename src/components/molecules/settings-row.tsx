@@ -1,7 +1,7 @@
 // Settings row molecule (ADR 0015): key sm muted in a fixed column, value on
 // one line with "…", an optional h-sm chip and button sm. Under 440px the key
 // moves onto its own line. The action is optional: a row can only show a
-// value (user, 2026-10-21).
+// value (2026-10-21).
 export function SettingsList({ children }: { children: React.ReactNode }) {
   return (
     <div className="@container grid min-w-0 overflow-hidden rounded-lg border border-border [&>*+*]:border-t [&>*+*]:border-border">

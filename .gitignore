@@ -3,7 +3,6 @@
 
 # Local-only working docs (not committed)
 WHERE_WE_ARE.md
-docs/CONTEXT.md
 CLAUDE.md
 
 # Secrets: only .env.example is committed (ADR 0009)

@@ -4,7 +4,7 @@
 - Date: 2026-10-19
 
 ## Context
-With Geist and violet fixed (0010), the shared tokens for the landing page and the editor needed choosing. Options were previewed on landing, sign-in, document list and editor screens in light and dark (https://claude.ai/artifact/88o4gNB5VAr19g45dVr7vL).
+With Geist and violet fixed (0010), the shared tokens for the landing page and the editor needed choosing. Options were previewed on landing, sign-in, document list and editor screens in light and dark.
 
 ## Options considered
 - **Neutrals:** plain grey · violet tint

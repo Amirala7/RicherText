@@ -4,7 +4,7 @@
 - Date: 2026-10-21
 
 ## Context
-Phase 4 slice 3: the Tiptap editor at `/documents/[id]` with the v1 feature set (CONTEXT §5) and autosave. The user split the editor into slice 3 (core) and slice 4 (link editor with ⌘K, document menu, paste fidelity checks), and asked for a "Saved on device" state for offline edits (2026-10-21).
+Phase 4 slice 3: the Tiptap editor at `/documents/[id]` with the v1 feature set (CONTEXT §5) and autosave. I split the editor into slice 3 (core) and slice 4 (link editor with ⌘K, document menu, paste fidelity checks), and added a "Saved on device" state for offline edits (2026-10-21).
 
 ## Decision
 - **Schema** (`src/lib/editor/schema.ts`, one place, ADR 0006): StarterKit 3.32 (MIT) with headings 1–3, code, code block and horizontal rule off, links only `http(s):` and `mailto:`, and **no trailing node** (Select All would format an invisible empty paragraph, and saved documents stay as written). Pasted HTML is cut to the schema; text is kept. The placeholder ("Start writing…") is editor-only.
@@ -22,11 +22,11 @@ Phase 4 slice 3: the Tiptap editor at `/documents/[id]` with the v1 feature set 
 Tests: `schema.test.ts`, `snippet.test.ts`, `autosave.test.ts`, `saved-indicator.test.tsx`, `editor-toolbar.test.tsx`, `tests/emulators/document-save.test.ts`, `e2e/editor.spec.ts`.
 
 ## Amended (2026-10-21)
-- **Quiet Saved indicator** (user): out of the bar, floating in the bottom-right corner (24px from the edges, 16px on phones), xs text, Saved at 50% opacity, Saving / Saved on device at 70%, Not saved never faded. The Read-only chip stays in the bar, before the account button.
+- **Quiet Saved indicator**: out of the bar, floating in the bottom-right corner (24px from the edges, 16px on phones), xs text, Saved at 50% opacity, Saving / Saved on device at 70%, Not saved never faded. The Read-only chip stays in the bar, before the account button.
 - **Fix:** Next 16 keeps a page's state when you leave it (React Activity), so the list's New stayed busy after coming back from the editor; it now resets when the list is hidden. The editor page also sets `instant = false` (it reads the session, like its layout).
 - **Fix (data safety):** leaving a document and opening it again showed the copy loaded on the first visit (Next keeps the page alive; Tiptap rebuilt the editor from that stale copy), and the next keystroke would have saved over the real text. The page now drops its loaded copy when hidden and loads again on return: from the server when online, from the device cache only when offline, with unsent edits applied either way. Rejected writes are not in the cache; autosave keeps them for Retry.
 
-## Slice 4 decisions (user, 2026-10-21)
+## Slice 4 decisions (2026-10-21)
 - **Order:** link editor → document menu → Read-only chip on list rows → paste fidelity checks, one branch each.
 - **Document menu:** shows the Export items now, disabled, so the final shape is visible; they turn on when export is built (ADR 0022).
 - **Link addresses:** only http(s) and mailto, like the schema. An address without a scheme gets `https://` (`example.com`), an email address gets `mailto:`; anything else marks the input invalid (red border, error read by screen readers, nothing changes size) and the panel stays open. `src/lib/editor/link.ts`.
