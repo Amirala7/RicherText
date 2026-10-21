@@ -1,6 +1,6 @@
 // Third-party marks for the landing page only (ADR 0023 colour exception):
 // they keep their own colours. Simplified drawings until launch, when each
-// brand's official asset replaces them (WHERE_WE_ARE, Phase 5).
+// brand's official asset replaces them (CONTEXT §12, "Before launch").
 type MarkProps = React.ComponentProps<"svg">;
 
 export function GoogleDocsMark(props: MarkProps) {
