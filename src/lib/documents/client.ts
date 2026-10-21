@@ -13,8 +13,9 @@ import {
 import type { Changes } from "@/lib/editor/autosave";
 import { snippetOf } from "@/lib/editor/snippet";
 import { writingFont, type WritingFont } from "@/lib/settings/writing";
+import { decodeContent, encodeContent } from "./content";
 import type { ListedDocument } from "./list";
-import { emptyContent, type DocumentJson } from "./model";
+import type { DocumentJson } from "./model";
 
 // The browser side of documents (ADR 0028): create and delete go through the
 // server routes; the list and renames go straight to Firestore under rules.
@@ -120,7 +121,7 @@ export async function loadDocument(
   return {
     title: String(meta.get("title") ?? ""),
     font: writingFont(meta.get("font")),
-    doc: (content.get("doc") as DocumentJson | undefined) ?? emptyContent(),
+    doc: decodeContent(content.get("doc")),
   };
 }
 
@@ -142,7 +143,7 @@ export function saveDocument(
   });
   if (changes.doc) {
     batch.set(doc(ref, "content", "current"), {
-      doc: changes.doc,
+      doc: encodeContent(changes.doc),
       updatedAt: serverTimestamp(),
     });
   }

@@ -50,7 +50,8 @@ describe("createDocument", () => {
     const content = await db
       .doc(`users/${uid}/documents/${id}/content/current`)
       .get();
-    expect(content.get("doc")).toEqual({
+    // Stored as a JSON string (ADR 0033).
+    expect(JSON.parse(content.get("doc"))).toEqual({
       type: "doc",
       content: [{ type: "paragraph" }],
     });

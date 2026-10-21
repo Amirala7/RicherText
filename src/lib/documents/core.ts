@@ -1,4 +1,5 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
+import { encodeContent } from "./content";
 import { emptyContent } from "./model";
 
 // Creating and deleting documents happens only here, on the server (ADR 0028):
@@ -34,7 +35,7 @@ export async function createDocument(
     const now = FieldValue.serverTimestamp();
     tx.create(ref, { title: "", snippet: "", createdAt: now, updatedAt: now });
     tx.create(ref.collection("content").doc("current"), {
-      doc: emptyContent(),
+      doc: encodeContent(emptyContent()),
       updatedAt: now,
     });
     tx.set(
