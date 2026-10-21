@@ -1,9 +1,10 @@
 "use client";
 
-import { FileText, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { FileText, Lock, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
 import { useRef, useState } from "react";
+import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { inputClasses } from "@/components/atoms/input";
 import {
@@ -21,6 +22,8 @@ import { cn } from "@/lib/utils";
 // gap s-3, edges s-4). The whole row opens the document; the menu button shows
 // on hover or focus (always on touch). Rename in place: the title becomes an
 // input sm of the same height; Enter (or leaving the field) saves, Esc cancels.
+// Read-only (plan ended, ADR 0020): title muted, the Read-only chip in place
+// of the edit time (lock only under 420px).
 export function DocumentRow({
   document,
   editable,
@@ -74,13 +77,25 @@ export function DocumentRow({
           href={`/documents/${document.id}`}
           className="flex h-control-sm min-w-0 flex-auto items-center gap-3 outline-none after:absolute after:inset-0"
         >
-          <span className="min-w-0 flex-auto truncate text-sm font-medium">
+          <span
+            className={cn(
+              "min-w-0 flex-auto truncate text-sm font-medium",
+              !editable && "text-muted-foreground",
+            )}
+          >
             {title}
           </span>
-          <span className="flex-none text-sm whitespace-nowrap text-muted-foreground tabular-nums">
-            <span className="@max-[420px]:hidden">Edited </span>
-            {sinceEdited(document.updatedAt, now)}
-          </span>
+          {editable ? (
+            <span className="flex-none text-sm whitespace-nowrap text-muted-foreground tabular-nums">
+              <span className="@max-[420px]:hidden">Edited </span>
+              {sinceEdited(document.updatedAt, now)}
+            </span>
+          ) : (
+            <Badge size="chip">
+              <Lock className="size-4" {...icon} />
+              <span className="@max-[420px]:sr-only">Read-only</span>
+            </Badge>
+          )}
         </Link>
       )}
       <DropdownMenu.Root>

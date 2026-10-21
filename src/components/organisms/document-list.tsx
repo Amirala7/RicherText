@@ -1,18 +1,21 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Lock, Plus } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/components/atoms/button";
+import { Button, buttonVariants } from "@/components/atoms/button";
 import { Loader } from "@/components/atoms/loader";
 import { DocumentRow } from "@/components/molecules/document-row";
 import { EmptyState } from "@/components/molecules/empty-state";
 import { FilterField } from "@/components/molecules/filter-field";
+import { Notice } from "@/components/molecules/notice";
 import { ConfirmDialog } from "@/components/organisms/dialog";
 import { filterDocuments, type ListedDocument } from "@/lib/documents/list";
 import { displayTitle } from "@/lib/documents/model";
 
 // Document list organism (ADR 0016, 0024): title · filter + New · rows.
-// Loading holds the space of four rows; delete asks in a dialog first.
+// Loading holds the space of four rows; delete asks in a dialog first. When a
+// plan has ended (ADR 0020), a notice with Resubscribe sits above the rows.
 // `documents` is null while loading.
 export function DocumentList({
   documents,
@@ -34,6 +37,7 @@ export function DocumentList({
   const [filter, setFilter] = useState("");
   const [deleting, setDeleting] = useState<ListedDocument | null>(null);
   const shown = documents ? filterDocuments(documents, filter) : [];
+  const planEnded = documents?.some((d) => !editable.has(d.id)) ?? false;
 
   return (
     <>
@@ -71,6 +75,25 @@ export function DocumentList({
               New
             </Button>
           </div>
+          {planEnded && (
+            <Notice
+              icon={<Lock strokeWidth={1.75} aria-hidden="true" />}
+              action={
+                <Link
+                  href="/plans"
+                  className={buttonVariants({
+                    variant: "secondary",
+                    size: "sm",
+                  })}
+                >
+                  Resubscribe
+                </Link>
+              }
+            >
+              Your plan has ended. Your newest document stays editable; the
+              others are read-only.
+            </Notice>
+          )}
           {shown.length === 0 ? (
             <EmptyState
               title="No matches"
