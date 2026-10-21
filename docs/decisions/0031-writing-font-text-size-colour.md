@@ -1,6 +1,6 @@
 # 0031 — Writing font setting, text size and text colour
 
-- Status: accepted (builds on 0006, 0007, 0010)
+- Status: accepted (builds on 0006, 0007, 0010); the writing-font part is superseded by 0032 (per document, in the editor toolbar)
 - Date: 2026-10-21
 
 ## Context
