@@ -13,7 +13,23 @@ A minimal, fast, web-based rich text editor for professionals: a public landing 
 | UI            | shadcn/ui + Tailwind, Geist, light and dark                                             |
 | Tests         | Vitest (unit), rules and Functions tests on the emulators, Playwright (desktop + phone) |
 
-Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product scope: `docs/CONTEXT.md`. Design system: `docs/DESIGN.md`.
+Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product scope: `docs/CONTEXT.md`. Design system: `docs/DESIGN.md`. The long version of this README, with trade-offs and next steps: [`docs/presentation/RicherText-project-brief.pdf`](docs/presentation/RicherText-project-brief.pdf).
+
+![RicherText: from the landing page to writing in the editor](docs/media/demo.gif)
+
+## Notes for reviewers
+
+- **Deviation from the checklist: a Free user can write.** The checklist says a non-subscriber can't create or edit documents; the FAQ allows a free tier ("paid users get full document features; non-paying users do not"). The Free plan gets one document at a time. A second document needs a subscription (New goes to the plans page), and when a paid plan ends every document except the newest becomes read-only. The rules enforce this, not only the UI (ADR 0019, 0020, 0028).
+- **Export isn't built.** It's designed (ADR 0022) and marked "Coming soon" everywhere it's mentioned: the landing page, the paid pricing cards, the FAQ and the document menu.
+- **Time spent:** about 11 hours of focused work with an AI coding agent, plus my review, over three days. More in [How it was built](#how-it-was-built).
+
+## Architecture
+
+- **Browser → Firestore** for writing: the editor (Tiptap) saves the whole document about a second after typing stops, straight to Firestore. Its offline cache in IndexedDB queues writes through dropped connections and reloads (ADR 0029, 0030). Security rules decide ownership, the Free limit and read-only documents.
+- **Browser → Next.js server → Firestore** for anything that mustn't be forged: creating and deleting documents (the Free limit is checked in a transaction), Checkout and Portal sessions (ADR 0027, 0028).
+- **Session gating:** the client signs in with Firebase Auth and swaps its ID token for an httpOnly session cookie. Every app layout, action and route checks that cookie on the server, and active writers get it refreshed silently (ADR 0026).
+- **Stripe → webhook → Firestore → app:** a Cloud Function checks the signature, stores the event ID in the same transaction (so each event counts once) and re-reads the subscription from Stripe (so order doesn't matter). It writes `customers/{uid}`, the only thing that decides access. The app listens and unlocks live (ADR 0027).
+- **Landing page:** statically rendered Server Components, complete HTML without JavaScript.
 
 ## Repo layout
 
@@ -77,6 +93,17 @@ To take real sandbox payments locally:
 3. In a second terminal run `pnpm stripe:listen`. It forwards sandbox events to the emulator's webhook and hides the secrets the Stripe CLI prints.
 4. Pay with the test card `4242 4242 4242 4242`, any future date and any CVC.
 
+### Stripe test flow
+
+Locally (above) or on the live demo. Every payment is in the Stripe sandbox.
+
+1. **Free:** Start free on the landing page, sign up. You land on Documents on the Free plan; write a document.
+2. **Gate:** press New. With one document on Free it goes to the plans page instead of creating a second.
+3. **Subscribe:** pick Monthly or Yearly → Stripe Checkout → `4242 4242 4242 4242`. The activation page waits for the webhook, names the plan and goes to Documents; New now creates as many documents as you like.
+4. **Declined card:** `4000 0000 0000 0002` is refused in Checkout and nothing changes in the app.
+5. **Manage:** Account → Manage opens the Customer Portal: change card, switch monthly ↔ yearly, cancel. Back in the app the account page updates live ("Ends 21 Nov" after a cancel).
+6. **Downgrade:** when a cancelled plan ends, the newest document stays editable and the rest open read-only with a Resubscribe notice. Nothing is deleted. The end of a period and failed payments (`past_due`, which keeps access while Stripe retries) aren't practical to trigger by hand, so the emulator tests cover them.
+
 ## Tests
 
 | Command               | What it runs                                            |
@@ -88,9 +115,53 @@ To take real sandbox payments locally:
 
 `test:emulators` and `test:e2e` start their own emulators, so stop `pnpm dev:all` first (the deploy script instead reuses running ones).
 
+## Trade-offs
+
+| Chose                               | Over                        | Because                                                                                                                                         |
+| ----------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| The browser writes to Firestore     | Saving through our own API  | Offline queue and retries for free; never lose a keystroke. Cost: some business rules live in security rules, so they have their own test suite |
+| The whole document on every save    | Sending only the edits      | Simple and robust for memos of 10–40 KB; edit-step syncing is collaboration machinery we don't need                                             |
+| A Free plan                         | A time-limited trial        | People write before they pay, with no trial expiry to build. Cost: the checklist deviation above                                                |
+| Plan changes in Stripe's Portal     | Our own billing screens     | Less code and fewer states; the UI customers already know                                                                                       |
+| One Firebase project, local deploys | Staging plus CI/CD          | Less to run and secure for a demo. Cost: rules and webhook changes can't be rehearsed in the cloud; the emulators and the deploy checks do that |
+| Local first on the emulators        | A real project from day one | No cloud cost or secrets until the end, fast repeatable tests. Cost: production-only issues (regions, IAM) showed up at deploy time             |
+
+### With another day
+
+1. **Export**, PDF and Word first, in a Cloud Function with the plan check (ADR 0022).
+2. **Email verification** at sign-up and before checkout (ADR 0017).
+3. **Error logging** that is safe: the error class and a request ID, never the message (today API routes log nothing, ADR 0026).
+4. **A full Content-Security-Policy** with nonces for Next's inline scripts.
+5. **Staging**: a second project with its own Stripe sandbox.
+6. **Performance and accessibility pass**: measure "interactive in under a second" on the live site; keyboard, screen-reader and contrast audit.
+
+## Known limitations
+
+- Export isn't built; it's marked "Coming soon".
+- No email verification: a mistyped address can't recover the account (ADR 0017).
+- No rate limits or abuse checks on document creation; the create route is where they'd go (ADR 0028).
+- No Content-Security-Policy beyond `frame-ancestors 'none'`; other security headers (HSTS, nosniff, referrer policy) are set.
+- API routes log nothing on errors, so a 503 leaves no server-side trace. That's deliberate (logs never carry personal data, ADR 0026), but harder to operate.
+- One Firebase project, no staging; deploys run from one machine with a local script.
+- If the activation page's Firestore listen fails, it shows the "Stripe is slow" state only after its 20 s timeout.
+- Paste is tested against recorded samples from Docs, Word, Outlook and Gmail, not the live apps.
+- The landing page reviews are placeholders (and say so).
+- `next build` fetches Geist and IBM Plex Serif from Google Fonts, so builds need network.
+- A few end-to-end tests are occasionally flaky under full parallel load (sign-up timing, ⌘K links); they pass when run alone.
+
+## How it was built
+
+I built it with Claude Code as the coding agent, about 11 hours of focused agent and review work over three days.
+
+- **I decided, the agent implemented.** Each choice was discussed first and written down as an ADR (`docs/decisions/`) with the options weighed. Scope, plans and pricing, the Free plan, payment behaviour, regions and the design are mine.
+- **Tests first, and locked.** Every change started with a failing test; the agent couldn't change an existing test without my explicit yes, so the tests hold the business rules in place (ADR 0014).
+- **Design reviewed on canvases** before any screen was built: tokens, atoms, molecules, organisms, the landing page and the app screens, each approved into `docs/DESIGN.md`.
+- **What I verified by hand:** the full flow on the live site (sign up → Checkout in the sandbox → webhook → writing → reload), the Customer Portal, the editor (formatting, shortcuts, paste to and from Docs and Gmail, offline), light and dark at desktop and phone width, the Firebase and Stripe console setup, and that no secret is in the repo or its history.
+- **Where I pushed back:** the agent's first designs and some decisions changed on review. ADRs 0019 → 0020 (Free plan), 0022 (export), 0031 → 0032 (writing font) and 0033 (a nesting bug found in an audit) show it.
+
 ## Production
 
-One Firebase project, `richer-text-55ffe` (alias `prod`), all in the EU (ADR 0034):
+One Firebase project (alias `prod` in `.firebaserc`), all in the EU (ADR 0034):
 
 | Piece               | Where                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------ |
@@ -121,13 +192,13 @@ Done once per project; listed so it can be repeated. Never paste secret values i
    ```
 
 5. **Authorized domain:** Authentication → Settings → Authorized domains → add the backend's `*.hosted.app` address.
-6. **Stripe webhook:** in the Stripe sandbox, add an endpoint for `https://europe-west1-richer-text-55ffe.cloudfunctions.net/stripeWebhook` with the events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
+6. **Stripe webhook:** in the Stripe sandbox, add an endpoint for `https://europe-west1-<project-id>.cloudfunctions.net/stripeWebhook` with the events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
 7. **Secrets** (each command prompts for the value):
 
    ```sh
    firebase functions:secrets:set STRIPE_SECRET_KEY --project prod      # sandbox sk_test_…
    firebase functions:secrets:set STRIPE_WEBHOOK_SECRET --project prod  # the endpoint's signing secret
-   gcloud secrets create FIREBASE_WEB_API_KEY --data-file=- --project richer-text-55ffe
+   gcloud secrets create FIREBASE_WEB_API_KEY --data-file=- --project <project-id>
    #   ↑ paste the apiKey from `firebase apps:sdkconfig web <web app id> --project prod`, then Ctrl+D
    #     (functions:secrets:set refuses names starting with FIREBASE_)
    firebase apphosting:secrets:grantaccess STRIPE_SECRET_KEY,FIREBASE_WEB_API_KEY \
