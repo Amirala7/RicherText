@@ -56,3 +56,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0025 | [One-command local setup, no Dev Container](0025-one-command-setup.md) | accepted |
 | 0026 | [Auth: sessions, gating and flows](0026-auth-sessions-and-gating.md) | accepted |
 | 0027 | [Payments: how Phase 3 builds it](0027-payments-implementation.md) | accepted (builds on 0003) |
+| 0028 | [Documents: data model, server-side create/delete, editable pointer](0028-documents-data-model.md) | accepted (builds on 0004, 0020) |
