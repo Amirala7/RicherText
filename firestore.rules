@@ -17,5 +17,50 @@ service cloud.firestore {
         allow read: if request.auth != null && request.auth.uid == uid;
       }
     }
+
+    // Documents (ADR 0004, 0020, 0028). Created and deleted only by the
+    // server route, which enforces the Free limit; users/{uid} itself (the
+    // newestDocId pointer) is server-only. The browser saves the title,
+    // snippet and content: any document on a paid plan, otherwise only the
+    // newest one, so older documents are read-only after a downgrade.
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isPaid(uid) {
+      let customer = /databases/$(database)/documents/customers/$(uid);
+      return exists(customer) && get(customer).data.get('plan', 'free') == 'paid';
+    }
+
+    function canEdit(uid, docId) {
+      return isPaid(uid)
+        || get(/databases/$(database)/documents/users/$(uid)).data.get('newestDocId', null) == docId;
+    }
+
+    function isShortString(value) {
+      return value is string && value.size() <= 200;
+    }
+
+    match /users/{uid}/documents/{docId} {
+      allow read: if isOwner(uid);
+      allow update: if isOwner(uid)
+        && canEdit(uid, docId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['title', 'snippet', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && isShortString(request.resource.data.title)
+        && isShortString(request.resource.data.snippet);
+
+      match /content/{part} {
+        allow read: if isOwner(uid);
+        allow update: if isOwner(uid)
+          && part == 'current'
+          && canEdit(uid, docId)
+          && request.resource.data.keys().hasOnly(['doc', 'updatedAt'])
+          && request.resource.data.doc is map
+          && request.resource.data.doc.get('type', null) == 'doc'
+          && request.resource.data.updatedAt == request.time;
+      }
+    }
   }
 }
