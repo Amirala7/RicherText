@@ -15,8 +15,17 @@ import {
 import { signOut } from "@/lib/auth/client";
 
 // Account menu (ADR 0024); drops s-1 under the bar (button centred in h-bar:
-// 14px + 4px).
-export function AccountMenu({ email }: { email: string | null }) {
+// 14px + 4px). The editor bar sizes the button to its row and passes its own
+// offset.
+export function AccountMenu({
+  email,
+  triggerClassName,
+  sideOffset = 18,
+}: {
+  email: string | null;
+  triggerClassName?: string;
+  sideOffset?: number;
+}) {
   const router = useRouter();
   const { theme = "system", setTheme } = useTheme();
 
@@ -29,14 +38,19 @@ export function AccountMenu({ email }: { email: string | null }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" icon aria-label="Account menu">
+        <Button
+          variant="ghost"
+          icon
+          aria-label="Account menu"
+          className={triggerClassName}
+        >
           <User className="size-4" {...icon} />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           align="end"
-          sideOffset={18}
+          sideOffset={sideOffset}
           className={`${menuContent} w-[220px] max-w-[calc(100vw-32px)]`}
         >
           {email && (
