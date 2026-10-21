@@ -68,7 +68,7 @@ Used only on the marketing pages, never in the app.
 |---|---|---|---|---|---|---|
 | 4 | 8 | 12 | 16 | 24 | 32 | 48 px |
 
-Tailwind's default 4px `--spacing` already produces these (`1, 2, 3, 4, 6, 8, 12`); components use only these seven steps. Layout gaps between page sections may go higher (64, 96) on marketing pages.
+Tailwind's default 4px `--spacing` already produces these (`1, 2, 3, 4, 6, 8, 12`); components use only these seven steps. Map by pixels, not by index: `s-5` is `6`, `s-6` is `8`, `s-7` is `12` (the Pricing block and footer got this wrong until 2026-10-21). Layout gaps between page sections may go higher (64, 96) on marketing pages.
 
 ### Radius (Soft)
 `r-sm` 5px (inputs, chips, toolbar buttons) · `r-md` 7px (buttons, menus, toasts) · `r-lg` 10px (cards, panels, editor frame) · `r-full` 999px (landing pill header and its items only, ADR 0021).
@@ -184,7 +184,7 @@ New tokens: `h-bar` 64 (every page bar) · `scrim` (behind dialogs: `oklch(0.2 0
 ## 5. Templates
 Done (desktop + phone, light + dark): landing, auth, document list, editor, pricing (landing section reused in the app), account, back from Checkout, not found.
 
-**Landing: final** (2026-10-20, ADR 0023, https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY). Order: sticky pill header · hero C · Features · Reviews · Pricing · FAQ · closing call to action · footer (minimal).
+**Landing: final** (2026-10-20, ADR 0023, https://claude.ai/artifact/UbEKNBkgq8ZgL1FASXuMsY). Order: sticky pill header · hero C · Features · Reviews · Pricing · FAQ · closing call to action · footer (minimal). **Built** 2026-10-21 at `/` (statically prerendered): landing-only tokens and styles in `src/app/landing.css` (never imported by the app, phone = 560px and under); organisms `pill-header`, `landing-hero`, `feature-demos`; marks in `atoms/brand-marks`; the Pricing block is the app's, with an h2 heading and `id="pricing"` here. Link buttons use `cn(buttonVariants(…))` so the variant's border wins.
 
 | Element | Spec |
 |---|---|
