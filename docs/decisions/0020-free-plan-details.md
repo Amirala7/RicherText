@@ -1,6 +1,6 @@
 # 0020 — Free plan: full editor, one document
 
-- Status: accepted (supersedes ADR 0019)
+- Status: accepted (supersedes ADR 0019); "full editor on Free" amended by 0035: Free is plain text, toolbar locked
 - Date: 2026-10-20
 
 ## Context

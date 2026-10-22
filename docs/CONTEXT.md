@@ -45,14 +45,14 @@ A small but *complete* product: someone can discover it, pay, and use it.
 
 ### 4.3 Authenticated editor (gated)
 - Sign up / sign in / sign out (this device), and password reset by email, finished on Firebase's own page (ADR 0026); new accounts land on the documents page. Signing up from a paid plan (`/sign-up?plan=yearly`) goes straight on to Stripe Checkout. After Checkout, the activation page (`/welcome`) waits for Stripe's confirmation, then goes to the documents page (ADR 0024, 0027).
-- Anyone signed up can use the app on the Free plan (full editor, one document at a time); a subscription unlocks unlimited documents (ADR 0020).
+- Anyone signed up can use the app on the Free plan (plain text, one document at a time); a subscription unlocks the formatting toolbar and unlimited documents (ADR 0020, 0035). On Free the toolbar is locked: each toggle says "Upgrade to unlock formatting" and goes to `/plans`; formatting shortcuts and formatted pastes do nothing.
 - Document list + editor.
 - Minimal formatting (see §5).
 - Autosave; text is never lost.
 
 ## 5. Editor feature scope
 
-**In (v1):**
+**In (v1):** (formatting is paid; on the Free plan the editor is plain text with the toolbar locked, ADR 0035)
 - Headings (H1–H3), paragraphs
 - Bold, italic, underline, strikethrough
 - Bulleted and numbered lists
@@ -78,7 +78,7 @@ A small but *complete* product: someone can discover it, pay, and use it.
 
 ## 6. Business model
 
-- Free plan + paid subscription (ADR 0020). Free: sign up, no card; full editor; one document at a time; no export. Paid: unlimited documents, and export once it ships (ADR 0022). When a paid plan ends, the newest document stays editable and the rest become read-only; nothing is deleted.
+- Free plan + paid subscription (ADR 0020). Free: sign up, no card; plain text only (toolbar locked, ADR 0035); one document at a time; no export. Paid: the full formatting toolbar, unlimited documents, and export once it ships (ADR 0022). When a paid plan ends, the newest document stays editable and the rest become read-only; nothing is deleted.
 - Two intervals: monthly and yearly, the yearly one at a discount (decided 2026-10-20). **OPEN:** price points and the discount (placeholders: $8 a month, $80 a year).
 - Free plan instead of a time-limited trial (ADR 0020). **OPEN:** money-back guarantee.
 - Plans: Free, Monthly, Yearly (decided 2026-10-20).
@@ -132,6 +132,7 @@ Planned improvements we expect to pick up after the current slice works end-to-e
 
 - **Export** (moved out of Phase 4 on 2026-10-21; ADR 0022 still stands): PDF and Word (.docx) first, then RTF, Markdown, HTML, plain text; paid plans only, in a Cloud Function with the entitlement check. Open choices: page size (A4 / Letter / follow the browser), fonts (PDF Geist embedded; Word default font or Geist), library (e.g. pdfmake + docx vs headless Chrome). Until then the document menu shows the export items disabled with a "Coming soon" badge; shipping it means changing the document menu test, which expects them disabled.
 - **Paste checks on real apps**: paste from the real Google Docs, Word (Windows + Mac), Outlook, Gmail, and also Word on the web and Apple Pages / Notes (not covered by the samples); copy back out into each (ADR 0030).
+- **Free plan's plain text on the server** (ADR 0035): today the toolbar lock is client-side only; Firestore rules can't look inside the content string, so a modified client could save formatting on Free. Options: save through a Cloud Function that checks marks and node types, or strip formatting from Free saves there.
 - **Plain-text copy of lists**: plain text copied out has no "- " / "1." on list items; add them if wanted (ADR 0030).
 - **Performance, accessibility and light/dark pass** (moved from Phase 6, 2026-10-22): measure the editor against "interactive in < 1 s" (CONTEXT §8) on the live site, an accessibility audit (keyboard, screen reader, contrast), and a light/dark check of every screen.
 - **Before launch** (moved from Phase 6, 2026-10-22): real reviews with permission or remove the section, official brand logos (ADR 0023), real legal copy if it stops being a demo.

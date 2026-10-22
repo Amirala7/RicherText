@@ -39,7 +39,9 @@ export function EditorView({
   const [uid, setUid] = useState<string | null>(null);
   const [opened, setOpened] = useState<Opened>(null);
   const [documents, setDocuments] = useState<ListedDocument[] | null>(null);
-  const [paid, setPaid] = useState(false);
+  // Unknown until the plan arrives; the editor waits for it, since the Free
+  // plan's markdown shortcuts are set when it's made (ADR 0035).
+  const [paid, setPaid] = useState<boolean | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [deleteFailed, setDeleteFailed] = useState<number | null>(null);
   const router = useRouter();
@@ -128,7 +130,8 @@ export function EditorView({
   }
 
   const editable = useMemo(
-    () => (documents ? editableIds(documents, paid).has(id) : false),
+    () =>
+      documents && paid !== null ? editableIds(documents, paid).has(id) : false,
     [documents, paid, id],
   );
 
@@ -164,7 +167,7 @@ export function EditorView({
     );
   }
 
-  if (!opened || !documents || !autosave) {
+  if (!opened || !documents || paid === null || !autosave) {
     return (
       <main
         aria-busy="true"
@@ -194,6 +197,7 @@ export function EditorView({
         onFont={(font) => autosave.change({ font })}
         onRetry={() => autosave.retry()}
         onDelete={remove}
+        onUpgrade={() => router.push("/plans")}
       />
       {deleteFailed !== null && (
         <Toast key={deleteFailed} tone="error">

@@ -17,6 +17,7 @@ import {
 // one column at 900px and under. Callers pass each card's button.
 const paidFeatures: Feature[] = [
   "Everything in Free",
+  "Full formatting toolbar",
   "Unlimited documents",
   // Not built yet (ADR 0022).
   { text: "Export to PDF, Word and more", badge: "Coming soon" },
@@ -99,7 +100,7 @@ export function PricingBlock({
           price="$0"
           per="for good"
           features={[
-            "The full editor, every format",
+            "Plain text, no formatting",
             "One document at a time",
             "Saves as you type",
             "No card needed",

@@ -151,8 +151,8 @@
     <p class="small muted">Live demo (Stripe sandbox): richertext--richer-text-55ffe.europe-west4.hosted.app</p>
   </div>
   <div class="facts">
-    <div class="fact"><div class="num">34</div><div class="label">decision records, each with the options weighed</div></div>
-    <div class="fact"><div class="num">690+</div><div class="label">automated tests: unit, rules, Functions, end to end</div></div>
+    <div class="fact"><div class="num">35</div><div class="label">decision records, each with the options weighed</div></div>
+    <div class="fact"><div class="num">710+</div><div class="label">automated tests: unit, rules, Functions, end to end</div></div>
     <div class="fact"><div class="num">EU</div><div class="label">data and servers in Belgium and the Netherlands</div></div>
   </div>
   <div class="folio"><span>RicherText · Project brief</span><span>1</span></div>
@@ -208,7 +208,7 @@
           <li>Undo / redo and keyboard shortcuts for everything</li>
           <li>Autosave with a quiet "Saved" indicator; works offline</li>
           <li>Clean copy and paste to and from Docs, Word, Outlook and Gmail</li>
-          <li>Free plan, monthly and yearly subscriptions, Customer Portal</li>
+          <li>Free plan (one document, plain text), monthly and yearly subscriptions, Customer Portal</li>
           <li>Light and dark, desktop and phone</li>
         </ul>
       </div>
@@ -230,7 +230,7 @@
     <h3>Business model choices</h3>
     <table>
       <tr><th style="width:26%">Decision</th><th>Why</th><th style="width:9%">ADR</th></tr>
-      <tr><td>Free plan instead of a trial</td><td>Full editor, one document at a time, no card. People feel the product before paying, and there's no trial expiry to engineer.</td><td class="adr">0020</td></tr>
+      <tr><td>Free plan instead of a trial</td><td>One document at a time, plain text, no card; the formatting toolbar is locked with an upgrade prompt. People feel the product before paying, and there's no trial expiry to engineer.</td><td class="adr">0020, 0035</td></tr>
       <tr><td>Nothing is deleted on downgrade</td><td>When a paid plan ends, the newest document stays editable and the rest become read-only. Trust over pressure.</td><td class="adr">0020</td></tr>
       <tr><td>Access during failed payments</td><td>Access continues while Stripe retries the card and locks only when it gives up. A declined card shouldn't lock someone out mid-sentence.</td><td class="adr">0027</td></tr>
       <tr><td>Plan changes in the Portal</td><td>Card updates, monthly ↔ yearly and cancel all live in Stripe's Customer Portal: less code, fewer edge cases, the same UI customers know.</td><td class="adr">0027</td></tr>
@@ -311,7 +311,7 @@
     <h2>Test-first, decisions on paper, one design system</h2>
     <div class="grid-3">
       <div class="card"><h4>Tests first, then locked</h4><p class="small">Every change starts with a test that fails for the right reason. Existing tests can only change with explicit approval, so they hold the business rules in place.</p></div>
-      <div class="card"><h4>Decision records</h4><p class="small">34 ADRs: context, options, decision, consequences. Superseded ones stay, so the history of a choice is readable.</p></div>
+      <div class="card"><h4>Decision records</h4><p class="small">35 ADRs: context, options, decision, consequences. Superseded ones stay, so the history of a choice is readable.</p></div>
       <div class="card"><h4>Small vertical slices</h4><p class="small">Short-lived branches, conventional commits, merged only when lint, types and all tests pass in light, dark, desktop and phone.</p></div>
     </div>
   </section>
@@ -320,9 +320,9 @@
     <h3>What the tests cover</h3>
     <table>
       <tr><th style="width:24%">Suite</th><th style="width:12%">Count</th><th>What it proves</th></tr>
-      <tr><td>Unit (Vitest)</td><td>416</td><td>Components, forms, autosave timing, paste clean-up, plan mapping, config guards, setup and deploy scripts</td></tr>
+      <tr><td>Unit (Vitest)</td><td>436</td><td>Components, forms, autosave timing, paste clean-up, plan mapping, config guards, setup and deploy scripts</td></tr>
       <tr><td>Emulator</td><td>103</td><td>Security rules (ownership, Free limit, read-only), webhook signatures and idempotency, deep nesting, no secrets in server logs</td></tr>
-      <tr><td>End to end (Playwright)</td><td>174</td><td>Every flow on desktop and phone: sign-up, checkout states, editor, offline, paste, landing without JavaScript, security headers, no secrets in the console</td></tr>
+      <tr><td>End to end (Playwright)</td><td>176</td><td>Every flow on desktop and phone: sign-up, checkout states, editor, offline, paste, landing without JavaScript, security headers, no secrets in the console</td></tr>
     </table>
   </section>
 
@@ -402,6 +402,7 @@
     <table>
       <tr><th style="width:28%">Next</th><th>What and why</th></tr>
       <tr><td>Export</td><td>PDF and Word first, then RTF, Markdown, HTML and plain text; paid plans only, generated in a Cloud Function with the plan check. Already designed (ADR 0022); moved out of v1 to ship the core.</td></tr>
+      <tr><td>Plain text checked on the server</td><td>The Free plan's locked toolbar is enforced in the browser; a save function would also refuse formatting from Free users, so a modified client can't get around it (ADR 0035).</td></tr>
       <tr><td>Email verification</td><td>Verify at sign-up and before checkout, so receipts and password resets reach the right person and throwaway sign-ups get harder.</td></tr>
       <tr><td>Content-Security-Policy</td><td>A full policy for scripts, styles and connections to Firebase and Stripe, with nonces for Next's inline scripts. Basic headers are already live.</td></tr>
       <tr><td>Staging environment</td><td>A second project with its own Stripe sandbox, so rules, webhook and deploy changes are rehearsed before users see them.</td></tr>

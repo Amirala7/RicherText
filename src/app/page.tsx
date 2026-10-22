@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
 };
 
-const PRICE_NOTE = `${formatUsd(PAID_PLANS.yearly.amount)} a year or ${formatUsd(PAID_PLANS.monthly.amount)} a month. Free plan: one document.`;
+const PRICE_NOTE = `${formatUsd(PAID_PLANS.yearly.amount)} a year or ${formatUsd(PAID_PLANS.monthly.amount)} a month. Free plan: one document, plain text.`;
 
 function Section({
   id,
@@ -137,7 +137,7 @@ const REVIEWS = [
 const FAQ = [
   [
     "Is there really a free plan?",
-    "Yes. Sign up without a card and you get the full editor with every format. The Free plan keeps one document at a time; subscribe for as many as you like.",
+    "Yes. Sign up without a card and write one document at a time, in plain text. Subscribe for the full formatting toolbar and as many documents as you like.",
   ],
   [
     "Will my formatting survive when I paste?",

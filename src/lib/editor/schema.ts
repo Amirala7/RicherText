@@ -2,6 +2,7 @@ import type { Extensions } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
 import StarterKit from "@tiptap/starter-kit";
 import { PasteCleanup } from "./paste";
+import { PlainTextLock } from "./plain-text";
 import { TextColorMark, TextSizeMark, TextStyleClipboard } from "./text-style";
 
 // The one document schema (ADR 0006), exactly CONTEXT §5: paragraphs,
@@ -12,7 +13,13 @@ import { TextColorMark, TextSizeMark, TextStyleClipboard } from "./text-style";
 // their text kept). Changing it needs a migration plan for saved documents.
 const LINK = /^(https?:|mailto:)/i;
 
-export function documentExtensions(): Extensions {
+// `locked` is the Free plan's plain-text lock (ADR 0035): while it's true,
+// typed addresses aren't linked.
+type Options = { locked?: () => boolean };
+
+export function documentExtensions({
+  locked = () => false,
+}: Options = {}): Extensions {
   return [
     StarterKit.configure({
       heading: { levels: [1, 2, 3] },
@@ -26,6 +33,7 @@ export function documentExtensions(): Extensions {
         openOnClick: false,
         autolink: true,
         isAllowedUri: (url) => LINK.test(url.trim()),
+        shouldAutoLink: (url) => !locked() && LINK.test(url.trim()),
       },
     }),
     TextSizeMark,
@@ -35,10 +43,12 @@ export function documentExtensions(): Extensions {
 
 // The editor adds what only matters while writing: the empty-document
 // placeholder (ADR 0024), the paste clean-up (ADR 0030) and copying text
-// size and colour as inline styles (ADR 0031).
-export function editorExtensions(): Extensions {
+// size and colour as inline styles (ADR 0031), and the Free plan's
+// plain-text lock (ADR 0035).
+export function editorExtensions(options: Options = {}): Extensions {
   return [
-    ...documentExtensions(),
+    ...documentExtensions(options),
+    PlainTextLock.configure({ locked: options.locked ?? (() => false) }),
     Placeholder.configure({ placeholder: "Start writing…" }),
     PasteCleanup,
     TextStyleClipboard,

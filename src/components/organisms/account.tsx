@@ -61,7 +61,7 @@ export function SubscriptionSection({
   let value: string;
   if (state.kind === "free") {
     chip = <Badge size="chip">Free</Badge>;
-    value = "One document at a time";
+    value = "One document, plain text";
   } else if (state.kind === "active") {
     const renews = date(state.renewsOn);
     value = state.planName ?? "Paid";

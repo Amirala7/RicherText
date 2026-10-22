@@ -39,7 +39,7 @@ describe("SubscriptionSection", () => {
     const row = planRow();
     expect(row.getByText("Plan")).toBeInTheDocument();
     expect(row.getByText("Free")).toBeInTheDocument();
-    expect(row.getByText("One document at a time")).toBeInTheDocument();
+    expect(row.getByText("One document, plain text")).toBeInTheDocument();
     expect(row.getByRole("link", { name: "Upgrade" })).toHaveAttribute(
       "href",
       "/plans",

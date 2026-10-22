@@ -222,3 +222,76 @@ describe("EditorToolbar: writing font", () => {
     expect(onFont).toHaveBeenCalledWith("plex-serif");
   });
 });
+
+// Free plan is plain text (ADR 0035): every toggle looks disabled but can
+// still be pointed at, says to upgrade, and goes to the plans page on click,
+// like New with a document already made. Nothing opens or formats.
+describe("EditorToolbar: locked on the Free plan", () => {
+  function locked(disabled = false) {
+    const onUpgrade = vi.fn();
+    editor = new Editor({
+      extensions: documentExtensions(),
+      content: "<p>hello world</p>",
+    });
+    editor.commands.selectAll();
+    render(
+      <EditorToolbar
+        editor={editor}
+        locked
+        disabled={disabled}
+        onUpgrade={onUpgrade}
+      />,
+    );
+    return onUpgrade;
+  }
+
+  it("keeps every toggle, in order, marked unavailable", () => {
+    locked();
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(16);
+    for (const b of buttons) {
+      expect(b).toHaveAttribute("aria-disabled", "true");
+      expect(b).toBeEnabled();
+    }
+  });
+
+  it("goes to upgrade on click instead of formatting", () => {
+    const onUpgrade = locked();
+    fireEvent.click(toggle("Bold"));
+    fireEvent.click(toggle("Heading 1"));
+    expect(editor.isActive("bold")).toBe(false);
+    expect(editor.isActive("heading")).toBe(false);
+    expect(onUpgrade).toHaveBeenCalledTimes(2);
+  });
+
+  it("opens no menu for font, size or colour", () => {
+    const onUpgrade = locked();
+    for (const name of ["Writing font", "Text size", "Text colour"]) {
+      fireEvent.pointerDown(toggle(name), { button: 0, ctrlKey: false });
+      fireEvent.click(toggle(name));
+    }
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(onUpgrade).toHaveBeenCalledTimes(3);
+  });
+
+  it("says to upgrade in the tooltip", async () => {
+    // jsdom has no ResizeObserver; the tooltip's arrow measures itself.
+    globalThis.ResizeObserver ??= class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+    locked();
+    fireEvent.focus(toggle("Bold"));
+    expect(
+      (await screen.findAllByText("Upgrade to unlock formatting")).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("is plainly disabled on a read-only document", () => {
+    const onUpgrade = locked(true);
+    for (const b of screen.getAllByRole("button")) expect(b).toBeDisabled();
+    fireEvent.click(toggle("Bold"));
+    expect(onUpgrade).not.toHaveBeenCalled();
+  });
+});

@@ -48,7 +48,7 @@ What becomes easier, what becomes harder, what we must now do.
 | 0017 | [No email verification in v1](0017-no-email-verification-v1.md) | accepted |
 | 0018 | [Local first: build on the emulators, deploy only when finalised](0018-local-first-development.md) | accepted |
 | 0019 | [Free plan: plain text, one document](0019-free-plan.md) | superseded by 0020 |
-| 0020 | [Free plan: full editor, one document](0020-free-plan-details.md) | accepted |
+| 0020 | [Free plan: full editor, one document](0020-free-plan-details.md) | accepted; full editor on Free amended by 0035 (plain text) |
 | 0021 | [Landing hero and landing-only elements](0021-landing-hero.md) | accepted |
 | 0022 | [Export in v1, paid plans only](0022-export-in-v1.md) | accepted (amends 0020) |
 | 0023 | [Landing page template](0023-landing-page-template.md) | accepted |
@@ -63,3 +63,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0032 | [Writing font per document, picked in the editor](0032-writing-font-per-document.md) | accepted (supersedes part of 0031, 0024) |
 | 0033 | [Document content stored as a JSON string](0033-content-as-json-string.md) | accepted (amends 0028) |
 | 0034 | [Real Firebase project and region](0034-firebase-project-and-region.md) | accepted (builds on 0002, 0018) |
+| 0035 | [Free plan: plain text, toolbar locked](0035-free-plan-plain-text.md) | accepted (amends 0020) |

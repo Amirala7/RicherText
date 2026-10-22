@@ -78,7 +78,7 @@ describe("landing page", () => {
         ["Start free", "/sign-up"],
       ]);
       expect(area).toHaveTextContent(
-        "$80 a year or $8 a month. Free plan: one document.",
+        "$80 a year or $8 a month. Free plan: one document, plain text.",
       );
     }
   });
