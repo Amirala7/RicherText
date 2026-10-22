@@ -13,7 +13,7 @@ A minimal, fast, web-based rich text editor for professionals: a public landing 
 | UI            | shadcn/ui + Tailwind, Geist, light and dark                                             |
 | Tests         | Vitest (unit), rules and Functions tests on the emulators, Playwright (desktop + phone) |
 
-Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product scope: `docs/CONTEXT.md`. Design system: `docs/DESIGN.md`. The long version of this README, with trade-offs and next steps: [`docs/presentation/RicherText-project-brief.pdf`](docs/presentation/RicherText-project-brief.pdf).
+Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product scope: `docs/CONTEXT.md`. Design system: `docs/DESIGN.md`. The long version of this README, with trade-offs and next steps: [`docs/presentation/RicherText-project-brief.pdf`](docs/presentation/RicherText-project-brief.pdf). The write-up answering the brief's three questions (how an active subscriber is decided, a delayed webhook, one security decision): [`docs/presentation/RicherText-write-up.pdf`](docs/presentation/RicherText-write-up.pdf).
 
 ![RicherText: from the landing page through Stripe Checkout to writing in the editor](docs/media/demo.gif)
 
