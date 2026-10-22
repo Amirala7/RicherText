@@ -19,7 +19,9 @@ Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product
 
 ## Notes for reviewers
 
-- **Deviation from the checklist: a Free user can write.** The checklist says a non-subscriber can't create or edit documents; the FAQ allows a free tier ("paid users get full document features; non-paying users do not"). The Free plan gets one document at a time. A second document needs a subscription (New goes to the plans page), and when a paid plan ends every document except the newest becomes read-only. The rules enforce this, not only the UI (ADR 0019, 0020, 0028).
+- **Deviation from the checklist: a Free user can write plain text.** The checklist says a non-subscriber can't create or edit documents; the FAQ allows a free tier ("paid users get full document features; non-paying users do not"). The Free plan keeps one document at a time, in plain text only:
+  - **Creating:** a second document needs a subscription (New goes to the plans page). When a paid plan ends, every document except the newest becomes read-only. The rules enforce this, not only the UI (ADR 0020, 0028).
+  - **Editing:** the formatting toolbar is locked. Each button says "Upgrade to unlock formatting" and goes to the plans page; formatting shortcuts and formatted pastes do nothing (ADR 0035). This lock is in the browser only for now; checking it on the server is a next step.
 - **Export isn't built.** It's designed (ADR 0022) and marked "Coming soon" everywhere it's mentioned: the landing page, the paid pricing cards, the FAQ and the document menu.
 
 ## Architecture
@@ -96,7 +98,7 @@ To take real sandbox payments locally:
 
 Locally (above) or on the live demo. Every payment is in the Stripe sandbox.
 
-1. **Free:** Start free on the landing page, sign up. You land on Documents on the Free plan; write a document.
+1. **Free:** Start free on the landing page, sign up. You land on Documents on the Free plan; write a document in plain text. The toolbar is locked: hover a button for the upgrade tooltip, click it to reach the plans page.
 2. **Gate:** press New. With one document on Free it goes to the plans page instead of creating a second.
 3. **Subscribe:** pick Monthly or Yearly → Stripe Checkout → `4242 4242 4242 4242`. The activation page waits for the webhook, names the plan and goes to Documents; New now creates as many documents as you like. Locally, completing Checkout is what triggers the webhook: the `pnpm stripe:listen` terminal shows each event forwarded with a `[200]`, and the Emulator UI (http://localhost:4000 → Firestore) shows `customers/{uid}` with `plan: "paid"`.
 4. **Declined card:** `4000 0000 0000 0002` is refused in Checkout and nothing changes in the app.
@@ -120,7 +122,7 @@ Locally (above) or on the live demo. Every payment is in the Stripe sandbox.
 | ----------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | The browser writes to Firestore     | Saving through our own API  | Offline queue and retries for free; never lose a keystroke. Cost: some business rules live in security rules, so they have their own test suite |
 | The whole document on every save    | Sending only the edits      | Simple and robust for memos of 10–40 KB; edit-step syncing is collaboration machinery we don't need                                             |
-| A Free plan                         | A time-limited trial        | People write before they pay, with no trial expiry to build. Cost: the checklist deviation above                                                |
+| A Free plan                         | A time-limited trial        | People write (plain text) before they pay, with no trial expiry to build. Cost: the checklist deviation above                                   |
 | Plan changes in Stripe's Portal     | Our own billing screens     | Less code and fewer states; the UI customers already know                                                                                       |
 | One Firebase project, local deploys | Staging plus CI/CD          | Less to run and secure for a demo. Cost: rules and webhook changes can't be rehearsed in the cloud; the emulators and the deploy checks do that |
 | Local first on the emulators        | A real project from day one | No cloud cost or secrets until the end, fast repeatable tests. Cost: production-only issues (regions, IAM) showed up at deploy time             |
@@ -155,7 +157,7 @@ I built it with Claude Code as the coding agent.
 - **I decided, the agent implemented.** Each choice was discussed first and written down as an ADR (`docs/decisions/`) with the options weighed. Scope, plans and pricing, the Free plan, payment behaviour, regions and the design are mine.
 - **Tests first, and locked.** Every change started with a failing test; the agent couldn't change an existing test without my explicit yes, so the tests hold the business rules in place (ADR 0014).
 - **Design reviewed on canvases** before any screen was built: tokens, atoms, molecules, organisms, the landing page and the app screens, each approved into `docs/DESIGN.md`.
-- **Where I pushed back:** the agent's first designs and some decisions changed on review. ADRs 0019 → 0020 (Free plan), 0022 (export), 0031 → 0032 (writing font) and 0033 (a nesting bug found in an audit) show it.
+- **Where I pushed back:** the agent's first designs and some decisions changed on review. ADRs 0019 → 0020 → 0035 (Free plan), 0022 (export), 0031 → 0032 (writing font) and 0033 (a nesting bug found in an audit) show it.
 
 ## Production
 
