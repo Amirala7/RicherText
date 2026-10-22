@@ -15,7 +15,7 @@ A minimal, fast, web-based rich text editor for professionals: a public landing 
 
 Why each choice was made: `docs/decisions/` (ADRs, index in its README). Product scope: `docs/CONTEXT.md`. Design system: `docs/DESIGN.md`. The long version of this README, with trade-offs and next steps: [`docs/presentation/RicherText-project-brief.pdf`](docs/presentation/RicherText-project-brief.pdf).
 
-![RicherText: from the landing page to writing in the editor](docs/media/demo.gif)
+![RicherText: from the landing page through Stripe Checkout to writing in the editor](docs/media/demo.gif)
 
 ## Notes for reviewers
 
