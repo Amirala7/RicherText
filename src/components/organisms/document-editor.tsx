@@ -15,6 +15,7 @@ import { AccountMenu } from "@/components/organisms/account-menu";
 import { DocumentMenu } from "@/components/organisms/document-menu";
 import { TITLE_MAX, type DocumentJson } from "@/lib/documents/model";
 import type { SaveState } from "@/lib/editor/autosave";
+import { createLock } from "@/lib/editor/plain-text";
 import { editorExtensions } from "@/lib/editor/schema";
 import { onScreenSelection } from "@/lib/editor/selection";
 import type { WritingFont } from "@/lib/settings/writing";
@@ -41,7 +42,10 @@ function useNarrow() {
 // title (xl 28, "Untitled") and the body. Saved floats quietly in the
 // bottom-right corner. Read-only: a chip in the bar, toolbar disabled, a
 // notice with Resubscribe above the title. The link button and ⌘K open the
-// link editor under the selection (slice 4).
+// link editor under the selection (slice 4). Free plan (ADR 0035): plain
+// text; the toolbar is locked and its toggles go to the plans page, and the
+// shortcuts and formatted pastes do nothing. Markdown shortcuts follow the
+// plan the editor opened with.
 type LinkTarget = { from: number; to: number; href?: string };
 
 export function DocumentEditor({
@@ -57,6 +61,7 @@ export function DocumentEditor({
   onFont,
   onRetry,
   onDelete,
+  onUpgrade,
 }: {
   title: string;
   doc: DocumentJson;
@@ -70,14 +75,19 @@ export function DocumentEditor({
   onFont?: (font: WritingFont) => void;
   onRetry: () => void;
   onDelete: () => void;
+  onUpgrade?: () => void;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [font, setFont] = useState(initialFont);
   const [link, setLink] = useState<LinkTarget | null>(null);
   const narrow = useNarrow();
   const openLink = useRef(() => {});
+  const [lock] = useState(() => createLock(!paid));
+  useEffect(() => lock.set(!paid), [lock, paid]);
   const editor = useEditor({
-    extensions: editorExtensions(),
+    extensions: editorExtensions({ locked: lock.get }),
+    enableInputRules: paid,
+    enablePasteRules: paid,
     content: doc,
     editable,
     immediatelyRender: false,
@@ -106,11 +116,11 @@ export function DocumentEditor({
 
   useEffect(() => {
     openLink.current = () => {
-      if (!editor || !editable) return;
+      if (!editor || !editable || !paid) return;
       const { from, to } = onScreenSelection(editor);
       setLink({ from, to, href: linkIn(editor, from, to) });
     };
-  }, [editor, editable]);
+  }, [editor, editable, paid]);
 
   function closeLink() {
     setLink(null);
@@ -134,6 +144,8 @@ export function DocumentEditor({
           <EditorToolbar
             editor={editor}
             disabled={!editable}
+            locked={!paid}
+            onUpgrade={onUpgrade}
             font={font}
             onFont={(next) => {
               setFont(next);

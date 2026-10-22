@@ -47,7 +47,7 @@ describe("PricingBlock", () => {
     expect(free).toHaveTextContent("$0");
     expect(free).toHaveTextContent("for good");
     for (const f of [
-      "The full editor, every format",
+      "Plain text, no formatting",
       "One document at a time",
       "Saves as you type",
       "No card needed",
@@ -71,6 +71,7 @@ describe("PricingBlock", () => {
     for (const card of [yearly, monthly]) {
       for (const f of [
         "Everything in Free",
+        "Full formatting toolbar",
         "Unlimited documents",
         "Export to PDF, Word and more",
         "Cancel any time",

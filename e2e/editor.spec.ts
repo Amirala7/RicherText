@@ -24,6 +24,14 @@ async function signUp(page: Page) {
   return (await getAuth(admin).getUserByEmail(email)).uid;
 }
 
+// Formatting is paid only (ADR 0035): the plan is set with the Admin SDK, as
+// the webhook would.
+async function signUpPaid(page: Page) {
+  const uid = await signUp(page);
+  await db.doc(`customers/${uid}`).set({ plan: "paid" }, { merge: true });
+  return uid;
+}
+
 async function openNew(page: Page, button: "New" | "New document") {
   await page.getByRole("button", { name: button, exact: true }).click();
   await expect(page).toHaveURL(/\/documents\/[A-Za-z0-9]{20}$/);
@@ -59,7 +67,7 @@ async function noSidewaysScroll(page: Page) {
 test("writing with formatting saves and comes back after a reload", async ({
   page,
 }) => {
-  const uid = await signUp(page);
+  const uid = await signUpPaid(page);
   const id = await openNew(page, "New document");
   await expect(title(page)).toHaveAttribute("placeholder", "Untitled");
   await expect(body(page)).toBeFocused();
@@ -100,7 +108,7 @@ test("writing with formatting saves and comes back after a reload", async ({
 });
 
 test("the toolbar formats the selection", async ({ page }) => {
-  await signUp(page);
+  await signUpPaid(page);
   await openNew(page, "New document");
   await page.keyboard.type("Quote me");
   await page.keyboard.press("ControlOrMeta+a");
@@ -225,7 +233,7 @@ const address = (page: Page) =>
   linkEditor(page).getByRole("textbox", { name: "Link address" });
 
 test("⌘K links the selection, and the link is saved", async ({ page }) => {
-  const uid = await signUp(page);
+  const uid = await signUpPaid(page);
   const id = await openNew(page, "New document");
   await page.keyboard.type("Read the brief");
   for (let i = 0; i < 5; i++) await page.keyboard.press("Shift+ArrowLeft");
@@ -247,7 +255,7 @@ test("⌘K links the selection, and the link is saved", async ({ page }) => {
 });
 
 test("the Link button edits a link and removes it", async ({ page }) => {
-  await signUp(page);
+  await signUpPaid(page);
   await openNew(page, "New document");
   await page.keyboard.type("See ");
   await page.keyboard.press("ControlOrMeta+k");
@@ -275,7 +283,7 @@ test("the Link button edits a link and removes it", async ({ page }) => {
 test("a bad address stays open as invalid; Esc closes without a link", async ({
   page,
 }) => {
-  await signUp(page);
+  await signUpPaid(page);
   await openNew(page, "New document");
   await page.keyboard.type("Notes");
   await page.keyboard.press("ControlOrMeta+a");
@@ -325,4 +333,33 @@ test("the document menu deletes the document after asking", async ({
   expect((await db.doc(`users/${uid}/documents/${id}`).get()).exists).toBe(
     false,
   );
+});
+
+// Free plan is plain text (ADR 0035): the toolbar is locked, says to
+// upgrade and goes to the plans page; shortcuts and "# " don't format.
+test("on the Free plan the toolbar is locked and leads to the plans page", async ({
+  page,
+}) => {
+  const uid = await signUp(page);
+  const id = await openNew(page, "New document");
+  await page.keyboard.type("# Plain words");
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("ControlOrMeta+b");
+  await page.keyboard.press("ControlOrMeta+Alt+1");
+  await expect(body(page).locator("h1, strong")).toHaveCount(0);
+  await expect(saved(page, "Saved")).toBeVisible({ timeout: 10_000 });
+  const { doc } = await serverCopy(uid, id);
+  expect(doc).toContain("# Plain words");
+  expect(doc).not.toMatch(/heading|bold/);
+
+  await expect(toggle(page, "Bold")).toHaveAttribute("aria-disabled", "true");
+  await toggle(page, "Bold").hover();
+  await expect(
+    page
+      .getByRole("tooltip")
+      .filter({ hasText: "Upgrade to unlock formatting" }),
+  ).toBeVisible();
+  // Playwright won't click an aria-disabled button on its own; people can.
+  await toggle(page, "Text size").click({ force: true });
+  await expect(page).toHaveURL("/plans");
 });

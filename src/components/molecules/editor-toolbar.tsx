@@ -143,6 +143,33 @@ const GROUPS: Item[][] = [
 
 const ITEMS = GROUPS.flat();
 
+// Free plan (ADR 0035): what a locked toggle says, and its look: disabled,
+// but it can still be pointed at and pressed.
+const UPGRADE = "Upgrade to unlock formatting";
+
+function LockedToggle({
+  label,
+  onUpgrade,
+  children,
+}: {
+  label: string;
+  onUpgrade?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip label={UPGRADE}>
+      <ToolbarToggle
+        aria-label={label}
+        aria-disabled="true"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={onUpgrade}
+      >
+        {children}
+      </ToolbarToggle>
+    </Tooltip>
+  );
+}
+
 function isApple() {
   return (
     typeof navigator !== "undefined" &&
@@ -164,18 +191,25 @@ const SHOWN: Record<string, [string, string]> = {
 export function EditorToolbar({
   editor,
   disabled = false,
+  locked: lockedPlan = false,
   font = "geist",
   onFont,
   onLink,
+  onUpgrade,
   className,
 }: {
   editor: Editor;
   disabled?: boolean;
+  // Free plan (ADR 0035): every toggle says to upgrade and calls onUpgrade.
+  // A read-only document is plainly disabled instead.
+  locked?: boolean;
   font?: WritingFont;
   onFont?: (font: WritingFont) => void;
   onLink?: () => void;
+  onUpgrade?: () => void;
   className?: string;
 }) {
+  const locked = lockedPlan && !disabled;
   const apple = isApple();
   const at = apple ? 0 : 1;
   const state = useEditorState({
@@ -212,23 +246,49 @@ export function EditorToolbar({
             {g === GROUPS.length - 1 && (
               <>
                 <Divider />
-                <WritingFontMenu
-                  editor={editor}
-                  font={font}
-                  onFont={onFont}
-                  disabled={disabled}
-                />
-                <TextStyleMenus
-                  editor={editor}
-                  size={style.size}
-                  colour={style.colour}
-                  disabled={disabled}
-                />
+                {locked ? (
+                  <>
+                    <LockedToggle label="Writing font" onUpgrade={onUpgrade}>
+                      {FONT_FACE}
+                    </LockedToggle>
+                    <LockedToggle label="Text size" onUpgrade={onUpgrade}>
+                      {SIZE_ICON}
+                    </LockedToggle>
+                    <LockedToggle label="Text colour" onUpgrade={onUpgrade}>
+                      <ColourFace colour={style.colour} />
+                    </LockedToggle>
+                  </>
+                ) : (
+                  <>
+                    <WritingFontMenu
+                      editor={editor}
+                      font={font}
+                      onFont={onFont}
+                      disabled={disabled}
+                    />
+                    <TextStyleMenus
+                      editor={editor}
+                      size={style.size}
+                      colour={style.colour}
+                      disabled={disabled}
+                    />
+                  </>
+                )}
               </>
             )}
             {g > 0 && <Divider />}
             {group.map((item) => {
               const s = state[n++];
+              if (locked)
+                return (
+                  <LockedToggle
+                    key={item.label}
+                    label={item.label}
+                    onUpgrade={onUpgrade}
+                  >
+                    {item.content}
+                  </LockedToggle>
+                );
               return (
                 <Tooltip
                   key={item.label}
@@ -263,6 +323,30 @@ function Divider() {
   );
 }
 
+const FONT_FACE = (
+  <span aria-hidden="true" className="font-serif text-[15px] leading-none">
+    Ag
+  </span>
+);
+const SIZE_ICON = <ALargeSmall {...icon} />;
+
+function ColourFace({ colour }: { colour: TextColour | "default" }) {
+  const bar =
+    colour === "default" ? "var(--foreground)" : `var(--tc-${colour})`;
+  return (
+    <span
+      aria-hidden="true"
+      className="grid justify-items-center gap-px text-[13px] leading-none font-semibold"
+    >
+      A
+      <span
+        className="h-[3px] w-3.5 rounded-[2px]"
+        style={{ background: bar }}
+      />
+    </span>
+  );
+}
+
 const radioItem = `${menuItem} [&>svg]:invisible [&>svg]:text-foreground data-[state=checked]:[&>svg]:visible`;
 
 // Writing font (ADR 0032): the document's font, not a mark; the pick goes up
@@ -288,12 +372,7 @@ function WritingFontMenu({
             aria-label="Writing font"
             onMouseDown={(e) => e.preventDefault()}
           >
-            <span
-              aria-hidden="true"
-              className="font-serif text-[15px] leading-none"
-            >
-              Ag
-            </span>
+            {FONT_FACE}
           </ToolbarToggle>
         </DropdownMenu.Trigger>
       </Tooltip>
@@ -356,9 +435,6 @@ function TextStyleMenus({
     if (from !== current.from || to !== current.to)
       editor.commands.setTextSelection({ from, to });
   };
-  const bar =
-    colour === "default" ? "var(--foreground)" : `var(--tc-${colour})`;
-
   return (
     <>
       <DropdownMenu.Root modal={false} onOpenChange={syncSelection}>
@@ -368,7 +444,7 @@ function TextStyleMenus({
               aria-label="Text size"
               onMouseDown={(e) => e.preventDefault()}
             >
-              <ALargeSmall {...icon} />
+              {SIZE_ICON}
             </ToolbarToggle>
           </DropdownMenu.Trigger>
         </Tooltip>
@@ -418,16 +494,7 @@ function TextStyleMenus({
               aria-label="Text colour"
               onMouseDown={(e) => e.preventDefault()}
             >
-              <span
-                aria-hidden="true"
-                className="grid justify-items-center gap-px text-[13px] leading-none font-semibold"
-              >
-                A
-                <span
-                  className="h-[3px] w-3.5 rounded-[2px]"
-                  style={{ background: bar }}
-                />
-              </span>
+              <ColourFace colour={colour} />
             </ToolbarToggle>
           </DropdownMenu.Trigger>
         </Tooltip>

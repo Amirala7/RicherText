@@ -1,9 +1,18 @@
 import { expect, test, type Page } from "@playwright/test";
+import { getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 import { googleDocs, word } from "../src/lib/editor/__fixtures__/clipboard";
 
 // Paste fidelity end to end (CONTEXT §5, ADR 0030 slice 4): a real paste
 // event in the browser goes through the paste clean-up, and the result is
 // saved. The app-by-app shapes are covered in src/lib/editor/paste.test.ts.
+// Formatting is paid only (ADR 0035): the plan is set with the Admin SDK, as
+// the webhook would.
+process.env.FIRESTORE_EMULATOR_HOST ??= "127.0.0.1:8080";
+process.env.FIREBASE_AUTH_EMULATOR_HOST ??= "127.0.0.1:9099";
+const admin = getApps()[0] ?? initializeApp({ projectId: "demo-richertext" });
+
 async function signUp(page: Page) {
   const email = `e2e-${crypto.randomUUID()}@example.com`;
   await page.goto("/sign-up");
@@ -12,6 +21,8 @@ async function signUp(page: Page) {
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL("/documents");
+  const { uid } = await getAuth(admin).getUserByEmail(email);
+  await getFirestore(admin).doc(`customers/${uid}`).set({ plan: "paid" });
 }
 
 const body = (page: Page) =>
