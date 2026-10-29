@@ -1,6 +1,6 @@
 # Spell checker: implementation plan
 
-**Status: final (2026-10-29); slice 0 done, slice 1 (spike) in progress.** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
+**Status: final (2026-10-29); slices 0–1 done, slice 2 (checker core) in progress.** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
 
 A spelling checker for paid plans that runs entirely in the browser, in a Web Worker, so no document text leaves the device and there is no cost per user. Misspellings are ProseMirror decorations, not marks, so the schema, saved documents and autosave don't change.
 
@@ -11,7 +11,7 @@ A spelling checker for paid plans that runs entirely in the browser, in a Web Wo
 | What it checks | Spelling only, no grammar |
 | Language | English, US dictionary |
 | Plans | Paid only. Free keeps the browser's built-in spellcheck; on paid plans ours replaces it (`spellcheck="false"`) |
-| Engine | nspell + Hunspell `en_US`, loaded lazily (to be confirmed by the spike) |
+| Engine | nspell + `dictionary-en` (en_US), loaded lazily; confirmed by the spike |
 | On/off | Always on for paid plans in v1; no switch |
 | Shortcut | ⌘; / Ctrl+; opens suggestions at the cursor, or at the next misspelling |
 | Underline | Wavy, `danger` colour, 1.5px, 3px offset; no new tokens |
@@ -35,9 +35,11 @@ We reuse its pattern (an idle `setTimeout` that resets on each change), not the 
 ### 1. Engine spike (time-boxed, throwaway branch)
 - Check nspell + `en_US`: gzipped download size, start-up time, time to check one paragraph and a 5,000-word document, quality of the top 5 suggestions, and loading from the cache when offline.
 - Output: confirm the engine in ADR 0036 (or revise it, with the user).
+- ✅ Done 2026-10-29, engine confirmed by the user. Results: 190 KB gzipped (163 KB brotli), start-up 55 ms, a paragraph 0.3 ms, 5,000 words 3 ms; `suggest()` 1–7 ms for common typos, 40–74 ms with no close match. nspell's order is poor ("teh" → "the" 9th), so we re-rank; hyphenated words are flagged whole, so the core checks each part.
 
 ### 2. Checker core: `src/lib/editor/spelling.ts` (`feat/spell-check-core`)
-- A plain function: text of one block + ignore list → `Issue[]` `{ from, to, suggestions }` (at most 5), with offsets relative to the block.
+- `findMisspellings(text, ignore, dict)`: text of one block + ignore list → `Issue[]` `{ from, to, word }`, offsets relative to the block. No suggestions here (they can take ~70 ms per word).
+- `suggestionsFor(word, dict)`: called only when the menu opens; at most 5, re-ranked: swapped letters first, then the typed word's capitalisation, then nspell's order.
 - Skips link text, URLs, email addresses, ALL CAPS words, words with digits, and words in the ignore list. Handles apostrophes ("don't", "client's") and hyphenated words.
 - Unit tests first, with a small fixed dictionary so they're fast and always give the same result.
 
