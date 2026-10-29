@@ -1,0 +1,259 @@
+<title>RicherText Spell Check</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<style>
+/* Same layout as the Molecules page: name and spec on the left, the piece in light and in dark on the right. Only RicherText tokens (docs/DESIGN.md) are used; nothing new is added to the palette. */
+:root {
+  --bg: oklch(0.997 0.002 292); --fg: oklch(0.2 0.025 292); --subtle: oklch(0.966 0.008 292);
+  --border: oklch(0.912 0.014 292); --border-strong: oklch(0.84 0.02 292); --muted: oklch(0.53 0.03 292);
+  --primary: #6440D8; --on-primary: #FFFFFF; --danger: oklch(0.52 0.19 25);
+  --font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fs-xs: 12px; --fs-sm: 14px; --fs-base: 16px; --fs-lg: 21px; --fs-xl: 28px; --fs-3xl: 50px;
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px;
+  --r-sm: 5px; --r-md: 7px; --r-lg: 10px; --h-sm: 32px;
+  --dur-1: 120ms; --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(0.17 0.012 292); --fg: oklch(0.965 0.006 292); --subtle: oklch(0.215 0.016 292);
+    --border: oklch(0.29 0.02 292); --border-strong: oklch(0.38 0.025 292); --muted: oklch(0.71 0.025 292);
+    --primary: #B3A1FF; --on-primary: #100B1F; --danger: oklch(0.74 0.14 25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: oklch(0.17 0.012 292); --fg: oklch(0.965 0.006 292); --subtle: oklch(0.215 0.016 292);
+  --border: oklch(0.29 0.02 292); --border-strong: oklch(0.38 0.025 292); --muted: oklch(0.71 0.025 292);
+  --primary: #B3A1FF; --on-primary: #100B1F; --danger: oklch(0.74 0.14 25);
+  color-scheme: dark;
+}
+.th-light {
+  --bg: oklch(0.997 0.002 292); --fg: oklch(0.2 0.025 292); --subtle: oklch(0.966 0.008 292);
+  --border: oklch(0.912 0.014 292); --border-strong: oklch(0.84 0.02 292); --muted: oklch(0.53 0.03 292);
+  --primary: #6440D8; --on-primary: #FFFFFF; --danger: oklch(0.52 0.19 25);
+  color-scheme: light;
+}
+.th-dark {
+  --bg: oklch(0.17 0.012 292); --fg: oklch(0.965 0.006 292); --subtle: oklch(0.215 0.016 292);
+  --border: oklch(0.29 0.02 292); --border-strong: oklch(0.38 0.025 292); --muted: oklch(0.71 0.025 292);
+  --primary: #B3A1FF; --on-primary: #100B1F; --danger: oklch(0.74 0.14 25);
+  color-scheme: dark;
+}
+@media (prefers-reduced-motion: reduce) { :root { --dur-1: 0ms; } }
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font); font-size: var(--fs-base); line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: var(--s-7) 96px;
+}
+.wrap { max-width: 1400px; margin: 0 auto; display: grid; gap: var(--s-7); }
+.intro { display: grid; gap: var(--s-3); max-width: 70ch; }
+.eyebrow { font-size: var(--fs-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+h1 { margin: 0; font-size: clamp(34px, 6vw, var(--fs-3xl)); line-height: 1.08; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
+.intro p { margin: 0; color: var(--muted); font-size: var(--fs-lg); line-height: 1.45; letter-spacing: -0.01em; }
+code { font-size: .9em; }
+
+.item { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-5); padding-top: var(--s-6); border-top: 1px solid var(--border); }
+@media (min-width: 1100px) { .item { grid-template-columns: 260px minmax(0, 1fr); gap: var(--s-6); } }
+.meta { display: grid; gap: var(--s-2); align-content: start; min-width: 0; }
+.meta h2 { margin: 0; font-size: var(--fs-xl); line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; }
+.meta p { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: 1.5; }
+.spec { margin: var(--s-1) 0 0; padding: 0; list-style: none; display: grid; gap: 2px; font-size: var(--fs-xs); color: var(--muted); }
+.spec b { color: var(--fg); font-weight: 500; }
+.ask { margin-top: var(--s-2); padding: var(--s-2) var(--s-3); border: 1px dashed var(--border-strong); border-radius: var(--r-md); font-size: var(--fs-xs); color: var(--fg); }
+.ask::before { content: "Review: "; font-weight: 600; }
+
+.panes { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); min-width: 0; }
+@media (min-width: 760px) { .panes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.pane { background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-5); display: grid; gap: var(--s-5); align-content: start; min-width: 0; position: relative; }
+.pane-label { font-size: var(--fs-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.row { display: grid; gap: var(--s-3); min-width: 0; }
+.row-title { font-size: var(--fs-xs); color: var(--muted); }
+.cap { font-size: 11px; color: var(--muted); }
+svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Editor text, as in the editor organism: 16px, line height 1.65, 68ch */
+.doc { margin: 0; font-size: var(--fs-base); line-height: 1.65; max-width: 68ch; }
+.doc + .doc { margin-top: var(--s-4); }
+
+/* NEW (for review): the misspelling underline. A decoration, not a mark: never saved, never copied. */
+.misspelt {
+  text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: var(--danger);
+  text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-skip-ink: none;
+  cursor: pointer; border-radius: 2px;
+}
+.misspelt.alt { text-decoration-style: dotted; text-decoration-thickness: 2px; }
+.misspelt.is-open { background: color-mix(in oklab, var(--danger) 12%, transparent); }
+.misspelt:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Suggestions: the existing menu molecule (items h-sm, gap 0, edge s-1), 180 wide like the Text size menu */
+.anchor { position: relative; display: inline; }
+.menu { display: grid; gap: 0; padding: var(--s-1); width: 180px; max-width: 100%; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: 0 8px 24px -8px rgb(0 0 0 / .22), 0 2px 6px -2px rgb(0 0 0 / .08); }
+.menu.float { position: absolute; left: 0; top: calc(100% + var(--s-1)); z-index: 2; line-height: 1.4; }
+.mi { font: inherit; font-size: var(--fs-sm); display: flex; align-items: center; gap: var(--s-2); width: 100%; height: var(--h-sm); padding: 0 var(--s-3); border: 0; border-radius: var(--r-sm); background: transparent; color: var(--fg); text-align: left; cursor: pointer; transition: background-color var(--dur-1) var(--ease); }
+.mi > svg.i { color: var(--muted); }
+.mi > .ml { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mi.word { font-weight: 500; }
+.mi:hover, .mi.is-hover { background: var(--subtle); }
+.mi:focus-visible, .mi.is-focus { outline: 2px solid var(--primary); outline-offset: -2px; }
+.menu-sep { height: 1px; background: var(--border); margin: var(--s-1) calc(var(--s-1) * -1); }
+.menu-label { display: flex; align-items: center; height: var(--h-sm); padding: 0 var(--s-3); font-size: var(--fs-xs); color: var(--muted); }
+.kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; font-size: 11.5px; font-weight: 500; color: var(--muted); background: var(--bg); line-height: 1; }
+
+.stage { min-height: 270px; }
+.phone { width: min(100%, 360px); border: 1px dashed var(--border-strong); border-radius: var(--r-lg); padding: var(--s-4); min-height: 300px; }
+
+.review { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--s-5); padding: var(--s-5); border: 1px solid var(--border); border-radius: var(--r-lg); }
+.review h2 { margin: 0 0 var(--s-2); font-size: var(--fs-sm); font-weight: 600; }
+.review ol, .review ul { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s-1); font-size: var(--fs-sm); color: var(--muted); }
+.review b { color: var(--fg); font-weight: 500; }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="eyebrow">Design system · Spell check · ADR 0036 · approved 2026-10-29</span>
+    <h1>Spell check: the underline and the suggestions menu</h1>
+    <p>Two pieces for the paid-plan spell checker. Both use only existing tokens, and the menu is the existing menu molecule. Click an underlined word to try it.</p>
+    <div class="review">
+      <div>
+        <h2>What's new</h2>
+        <ul>
+          <li><b>Misspelling underline</b>: a wavy line in <code>danger</code>, 1.5px, 3px below the text. It's a decoration, so it's never saved or copied, and it never changes the line height.</li>
+          <li><b>Suggestions menu</b>: the menu molecule with up to 5 suggestions (500 weight), a divider, then Ignore. With no suggestions it shows "No suggestions" as a menu label.</li>
+          <li>No on/off switch in v1: paid plans always check, and Ignore covers one-off words.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Decided in review (user, 2026-10-29)</h2>
+        <ol>
+          <li>Wavy red underline (yes; dotted dropped)</li>
+          <li>Up to 5 suggestions (changed from 3)</li>
+          <li>No on/off switch in v1: always on for paid plans (yes)</li>
+          <li>Faint red tint on the word while its menu is open (yes)</li>
+        </ol>
+      </div>
+    </div>
+  </header>
+
+  <main id="items" style="display:grid;gap:var(--s-7)"></main>
+</div>
+
+<template data-name="Misspelling underline"
+  data-desc="Marks a word the dictionary doesn't know. Shown only on paid plans; Free keeps the browser's own underline. Links, URLs, email addresses, ALL CAPS and words with digits are never marked."
+  data-spec="Style|wavy, 1.5px, offset 3px;Colour|danger (both themes);Open|word tinted danger 12%;Size|never changes the line or the text"
+  >
+  <div class="row"><span class="row-title">In a paragraph</span>
+    <p class="doc">Thanks for the brief. I've added the <span class="misspelt">recieve</span> date and the budget, and moved the launch to <span class="misspelt">Wensday</span> so the team has a full week.</p>
+  </div>
+</template>
+
+<template data-name="Suggestions menu"
+  data-desc="Opens under the word on click or tap, or with ⌘; (Ctrl+; on Windows and Linux) at the cursor or the next misspelling. Picking a suggestion replaces the word in one undo step and keeps its formatting. Ignore clears the underline for this word until the page is reloaded."
+  data-spec="Molecule|menu (existing);Width|180, like Text size;Items|h-sm, gap 0, edge s-1;Suggestions|up to 5, sm 500;Keys|arrows, Enter, Esc; focus returns to the text">
+  <div class="row stage"><span class="row-title">Try it: click a word with a red line</span>
+    <p class="doc" data-live>Please <span class="anchor"><span class="misspelt" tabindex="0" role="button" aria-haspopup="menu" data-sugg="receive,recipe,relieve,receiver,recede">recieve</span></span> the notes before <span class="anchor"><span class="misspelt" tabindex="0" role="button" aria-haspopup="menu" data-sugg="Wednesday,Wensley">Wensday</span></span>; the <span class="anchor"><span class="misspelt" tabindex="0" role="button" aria-haspopup="menu" data-sugg="">Zorvex</span></span> account needs them.</p>
+  </div>
+  <div class="row"><span class="row-title">States</span>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--s-5);align-items:flex-start">
+      <div style="display:grid;gap:var(--s-2)">
+        <div class="menu" role="menu" aria-label="Suggestions for recieve">
+          <button class="mi word is-hover" role="menuitem" type="button" tabindex="-1"><span class="ml">receive</span></button>
+          <button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">recipe</span></button>
+          <button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">relieve</span></button>
+          <button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">receiver</span></button>
+          <button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">recede</span></button>
+          <div class="menu-sep" role="separator"></div>
+          <button class="mi" role="menuitem" type="button" tabindex="-1"><svg class="i" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg><span class="ml">Ignore</span></button>
+        </div>
+        <span class="cap">With suggestions (first one highlighted)</span>
+      </div>
+      <div style="display:grid;gap:var(--s-2)">
+        <div class="menu" role="menu" aria-label="Suggestions for Zorvex">
+          <div class="menu-label">No suggestions</div>
+          <div class="menu-sep" role="separator"></div>
+          <button class="mi is-hover" role="menuitem" type="button" tabindex="-1"><svg class="i" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg><span class="ml">Ignore</span></button>
+        </div>
+        <span class="cap">No suggestions (names, made-up words)</span>
+      </div>
+      <div style="display:grid;gap:var(--s-2);align-content:start">
+        <span style="display:inline-flex;gap:3px"><span class="kbd">⌘</span><span class="kbd">;</span></span>
+        <span class="cap">Opens the menu at the cursor, or at the next misspelling</span>
+      </div>
+    </div>
+  </div>
+  <div class="row"><span class="row-title">Phone (360): tap the word; the menu stays 16px inside the screen edges, like the link editor</span>
+    <div class="phone"><p class="doc" style="position:relative">I'll <span class="anchor"><span class="misspelt is-open">recieve</span><span class="menu float" role="menu" aria-label="Suggestions"><button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">receive</span></button><button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">recipe</span></button><button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">relieve</span></button><button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">receiver</span></button><button class="mi word" role="menuitem" type="button" tabindex="-1"><span class="ml">recede</span></button><span class="menu-sep" role="separator" style="display:block"></span><button class="mi" role="menuitem" type="button" tabindex="-1"><svg class="i" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg><span class="ml">Ignore</span></button></span></span> the files tomorrow and send them on.</p></div>
+  </div>
+</template>
+
+<script>
+const main = document.getElementById('items');
+document.querySelectorAll('template').forEach((t) => {
+  const item = document.createElement('section');
+  item.className = 'item';
+  const spec = t.dataset.spec.split(';').map((p) => { const [k, v] = p.split('|'); return `<li><b>${k}</b> · ${v}</li>`; }).join('');
+  item.innerHTML = `<div class="meta"><h2>${t.dataset.name}</h2><p>${t.dataset.desc}</p><ul class="spec">${spec}</ul>${t.dataset.ask ? `<div class="ask">${t.dataset.ask}</div>` : ''}</div><div class="panes"></div>`;
+  const panes = item.querySelector('.panes');
+  ['light', 'dark'].forEach((th) => {
+    const pane = document.createElement('div');
+    pane.className = `pane th-${th}`;
+    pane.innerHTML = `<span class="pane-label">${th === 'light' ? 'Light' : 'Dark'}</span>`;
+    pane.append(t.content.cloneNode(true));
+    panes.append(pane);
+  });
+  main.append(item);
+});
+// Read after the templates are rendered: template content isn't in the document until then.
+const EYE_OFF = document.querySelector('.mi svg.i').outerHTML;
+
+// The live demo: click or Enter on a word opens the menu; a suggestion replaces it, Ignore clears it, Esc closes.
+let openMenu = null;
+function close(focusWord) {
+  if (!openMenu) return;
+  const { menu, word } = openMenu;
+  menu.remove(); word.classList.remove('is-open'); word.setAttribute('aria-expanded', 'false');
+  openMenu = null;
+  if (focusWord && word.isConnected) word.focus();
+}
+function plain(word, text) {
+  const node = document.createTextNode(text);
+  word.parentElement.replaceWith(node);
+}
+function open(word) {
+  close(false);
+  const list = word.dataset.sugg ? word.dataset.sugg.split(',') : [];
+  const menu = document.createElement('span');
+  menu.className = 'menu float'; menu.setAttribute('role', 'menu');
+  menu.setAttribute('aria-label', `Suggestions for ${word.textContent}`);
+  menu.innerHTML = (list.length
+    ? list.map((s) => `<button class="mi word" role="menuitem" type="button" data-pick="${s}"><span class="ml">${s}</span></button>`).join('')
+    : '<span class="menu-label">No suggestions</span>')
+    + `<span class="menu-sep" role="separator" style="display:block"></span><button class="mi" role="menuitem" type="button" data-ignore>${EYE_OFF}<span class="ml">Ignore</span></button>`;
+  word.after(menu);
+  word.classList.add('is-open'); word.setAttribute('aria-expanded', 'true');
+  openMenu = { menu, word };
+  menu.querySelector('button').focus();
+  menu.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const text = b.dataset.pick ?? word.textContent;
+    close(false); plain(word, text);
+  });
+  menu.addEventListener('keydown', (e) => {
+    const items = [...menu.querySelectorAll('button')];
+    const i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); close(true); }
+  });
+}
+document.querySelectorAll('[data-live] .misspelt').forEach((w) => {
+  w.setAttribute('aria-expanded', 'false');
+  w.addEventListener('click', (e) => { e.stopPropagation(); openMenu?.word === w ? close(true) : open(w); });
+  w.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(w); } });
+});
+document.addEventListener('click', (e) => { if (openMenu && !openMenu.menu.contains(e.target)) close(false); });
+</script>

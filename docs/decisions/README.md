@@ -64,3 +64,4 @@ What becomes easier, what becomes harder, what we must now do.
 | 0033 | [Document content stored as a JSON string](0033-content-as-json-string.md) | accepted (amends 0028) |
 | 0034 | [Real Firebase project and region](0034-firebase-project-and-region.md) | accepted (builds on 0002, 0018) |
 | 0035 | [Free plan: plain text, toolbar locked](0035-free-plan-plain-text.md) | accepted (amends 0020) |
+| 0036 | [Spell checker: in the browser, spelling only, paid plans](0036-spell-checker.md) | accepted |
