@@ -1,6 +1,6 @@
 # Spell checker: implementation plan
 
-**Status: final (2026-10-29); slices 0–3 done; next: slice 4 (editor plugin).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
+**Status: final (2026-10-29); slices 0–4 done; next: slice 5 (suggestions menu).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
 
 A spelling checker for paid plans that runs entirely in the browser, in a Web Worker, so no document text leaves the device and there is no cost per user. Misspellings are ProseMirror decorations, not marks, so the schema, saved documents and autosave don't change.
 
@@ -49,12 +49,13 @@ We reuse its pattern (an idle `setTimeout` that resets on each change), not the 
 - Tests: replies that arrive out of order, only the latest one used; the dictionary loads only once.
 - Built as `createSpellService` (in the worker, entry `spelling.worker.ts`) and `createSpellClient` (in the editor; `check()` resolves to `null` when out of date, `warm()` preloads). Dictionary files are copied to `public/dictionaries/en-US/`; a test keeps them equal to the installed `dictionary-en`. A failed load replies "nothing found" and is retried on the next request.
 
-### 4. Editor plugin: `SpellCheck` extension
+### 4. Editor plugin: `SpellCheck` extension (`feat/spell-check-plugin`) ✅ 2026-10-29
 - In `editorExtensions` only (like `Placeholder`), not `documentExtensions`.
 - Plugin state: `DecorationSet` + changed blocks. Each transaction moves decorations along with the text, drops those inside edited ranges, and marks those blocks as changed; a 400 ms idle timer sends them to the worker. When the document opens: visible blocks first, then the rest.
 - Paid only: follows the plan live, the same way the plain-text lock does (ADR 0035). On paid plans `spellcheck="false"` is set on the editor; on Free the plugin does nothing and the browser's built-in check stays on.
 - Off on read-only documents.
 - Tests: decorations follow typing above them; an edited word loses its underline until it's checked again; `getJSON()` unchanged; nothing runs on Free or on read-only documents.
+- Built in `src/lib/editor/spell-check.ts`; `refreshSpelling(view)` rechecks the whole document when the plan or editable changes. Changed from the plan: no "visible blocks first". The whole document is sent in document order, since 5,000 words take about 3 ms. A reply is used only if the block's text is still the same as when it was sent. Underline CSS in `globals.css` (`.rt-misspelling`). Checked in a real browser (light, dark, 360 px): the worker loads and underlines show; no document text in non-Firestore requests.
 
 ### 5. Suggestions menu
 - Opens on click/tap on an underlined word, or with ⌘; / Ctrl+; (`preventDefault`, so the browser's own "Check Document Now" doesn't run on paid plans). Positioned under the word, kept 16px inside the screen edges on phones (like the link editor).

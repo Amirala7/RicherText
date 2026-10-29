@@ -3,6 +3,8 @@ import { Placeholder } from "@tiptap/extensions";
 import StarterKit from "@tiptap/starter-kit";
 import { PasteCleanup } from "./paste";
 import { PlainTextLock } from "./plain-text";
+import { SpellCheck } from "./spell-check";
+import type { SpellClient } from "./spelling-worker";
 import { TextColorMark, TextSizeMark, TextStyleClipboard } from "./text-style";
 
 // The one document schema (ADR 0006), exactly CONTEXT §5: paragraphs,
@@ -14,8 +16,13 @@ import { TextColorMark, TextSizeMark, TextStyleClipboard } from "./text-style";
 const LINK = /^(https?:|mailto:)/i;
 
 // `locked` is the Free plan's plain-text lock (ADR 0035): while it's true,
-// typed addresses aren't linked.
-type Options = { locked?: () => boolean };
+// typed addresses aren't linked. `spelling` turns our spell check on (paid
+// plans, ADR 0036); `spellClient` replaces its worker in tests.
+type Options = {
+  locked?: () => boolean;
+  spelling?: () => boolean;
+  spellClient?: () => SpellClient;
+};
 
 export function documentExtensions({
   locked = () => false,
@@ -44,7 +51,7 @@ export function documentExtensions({
 // The editor adds what only matters while writing: the empty-document
 // placeholder (ADR 0024), the paste clean-up (ADR 0030) and copying text
 // size and colour as inline styles (ADR 0031), and the Free plan's
-// plain-text lock (ADR 0035).
+// plain-text lock (ADR 0035), and the spell check (ADR 0036).
 export function editorExtensions(options: Options = {}): Extensions {
   return [
     ...documentExtensions(options),
@@ -52,5 +59,9 @@ export function editorExtensions(options: Options = {}): Extensions {
     Placeholder.configure({ placeholder: "Start writing…" }),
     PasteCleanup,
     TextStyleClipboard,
+    SpellCheck.configure({
+      enabled: options.spelling ?? (() => false),
+      ...(options.spellClient && { client: options.spellClient }),
+    }),
   ];
 }

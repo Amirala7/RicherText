@@ -17,6 +17,7 @@ import { TITLE_MAX, type DocumentJson } from "@/lib/documents/model";
 import type { SaveState } from "@/lib/editor/autosave";
 import { createLock } from "@/lib/editor/plain-text";
 import { editorExtensions } from "@/lib/editor/schema";
+import { refreshSpelling } from "@/lib/editor/spell-check";
 import { onScreenSelection } from "@/lib/editor/selection";
 import type { WritingFont } from "@/lib/settings/writing";
 import { cn } from "@/lib/utils";
@@ -45,7 +46,8 @@ function useNarrow() {
 // link editor under the selection (slice 4). Free plan (ADR 0035): plain
 // text; the toolbar is locked and its toggles go to the plans page, and the
 // shortcuts and formatted pastes do nothing. Markdown shortcuts follow the
-// plan the editor opened with.
+// plan the editor opened with. Spell check (ADR 0036): paid plans only, so
+// it follows the plan live like the lock; off on read-only documents.
 type LinkTarget = { from: number; to: number; href?: string };
 
 export function DocumentEditor({
@@ -84,8 +86,9 @@ export function DocumentEditor({
   const openLink = useRef(() => {});
   const [lock] = useState(() => createLock(!paid));
   useEffect(() => lock.set(!paid), [lock, paid]);
+  const [spelling] = useState(() => createLock(paid));
   const editor = useEditor({
-    extensions: editorExtensions({ locked: lock.get }),
+    extensions: editorExtensions({ locked: lock.get, spelling: spelling.get }),
     enableInputRules: paid,
     enablePasteRules: paid,
     content: doc,
@@ -113,6 +116,14 @@ export function DocumentEditor({
   useEffect(() => {
     editor?.setEditable(editable, false);
   }, [editor, editable]);
+
+  // After the editable effect above, so a document that becomes editable
+  // (or a plan that becomes paid) is checked from the start.
+  useEffect(() => {
+    if (!editor) return;
+    spelling.set(paid);
+    refreshSpelling(editor.view);
+  }, [editor, spelling, paid, editable]);
 
   useEffect(() => {
     openLink.current = () => {

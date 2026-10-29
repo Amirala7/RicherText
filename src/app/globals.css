@@ -456,6 +456,15 @@
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
+
+/* Spell check (ADR 0036, DESIGN.md §3): a decoration, never saved; never
+   changes the line. */
+.rt-doc .rt-misspelling {
+  text-decoration: underline wavy var(--destructive);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
+}
 /* Text size and colour (ADR 0031) */
 .rt-doc [data-size="small"] {
   font-size: 0.9375em;
