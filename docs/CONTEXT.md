@@ -63,6 +63,7 @@ A small but *complete* product: someone can discover it, pay, and use it.
 - Autosave + "saved" indicator
 - Writing font is set per document from the editor toolbar, default **Geist**; saved with the document's title, not in its content, so copy/paste is unaffected. Offered: Geist, IBM Plex Serif; nothing else (ADR 0031, 0032). Text size (Small / Default / Large) and text colour (six colours) are formatting in the editor, saved in the document (ADR 0031).
 - Copy/paste that preserves formatting to and from email / Docs / Word
+- Spell checker (paid plans): English, spelling only, runs in the browser (no text leaves the device), suggestions + Ignore; Free keeps the browser's built-in spellcheck (ADR 0036)
 
 **Out (v1) — explicitly not building:**
 - Real-time collaboration / sharing / comments
@@ -131,6 +132,7 @@ Deliberately parked; not needed for the current slice.
 Planned improvements we expect to pick up after the current slice works end-to-end.
 
 - **Export** (moved out of Phase 4 on 2026-10-21; ADR 0022 still stands): PDF and Word (.docx) first, then RTF, Markdown, HTML, plain text; paid plans only, in a Cloud Function with the entitlement check. Open choices: page size (A4 / Letter / follow the browser), fonts (PDF Geist embedded; Word default font or Geist), library (e.g. pdfmake + docx vs headless Chrome). Until then the document menu shows the export items disabled with a "Coming soon" badge; shipping it means changing the document menu test, which expects them disabled.
+- **Spell checker personal dictionary** (user, 2026-10-29): "Add to dictionary" for the in-browser spell checker (plan in `docs/plans/spell-checker.md`); v1 only has Ignore for the session. Open: kept on the device (localStorage) or synced per user in Firestore (rules + rules tests).
 - **Paste checks on real apps**: paste from the real Google Docs, Word (Windows + Mac), Outlook, Gmail, and also Word on the web and Apple Pages / Notes (not covered by the samples); copy back out into each (ADR 0030).
 - **Free plan's plain text on the server** (ADR 0035): today the toolbar lock is client-side only; Firestore rules can't look inside the content string, so a modified client could save formatting on Free. Options: save through a Cloud Function that checks marks and node types, or strip formatting from Free saves there.
 - **Plain-text copy of lists**: plain text copied out has no "- " / "1." on list items; add them if wanted (ADR 0030).
