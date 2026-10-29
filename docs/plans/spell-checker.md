@@ -1,6 +1,6 @@
 # Spell checker: implementation plan
 
-**Status: final (2026-10-29); slices 0–2 done; next: slice 3 (worker).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
+**Status: final (2026-10-29); slices 0–3 done; next: slice 4 (editor plugin).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
 
 A spelling checker for paid plans that runs entirely in the browser, in a Web Worker, so no document text leaves the device and there is no cost per user. Misspellings are ProseMirror decorations, not marks, so the schema, saved documents and autosave don't change.
 
@@ -43,10 +43,11 @@ We reuse its pattern (an idle `setTimeout` that resets on each change), not the 
 - Skips link text, URLs, email addresses, ALL CAPS words, words with digits, and words in the ignore list. Handles apostrophes ("don't", "client's") and hyphenated words.
 - Unit tests first, with a small fixed dictionary so they're fast and always give the same result.
 
-### 3. Worker: `src/lib/editor/spelling-worker.ts`
+### 3. Worker: `src/lib/editor/spelling-worker.ts` (`feat/spell-check-worker`) ✅ 2026-10-29
 - Loads the dictionary lazily (on first edit or when the editor is idle), never blocking first paint.
 - Requests carry block id + version; the caller drops out-of-date replies.
 - Tests: replies that arrive out of order, only the latest one used; the dictionary loads only once.
+- Built as `createSpellService` (in the worker, entry `spelling.worker.ts`) and `createSpellClient` (in the editor; `check()` resolves to `null` when out of date, `warm()` preloads). Dictionary files are copied to `public/dictionaries/en-US/`; a test keeps them equal to the installed `dictionary-en`. A failed load replies "nothing found" and is retried on the next request.
 
 ### 4. Editor plugin: `SpellCheck` extension
 - In `editorExtensions` only (like `Placeholder`), not `documentExtensions`.
