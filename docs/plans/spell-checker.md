@@ -1,6 +1,6 @@
 # Spell checker: implementation plan
 
-**Status: final (2026-10-29); slices 0–1 done, slice 2 (checker core) in progress.** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
+**Status: final (2026-10-29); slices 0–2 done; next: slice 3 (worker).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
 
 A spelling checker for paid plans that runs entirely in the browser, in a Web Worker, so no document text leaves the device and there is no cost per user. Misspellings are ProseMirror decorations, not marks, so the schema, saved documents and autosave don't change.
 
@@ -37,8 +37,8 @@ We reuse its pattern (an idle `setTimeout` that resets on each change), not the 
 - Output: confirm the engine in ADR 0036 (or revise it, with the user).
 - ✅ Done 2026-10-29, engine confirmed by the user. Results: 190 KB gzipped (163 KB brotli), start-up 55 ms, a paragraph 0.3 ms, 5,000 words 3 ms; `suggest()` 1–7 ms for common typos, 40–74 ms with no close match. nspell's order is poor ("teh" → "the" 9th), so we re-rank; hyphenated words are flagged whole, so the core checks each part.
 
-### 2. Checker core: `src/lib/editor/spelling.ts` (`feat/spell-check-core`)
-- `findMisspellings(text, ignore, dict)`: text of one block + ignore list → `Issue[]` `{ from, to, word }`, offsets relative to the block. No suggestions here (they can take ~70 ms per word).
+### 2. Checker core: `src/lib/editor/spelling.ts` (`feat/spell-check-core`) ✅ 2026-10-29
+- `findMisspellings(text, { dict, ignore, skip })`: text of one block + ignore list + ranges to skip (link text) → `{ from, to, word }[]`, offsets relative to the block. No suggestions here (they can take ~70 ms per word).
 - `suggestionsFor(word, dict)`: called only when the menu opens; at most 5, re-ranked: swapped letters first, then the typed word's capitalisation, then nspell's order.
 - Skips link text, URLs, email addresses, ALL CAPS words, words with digits, and words in the ignore list. Handles apostrophes ("don't", "client's") and hyphenated words.
 - Unit tests first, with a small fixed dictionary so they're fast and always give the same result.
