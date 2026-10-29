@@ -3,7 +3,7 @@ import { Placeholder } from "@tiptap/extensions";
 import StarterKit from "@tiptap/starter-kit";
 import { PasteCleanup } from "./paste";
 import { PlainTextLock } from "./plain-text";
-import { SpellCheck } from "./spell-check";
+import { SpellCheck, type SpellTarget } from "./spell-check";
 import type { SpellClient } from "./spelling-worker";
 import { TextColorMark, TextSizeMark, TextStyleClipboard } from "./text-style";
 
@@ -17,11 +17,15 @@ const LINK = /^(https?:|mailto:)/i;
 
 // `locked` is the Free plan's plain-text lock (ADR 0035): while it's true,
 // typed addresses aren't linked. `spelling` turns our spell check on (paid
-// plans, ADR 0036); `spellClient` replaces its worker in tests.
+// plans, ADR 0036); `spellClient` replaces its worker in tests and
+// `spellIgnored` the session's ignore list; `onSpellSuggest` opens the
+// suggestions menu.
 type Options = {
   locked?: () => boolean;
   spelling?: () => boolean;
   spellClient?: () => SpellClient;
+  spellIgnored?: Set<string>;
+  onSpellSuggest?: (target: SpellTarget) => void;
 };
 
 export function documentExtensions({
@@ -62,6 +66,8 @@ export function editorExtensions(options: Options = {}): Extensions {
     SpellCheck.configure({
       enabled: options.spelling ?? (() => false),
       ...(options.spellClient && { client: options.spellClient }),
+      ...(options.spellIgnored && { ignored: options.spellIgnored }),
+      ...(options.onSpellSuggest && { onSuggest: options.onSpellSuggest }),
     }),
   ];
 }

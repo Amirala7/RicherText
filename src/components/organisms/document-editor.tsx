@@ -11,13 +11,20 @@ import { EditorToolbar } from "@/components/molecules/editor-toolbar";
 import { LinkEditor } from "@/components/molecules/link-editor";
 import { Notice } from "@/components/molecules/notice";
 import { SavedIndicator } from "@/components/molecules/saved-indicator";
+import { SpellingMenu } from "@/components/molecules/spelling-menu";
 import { AccountMenu } from "@/components/organisms/account-menu";
 import { DocumentMenu } from "@/components/organisms/document-menu";
 import { TITLE_MAX, type DocumentJson } from "@/lib/documents/model";
 import type { SaveState } from "@/lib/editor/autosave";
 import { createLock } from "@/lib/editor/plain-text";
 import { editorExtensions } from "@/lib/editor/schema";
-import { refreshSpelling } from "@/lib/editor/spell-check";
+import {
+  closeSpellingMenu,
+  ignoreMisspelling,
+  refreshSpelling,
+  replaceMisspelling,
+  type SpellTarget,
+} from "@/lib/editor/spell-check";
 import { onScreenSelection } from "@/lib/editor/selection";
 import type { WritingFont } from "@/lib/settings/writing";
 import { cn } from "@/lib/utils";
@@ -47,7 +54,8 @@ function useNarrow() {
 // text; the toolbar is locked and its toggles go to the plans page, and the
 // shortcuts and formatted pastes do nothing. Markdown shortcuts follow the
 // plan the editor opened with. Spell check (ADR 0036): paid plans only, so
-// it follows the plan live like the lock; off on read-only documents.
+// it follows the plan live like the lock; off on read-only documents. A
+// click on an underlined word or ⌘; opens its suggestions under it.
 type LinkTarget = { from: number; to: number; href?: string };
 
 export function DocumentEditor({
@@ -82,13 +90,18 @@ export function DocumentEditor({
   const [title, setTitle] = useState(initialTitle);
   const [font, setFont] = useState(initialFont);
   const [link, setLink] = useState<LinkTarget | null>(null);
+  const [misspelling, setMisspelling] = useState<SpellTarget | null>(null);
   const narrow = useNarrow();
   const openLink = useRef(() => {});
   const [lock] = useState(() => createLock(!paid));
   useEffect(() => lock.set(!paid), [lock, paid]);
   const [spelling] = useState(() => createLock(paid));
   const editor = useEditor({
-    extensions: editorExtensions({ locked: lock.get, spelling: spelling.get }),
+    extensions: editorExtensions({
+      locked: lock.get,
+      spelling: spelling.get,
+      onSpellSuggest: setMisspelling,
+    }),
     enableInputRules: paid,
     enablePasteRules: paid,
     content: doc,
@@ -138,6 +151,13 @@ export function DocumentEditor({
     editor?.commands.focus();
   }
 
+  function closeMisspelling() {
+    setMisspelling(null);
+    if (!editor) return;
+    closeSpellingMenu(editor.view);
+    editor.commands.focus();
+  }
+
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex h-bar min-w-0 items-center gap-5 border-b border-border bg-background px-6 max-sm:h-auto max-sm:flex-wrap max-sm:gap-2 max-sm:p-3">
@@ -185,6 +205,18 @@ export function DocumentEditor({
               closeLink();
             }}
             onClose={closeLink}
+          />
+        )}
+        {editor && misspelling && (
+          <SpellingMenu
+            key={`${misspelling.from}:${misspelling.word}`}
+            anchor={posToDOMRect(editor.view, misspelling.from, misspelling.to)}
+            suggestions={misspelling.suggestions}
+            onPick={(word) =>
+              replaceMisspelling(editor.view, misspelling, word)
+            }
+            onIgnore={() => ignoreMisspelling(editor.view, misspelling.word)}
+            onClose={closeMisspelling}
           />
         )}
         <span className="h-px min-w-0 flex-1" />

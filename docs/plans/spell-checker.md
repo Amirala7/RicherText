@@ -1,6 +1,6 @@
 # Spell checker: implementation plan
 
-**Status: final (2026-10-29); slices 0–4 done; next: slice 5 (suggestions menu).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
+**Status: final (2026-10-29); slices 0–5 done; next: slice 6 (manual test by the user).** Decision: ADR 0036. Design: approved, see `docs/presentation/spell-check-proposal.html` and `docs/DESIGN.md` §3.
 
 A spelling checker for paid plans that runs entirely in the browser, in a Web Worker, so no document text leaves the device and there is no cost per user. Misspellings are ProseMirror decorations, not marks, so the schema, saved documents and autosave don't change.
 
@@ -57,11 +57,12 @@ We reuse its pattern (an idle `setTimeout` that resets on each change), not the 
 - Tests: decorations follow typing above them; an edited word loses its underline until it's checked again; `getJSON()` unchanged; nothing runs on Free or on read-only documents.
 - Built in `src/lib/editor/spell-check.ts`; `refreshSpelling(view)` rechecks the whole document when the plan or editable changes. Changed from the plan: no "visible blocks first". The whole document is sent in document order, since 5,000 words take about 3 ms. A reply is used only if the block's text is still the same as when it was sent. Underline CSS in `globals.css` (`.rt-misspelling`). Checked in a real browser (light, dark, 360 px): the worker loads and underlines show; no document text in non-Firestore requests.
 
-### 5. Suggestions menu
+### 5. Suggestions menu (`feat/spell-check-menu`) ✅ 2026-10-29
 - Opens on click/tap on an underlined word, or with ⌘; / Ctrl+; (`preventDefault`, so the browser's own "Check Document Now" doesn't run on paid plans). Positioned under the word, kept 16px inside the screen edges on phones (like the link editor).
 - Up to 5 suggestions, divider, Ignore; "No suggestions" label when empty. The word is tinted while its menu is open. Arrows / Enter / Esc; focus goes back to the text.
 - Picking a suggestion replaces the word in one transaction (one undo step) and keeps its marks. Ignore adds the word to the session's ignore list and removes its underlines everywhere.
 - Tests (Testing Library): the menu shows up to 5 suggestions, keyboard navigation works, a pick is one undo step and keeps bold/italic, Ignore clears every instance of the word.
+- Built as `SpellingMenu` (`src/components/molecules/spelling-menu.tsx`: a Radix DropdownMenu opened from an empty box over the word; it's modal, so the page can't scroll away) and, in the plugin, `onSuggest` + `replaceMisspelling` / `ignoreMisspelling` / `closeSpellingMenu`. Suggestions are fetched before the menu opens, so it never changes size. The ignore list lasts for the tab (every document) and is sent with each check. Checked in a real browser (light, dark, 360 px with tap).
 
 ### 6. Manual test by the user, then docs + merge + deploy
 Checked by hand on the emulators, in light and dark mode and at phone width:

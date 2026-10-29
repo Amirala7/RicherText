@@ -465,6 +465,10 @@
   text-underline-offset: 3px;
   text-decoration-skip-ink: none;
 }
+/* The word whose suggestions menu is open. */
+.rt-doc .rt-misspelling-open {
+  background: color-mix(in oklab, var(--destructive) 12%, transparent);
+}
 /* Text size and colour (ADR 0031) */
 .rt-doc [data-size="small"] {
   font-size: 0.9375em;
